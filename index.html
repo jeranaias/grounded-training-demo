@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SchoolCircle — Marksmanship</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Design language borrowed from Zirkl — "cosmos + cellular": bioluminescent life
+     in a dark void. Grounded knowledge glows and lives; a refusal is an organism
+     that won't form. Numbers wear one warm mono, and only numbers do. It is also a
+     real LMS: a course index, section tiles, activity completion, a graded quiz —
+     Moodle's bones, a better skin. Two full worlds: deep-space night, daylight tide-pool. */
+
+  :root{ /* LIGHT — daylight tide-pool (base) */
+    --void:#e9eff8; --void-deep:#dde6f2;
+    --surface:rgba(255,255,255,.74); --surface-2:rgba(255,255,255,.52); --panel:rgba(255,255,255,.6);
+    --border:rgba(40,72,140,.14); --border-lit:rgba(11,160,145,.42);
+    --text:#37415a; --dim:#6b7690; --bright:#0f1729; --faint:#9aa4bd;
+    --glow:#0a9c8d; --glow-2:#4f6fe0; --glow-soft:rgba(11,160,145,.15);
+    --assess:#c02d78; --assess-soft:rgba(192,45,120,.12);
+    --glow-shadow:0 10px 30px rgba(40,72,140,.10); --lift:0 2px 10px rgba(40,72,140,.08);
+    --readout:#b15e10; --readout-dim:rgba(177,94,16,.5);
+    --danger:#cf3f3f; --danger-bg:rgba(207,63,63,.07); --ok:#0a9c8d;
+    --mote1:rgba(11,160,145,.16); --mote2:rgba(79,111,224,.14); --mote3:rgba(210,140,40,.10);
+    --grid:rgba(40,72,140,.07); --track:rgba(40,72,140,.10);
+    --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --void:#05060b; --void-deep:#020208;
+    --surface:rgba(16,20,36,.55); --surface-2:rgba(22,28,48,.5); --panel:rgba(10,13,24,.6);
+    --border:rgba(120,150,220,.14); --border-lit:rgba(110,242,224,.35);
+    --text:#cbd3e6; --dim:#7c86a3; --bright:#f4f7ff; --faint:#59627e;
+    --glow:#6ef2e0; --glow-2:#8aa2ff; --glow-soft:rgba(110,242,224,.16);
+    --assess:#ff8ad0; --assess-soft:rgba(255,138,208,.12);
+    --glow-shadow:0 22px 55px rgba(0,0,0,.5); --lift:0 4px 18px rgba(0,0,0,.4);
+    --readout:#ffb673; --readout-dim:rgba(255,182,115,.5);
+    --danger:#ff8a8a; --danger-bg:rgba(255,138,138,.10); --ok:#6ef2e0;
+    --mote1:rgba(110,242,224,.20); --mote2:rgba(138,162,255,.18); --mote3:rgba(255,182,115,.10);
+    --grid:rgba(120,150,220,.05); --track:rgba(2,4,10,.6);
+  }}
+  :root[data-theme="dark"]{
+    --void:#05060b; --void-deep:#020208;
+    --surface:rgba(16,20,36,.55); --surface-2:rgba(22,28,48,.5); --panel:rgba(10,13,24,.6);
+    --border:rgba(120,150,220,.14); --border-lit:rgba(110,242,224,.35);
+    --text:#cbd3e6; --dim:#7c86a3; --bright:#f4f7ff; --faint:#59627e;
+    --glow:#6ef2e0; --glow-2:#8aa2ff; --glow-soft:rgba(110,242,224,.16);
+    --assess:#ff8ad0; --assess-soft:rgba(255,138,208,.12);
+    --glow-shadow:0 22px 55px rgba(0,0,0,.5); --lift:0 4px 18px rgba(0,0,0,.4);
+    --readout:#ffb673; --readout-dim:rgba(255,182,115,.5);
+    --danger:#ff8a8a; --danger-bg:rgba(255,138,138,.10); --ok:#6ef2e0;
+    --mote1:rgba(110,242,224,.20); --mote2:rgba(138,162,255,.18); --mote3:rgba(255,182,115,.10);
+    --grid:rgba(120,150,220,.05); --track:rgba(2,4,10,.6);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:
+      radial-gradient(120% 80% at 50% -10%, var(--mote1), transparent 55%),
+      radial-gradient(90% 60% at 100% 110%, var(--mote2), transparent 55%),
+      var(--void-deep);
+    color:var(--text);font-family:var(--sans);line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .void{position:fixed;inset:0;z-index:-2;background:var(--void-deep)}
+  .mote{position:fixed;z-index:-1;border-radius:50%;filter:blur(70px);pointer-events:none;animation:drift 30s ease-in-out infinite alternate}
+  .m1{width:380px;height:380px;top:-80px;left:-40px;background:radial-gradient(circle,var(--mote1),transparent 70%)}
+  .m2{width:460px;height:460px;bottom:-140px;right:-60px;background:radial-gradient(circle,var(--mote2),transparent 70%);animation-duration:38s}
+  .m3{width:300px;height:300px;top:45%;left:52%;background:radial-gradient(circle,var(--mote3),transparent 70%);animation-duration:46s}
+  @keyframes drift{from{transform:translate(0,0)}to{transform:translate(46px,-34px)}}
+  @keyframes pulse{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+  @keyframes bloom{from{opacity:0;transform:scale(.97) translateY(8px);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .num,code,time,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--readout);letter-spacing:.01em}
+
+  /* shell */
+  .app{display:flex;flex-direction:column;height:100vh}
+  .top{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;flex:0 0 auto;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--void) 82%,transparent),color-mix(in srgb,var(--void) 30%,transparent));
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--border);z-index:20}
+  .brand{font-weight:900;font-size:18px;color:var(--bright);letter-spacing:-.02em;white-space:nowrap}
+  .gp{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--dim);white-space:nowrap}
+  .gp .n{width:7px;height:7px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow);animation:pulse 2.6s ease-in-out infinite}
+  .strip{display:flex;gap:8px;margin-left:6px;overflow:hidden}
+  .stat{display:flex;flex-direction:column;line-height:1.15;padding:5px 11px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border)}
+  .stat .v{font-family:var(--mono);font-size:14px;color:var(--readout);font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .k{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+  .stat.live .v{color:var(--glow)}
+  nav{margin-left:auto;display:flex;gap:5px;align-items:center;flex:0 0 auto}
+  nav .tab{background:transparent;border:none;color:var(--dim);font-family:var(--sans);font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;transition:.18s}
+  nav .tab:hover{color:var(--text)}
+  nav .tab.on{color:var(--void);background:var(--glow);box-shadow:0 0 22px var(--glow-soft)}
+  .theme{background:transparent;border:1px solid var(--border);color:var(--dim);border-radius:9px;width:32px;height:32px;font-size:14px;cursor:pointer;transition:.18s}
+  .theme:hover{color:var(--text);border-color:var(--border-lit)}
+
+  .grid{flex:1 1 auto;display:grid;grid-template-columns:250px 1fr 322px;min-height:0}
+  .rail,.ctx{overflow-y:auto;padding:16px 14px}
+  .rail{border-right:1px solid var(--border)}
+  .ctx{border-left:1px solid var(--border);background:color-mix(in srgb,var(--panel) 55%,transparent)}
+  .stage{overflow-y:auto;padding:24px 30px 60px}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--track);border-radius:8px}
+
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+  h1{font-size:25px;color:var(--bright);letter-spacing:-.02em;margin:0 0 4px;font-weight:800}
+  .sub{color:var(--dim);font-size:14px;margin:0 0 20px;max-width:64ch}
+  .view{animation:rise .4s ease both}
+
+  /* course index drawer (the #1 "real LMS" signal) */
+  .idxh{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:2px 4px 10px}
+  .idxprog{height:5px;background:var(--track);border-radius:999px;overflow:hidden;margin:0 4px 14px}
+  .idxprog span{display:block;height:100%;background:linear-gradient(90deg,var(--glow),var(--glow-2));box-shadow:0 0 10px var(--glow-soft);width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .isec{margin-bottom:6px}
+  .isec>.sh{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text)}
+  .isec>.sh:hover{background:var(--surface-2)}
+  .isec>.sh .ch{color:var(--faint);font-size:10px;transition:transform .2s}
+  .isec.closed>.sh .ch{transform:rotate(-90deg)}
+  .isec.closed .iacts{display:none}
+  .iact{display:flex;align-items:center;gap:9px;padding:6px 8px 6px 22px;border-radius:9px;cursor:pointer;font-size:12.5px;color:var(--dim);transition:.14s}
+  .iact:hover{background:var(--surface-2);color:var(--text)}
+  .iact.on{background:var(--surface);color:var(--bright);box-shadow:inset 2px 0 0 var(--glow)}
+  .iact .ico{width:16px;height:16px;border-radius:5px;display:grid;place-items:center;font-size:9px;flex:0 0 auto;color:#fff}
+  .ico.lesson{background:var(--glow)}.ico.quiz{background:var(--assess)}.ico.page{background:var(--glow-2)}
+  .iact .cd{margin-left:auto;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--faint);flex:0 0 auto;display:grid;place-items:center;font-size:9px}
+  .iact .cd.done{border-color:var(--glow);background:var(--glow);color:var(--void)}
+
+  /* course home */
+  .chero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:18px;backdrop-filter:blur(10px);box-shadow:var(--lift);position:relative;overflow:hidden}
+  .chero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 140% at 100% 0,var(--glow-soft),transparent 60%);pointer-events:none}
+  .chero .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  .chero h1{margin:4px 0 8px}
+  .chero .pm{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin-top:12px}
+  .cprog{flex:1;min-width:160px;height:8px;background:var(--track);border-radius:999px;overflow:hidden}
+  .cprog span{display:block;height:100%;background:linear-gradient(90deg,var(--glow),var(--glow-2));box-shadow:0 0 12px var(--glow-soft);width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+  .s0{background:var(--surface-2);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:16px}
+  .s0 .t{font-weight:700;color:var(--bright);margin-bottom:4px}
+  .s0 p{margin:0;font-size:13.5px;color:var(--dim)}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:1320px){.tiles{grid-template-columns:1fr}}
+  .tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;backdrop-filter:blur(10px);box-shadow:var(--lift);transition:.18s;position:relative;overflow:hidden}
+  .tile:hover{border-color:var(--border-lit);transform:translateY(-2px)}
+  .tile .tk{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .tile h3{font-size:16px;color:var(--bright);margin:3px 0 10px;font-weight:700}
+  .arow{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:11px;cursor:pointer;transition:.14s;border:1px solid transparent}
+  .arow:hover{background:var(--surface-2);border-color:var(--border)}
+  .arow .ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:11px;color:#fff;flex:0 0 auto}
+  .arow .al{flex:1;min-width:0}.arow .al .an{font-size:13.5px;color:var(--text);font-weight:600}
+  .arow .al .am{font-size:11px;color:var(--dim)}
+  .arow .cd{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--faint);flex:0 0 auto;display:grid;place-items:center;font-size:11px;transition:.15s}
+  .arow .cd.done{border-color:var(--glow);background:var(--glow);color:var(--void)}
+  .tprog{margin-top:12px;height:5px;background:var(--track);border-radius:999px;overflow:hidden}
+  .tprog span{display:block;height:100%;background:linear-gradient(90deg,var(--glow),var(--glow-2));width:0;transition:width .9s ease}
+
+  /* generic */
+  .btn{background:linear-gradient(180deg,var(--glow),color-mix(in srgb,var(--glow) 70%,#000));color:var(--void);border:none;border-radius:12px;padding:10px 17px;font-family:var(--sans);font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 0 24px var(--glow-soft);transition:.15s}
+  .btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--glow);border:1px solid var(--border-lit);box-shadow:none}
+  .btn.sm{padding:7px 13px;font-size:13px}
+  .back{background:none;border:none;color:var(--glow);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:12px}
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:999px;padding:4px 11px}
+  .badge .n{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow);animation:pulse 2.4s infinite}
+
+  /* organisms / cited claims */
+  .org{padding:16px 18px;border-radius:15px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;backdrop-filter:blur(10px);box-shadow:var(--lift);animation:bloom .5s cubic-bezier(.2,.8,.2,1) both;margin-bottom:12px}
+  .org::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
+  .org p{margin:0 0 8px;color:var(--text);font-size:14.5px}
+  .cite{font-family:var(--mono);font-size:11px;color:var(--glow);border:1px solid var(--border-lit);border-radius:6px;padding:1px 7px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .cite:hover{background:var(--glow-soft);box-shadow:0 0 12px var(--glow-soft)}
+  .meta{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:12px;color:var(--dim);flex-wrap:wrap}
+  .nucleus{width:8px;height:8px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow);animation:pulse 2.4s ease-in-out infinite}
+  .sl{color:var(--dim);font-size:10.5px}
+  .approve{margin-left:auto;font-size:12px;font-weight:700;color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:9px;padding:5px 11px;cursor:pointer;transition:.15s}
+  .approve.done{color:var(--void);background:var(--glow)}
+  .src{margin-top:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;display:none;animation:bloom .3s both}
+  .src.on{display:block}
+  .src .k{font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+  .src blockquote{margin:6px 0 4px;padding-left:12px;border-left:2px solid var(--glow);color:var(--bright);font-size:14px}
+  .src cite{display:block;font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--readout)}
+  .refused{padding:17px 19px;border-radius:15px;background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);position:relative;overflow:hidden;animation:bloom .5s both;margin-bottom:12px}
+  .refused::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--danger);box-shadow:0 0 14px var(--danger);opacity:.55}
+  .refused .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--danger)}
+  .refused p{margin:6px 0 0;color:var(--text);font-size:14px}.refused b{color:var(--danger)}
+  .note{color:var(--dim);font-size:12.5px;margin-top:14px}
+  .empty{color:var(--dim);text-align:center;padding:40px 18px;font-size:14px;border:1px dashed var(--border);border-radius:16px;background:var(--surface-2)}
+
+  /* flow map */
+  .flow{display:flex;gap:0;margin:14px 0;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:6px;backdrop-filter:blur(8px)}
+  .fstep{flex:1 1 0;min-width:118px;display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;position:relative;transition:.25s}
+  .fstep .fi{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:0 0 auto;background:var(--surface);border:1px solid var(--border);color:var(--dim)}
+  .fstep .fl{line-height:1.2}.fstep .fl .a{font-size:12.5px;font-weight:700;color:var(--text)}.fstep .fl .b{font-size:10.5px;color:var(--dim)}
+  .fstep.lit{background:var(--glow-soft)}
+  .fstep.lit .fi{background:var(--glow);color:var(--void);border-color:transparent;box-shadow:0 0 16px var(--glow-soft)}
+  .fstep.lit .fl .a{color:var(--bright)}
+  .fstep:not(:last-child)::after{content:"\2192";position:absolute;right:-7px;color:var(--faint);font-size:13px;z-index:1}
+
+  /* context panel bits */
+  .ctxh{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:2px 0 12px}
+  .ctxh .n{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow);animation:pulse 2s infinite}
+  .log{display:grid;gap:8px}
+  .logrow{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;padding:9px 11px;border-radius:11px;background:var(--surface-2);border:1px solid var(--border);animation:bloom .4s both}
+  .logrow .ic{font-family:var(--mono);font-weight:600;flex:0 0 auto}
+  .logrow.ok .ic{color:var(--glow)}.logrow.no .ic{color:var(--danger)}
+  .logrow .tx{flex:1;color:var(--text);min-width:0}
+  .logrow .sc{font-family:var(--mono);font-size:12px;color:var(--readout);flex:0 0 auto}
+  .logrow.no{background:var(--danger-bg);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
+  .logrow.no .sc{color:var(--danger)}
+  .logempty{color:var(--dim);font-size:12.5px;text-align:center;padding:26px 8px;border:1px dashed var(--border);border-radius:12px}
+  .modelrow{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);margin-bottom:6px;font-size:12px}
+  .modelrow .md{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 7px var(--glow);flex:0 0 auto}
+  .modelrow .mn{flex:1;color:var(--text)}.modelrow .mm{font-family:var(--mono);font-size:11px;color:var(--readout-dim)}
+  .ring{width:104px;height:104px;margin:2px auto 8px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--glow) calc(var(--p,0)*1%),var(--track) 0);transition:background 1s ease}
+  .ring::after{content:"";width:80px;height:80px;border-radius:50%;background:var(--void);grid-area:1/1}
+  .ring .l2{grid-area:1/1;z-index:1;text-align:center}.ring .l2 .n{font-family:var(--mono);font-size:22px;color:var(--glow);font-weight:600}.ring .l2 .u{font-size:10px;color:var(--dim)}
+  .up{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:11px;background:var(--surface-2);border:1px solid var(--border);font-size:12.5px;margin-bottom:6px}
+  .up .st{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+  .up.now .st{background:var(--assess);box-shadow:0 0 8px var(--assess)}
+  .up.soon .st{background:var(--readout);box-shadow:0 0 8px var(--readout-dim)}
+  .up .ut{flex:1;color:var(--text)}.up .ud{font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+  /* quiz */
+  .qwrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+  .qtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .qtop .qn{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .flag{background:none;border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--sans);cursor:pointer;transition:.15s}
+  .flag.on{color:var(--readout);border-color:var(--readout-dim)}
+  .q{font-size:19px;font-weight:700;color:var(--bright);margin-bottom:16px;line-height:1.35}
+  .opts{display:grid;gap:10px}
+  .opt{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:13px;padding:13px 15px;background:var(--surface-2);font-size:15px;cursor:pointer;transition:.16s;color:var(--text)}
+  .opt:hover{border-color:var(--border-lit)}
+  .opt .lt{font-family:var(--mono);color:var(--dim);font-size:13px}
+  .opt.sel{border-color:var(--glow);box-shadow:0 0 18px var(--glow-soft);background:var(--glow-soft)}
+  .opt.correct{border-color:var(--glow);box-shadow:0 0 22px var(--glow-soft);background:var(--glow-soft)}
+  .opt.wrong{border-color:var(--danger);background:var(--danger-bg)}
+  .conf{margin:20px 0 8px}.conf .lbl{font-size:13px;color:var(--dim);margin-bottom:9px}
+  .cbm{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .cf{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:12px;padding:10px 12px;font-family:var(--sans);cursor:pointer;transition:.16s;text-align:center}
+  .cf:hover{border-color:var(--border-lit)}
+  .cf.on{background:var(--glow);color:var(--void);border-color:transparent;box-shadow:0 0 20px var(--glow-soft)}
+  .cf .ct{font-size:13.5px;font-weight:700}.cf .cs{font-size:10.5px;opacity:.8;font-family:var(--mono)}
+  .qnav{display:flex;align-items:center;gap:10px;margin-top:20px}
+  .qgrid{display:flex;gap:7px;margin-left:auto}
+  .qb{width:30px;height:30px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--dim);font-family:var(--mono);font-size:13px;cursor:pointer;transition:.15s}
+  .qb:hover{border-color:var(--border-lit)}
+  .qb.cur{border-color:var(--glow);color:var(--glow);box-shadow:0 0 12px var(--glow-soft)}
+  .qb.ans{background:var(--glow-soft);color:var(--glow);border-color:var(--border-lit)}
+  .qb.flag{border-color:var(--readout);color:var(--readout)}
+  .calib{margin-top:16px;border-radius:14px;padding:15px 17px;font-size:14.5px;animation:bloom .4s both}
+  .calib.win{background:var(--glow-soft);border:1px solid var(--border-lit)}
+  .calib.flag{background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent)}
+  .calib b{color:var(--bright)}
+  .revq{border:1px solid var(--border);border-radius:14px;padding:15px 17px;margin-bottom:12px;background:var(--surface-2)}
+  .revq .rh{display:flex;align-items:center;justify-content:space-between;font-size:13px;margin-bottom:8px}
+  .revq .rr{font-family:var(--mono);font-size:12px}
+  .revq .rr.ok{color:var(--glow)}.revq .rr.no{color:var(--danger)}
+  .scorebig{font-family:var(--mono);font-size:40px;font-weight:600;color:var(--glow);line-height:1}
+  .scorebig.warn{color:var(--danger)}
+
+  /* insight */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:15px 16px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+  .kpi .v{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--glow);line-height:1}.kpi .v.warn{color:var(--danger)}
+  .kpi .k{font-size:11.5px;color:var(--dim);margin-top:4px}
+  .panelcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:18px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+  .cardhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:12px}
+  .cardhead h3{font-size:15px;color:var(--bright);margin:0;font-weight:700}
+  .cardhead .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .gap{display:grid;grid-template-columns:180px 1fr 46px;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--border)}
+  .gap:last-child{border-bottom:none}.gap .s{font-size:14px;color:var(--text)}
+  .bar{height:9px;background:var(--track);border-radius:999px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--glow),var(--glow-2));box-shadow:0 0 14px var(--glow-soft);width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+  .bar span.hi{background:linear-gradient(90deg,var(--readout),var(--danger));box-shadow:0 0 14px var(--danger-bg)}
+  .gap .pct{font-family:var(--mono);font-size:13px;color:var(--readout);text-align:right}
+  .scatter{position:relative;height:184px;margin:10px 0 4px;border-left:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .scatter .gl{position:absolute;left:0;right:0;border-top:1px dashed var(--grid)}
+  .blob{position:absolute;border-radius:50%;transform:translate(-50%,50%);opacity:0;background:radial-gradient(circle,var(--glow),transparent 72%);box-shadow:0 0 16px var(--glow-soft)}
+  .blob.warn{background:radial-gradient(circle,var(--danger),transparent 72%);box-shadow:0 0 18px var(--danger-bg)}
+  .blob .bn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:10px;color:var(--void);font-weight:600;white-space:nowrap}
+  .axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:5px}
+  .quad{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);top:8px;right:8px;text-align:right;line-height:1.3;z-index:2}
+  .cw{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+  .cw:last-child{border-bottom:none}
+  .cw .n{font-family:var(--mono);font-size:18px;color:var(--danger);font-weight:600;width:30px;flex:0 0 auto}
+  .cw .d{flex:1;font-size:13px;color:var(--text)}.cw .d span{color:var(--dim);font-size:12px}
+  .privacy{margin-top:6px;font-family:var(--mono);font-size:12px;color:var(--dim);background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:10px 13px}
+  .privacy b{color:var(--text)}
+
+  .conn{display:inline-flex;align-items:center;font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--border);border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .conn.on{color:var(--glow);border-color:var(--border-lit);box-shadow:0 0 12px var(--glow-soft)}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:15px 17px;margin-bottom:12px;backdrop-filter:blur(10px);box-shadow:var(--lift);position:relative;overflow:hidden}
+  .diagram::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
+  .diagram h4{margin:0 0 3px;font-size:14.5px;color:var(--bright);font-weight:700}
+  .diagram .dcap{font-size:12px;color:var(--dim);margin:0 0 12px}
+  .diagram svg{width:100%;max-width:380px;height:auto;display:block;margin:2px auto 4px}
+  .dlabel{font-family:var(--mono);font-size:10px;fill:var(--dim)}
+  .interactive{background:var(--surface-2);border:1px solid var(--border-lit);border-radius:15px;padding:14px 17px;margin-bottom:12px;box-shadow:0 0 20px var(--glow-soft)}
+  .interactive .it{font-size:13.5px;font-weight:700;color:var(--glow);margin-bottom:8px}
+  .interactive svg{width:100%;max-width:360px;height:auto;display:block;margin:0 auto 10px}
+  .sldr{width:100%;accent-color:var(--glow);cursor:pointer}
+  .istatus{font-size:12.5px;color:var(--text);margin-top:8px}
+  .gradenote{font-size:11px;color:var(--dim);margin-top:6px}
+  .ico.scenario{background:var(--glow-2)}
+  .scn{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+  .scnk{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+  .scn p{margin:0;color:var(--text);font-size:15px;line-height:1.55}
+  .choices{display:grid;gap:10px;margin-bottom:14px}
+  .choice{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--border);border-radius:13px;padding:13px 15px;background:var(--surface-2);color:var(--text);font-family:var(--sans);font-size:14.5px;cursor:pointer;transition:.16s}
+  .choice:hover{border-color:var(--border-lit);transform:translateY(-1px)}
+  .choice .cl{font-family:var(--mono);color:var(--dim);font-size:13px;flex:0 0 auto}
+  .choice.good{border-color:var(--glow);box-shadow:0 0 18px var(--glow-soft);background:var(--glow-soft)}
+  .choice.bad{border-color:var(--danger);background:var(--danger-bg)}
+  .choice.dim{opacity:.5}.choice[disabled]{cursor:default;transform:none}
+  .fb{border-radius:14px;padding:14px 16px;margin-bottom:12px;animation:bloom .4s both}
+  .fb.good{background:var(--glow-soft);border:1px solid var(--border-lit)}
+  .fb.bad{background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent)}
+  .fb p{margin:4px 0 0;color:var(--text);font-size:14px}
+  .scnwin{background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+  .pract .prow{color:var(--text);font-size:14px;padding:5px 0}
+  /* Ask the tutor */
+  .askbar{display:flex;gap:10px;margin-bottom:12px}
+  .askinput{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:13px 16px;color:var(--text);font-family:var(--sans);font-size:15px;outline:none;transition:.15s}
+  .askinput:focus{border-color:var(--glow);box-shadow:0 0 18px var(--glow-soft)}
+  .askinput::placeholder{color:var(--faint)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{background:var(--surface-2);border:1px solid var(--border);color:var(--dim);border-radius:999px;padding:7px 13px;font-family:var(--sans);font-size:12.5px;cursor:pointer;transition:.15s}
+  .chip:hover{border-color:var(--border-lit);color:var(--text)}
+  .askitem{margin-bottom:14px;animation:bloom .4s both}
+  .askq{font-size:13px;color:var(--dim);margin-bottom:7px;font-weight:600}
+  .askq::before{content:"› ";color:var(--glow)}
+  /* recommended-for-you */
+  .reco{background:linear-gradient(120deg,var(--glow-soft),transparent 70%),var(--surface);border:1px solid var(--border-lit);border-radius:16px;padding:16px 18px;margin-bottom:16px;box-shadow:0 0 24px var(--glow-soft),var(--lift)}
+  .reco .rk{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--glow);margin-bottom:5px}
+  .reco .rt{font-size:14.5px;color:var(--text);margin-bottom:11px}.reco .rt b{color:var(--bright)}
+  /* mastery bars — ctx + tiles */
+  .mrow{display:grid;grid-template-columns:64px 1fr 34px;align-items:center;gap:8px;margin-bottom:7px}
+  .mrow .ml{font-size:11px;color:var(--dim)}
+  .mtr{height:7px;background:var(--track);border-radius:999px;overflow:hidden}
+  .mtr span{display:block;height:100%;border-radius:999px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1);background:linear-gradient(90deg,var(--glow),var(--glow-2));box-shadow:0 0 10px var(--glow-soft)}
+  .mtr span.lo{background:linear-gradient(90deg,var(--readout),var(--danger));box-shadow:0 0 10px var(--danger-bg)}
+  .mrow .mpv{font-family:var(--mono);font-size:11px;color:var(--readout);text-align:right}
+  .tmeta{display:grid;grid-template-columns:56px 1fr 34px;align-items:center;gap:8px;margin-top:12px}
+  .tmlab{font-size:10.5px;color:var(--dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+  .tmtr{height:6px;background:var(--track);border-radius:999px;overflow:hidden}
+  .tmtr span{display:block;height:100%;border-radius:999px;width:0;transition:width .9s ease;background:linear-gradient(90deg,var(--glow),var(--glow-2));box-shadow:0 0 8px var(--glow-soft)}
+  .tmtr span.lo{background:linear-gradient(90deg,var(--readout),var(--danger))}
+  .tmpv{font-family:var(--mono);font-size:11px;color:var(--readout);text-align:right}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}.rail,.ctx{display:none}.strip{display:none}.conn{display:none}}
+</style>
+</head>
+<body>
+<div class="void"></div><div class="mote m1"></div><div class="mote m2"></div><div class="mote m3"></div>
+
+<div class="app">
+  <div class="top">
+    <span class="brand">SchoolCircle</span>
+    <span class="gp"><span class="n"></span> grounded by Anchor</span>
+    <span class="conn" id="conn">● offline demo</span>
+    <div class="strip">
+      <div class="stat"><span class="v">99.0%</span><span class="k">Citations right</span></div>
+      <div class="stat"><span class="v">15.8%</span><span class="k">Made-up &#8595;</span></div>
+      <div class="stat live"><span class="v" id="sGround">0</span><span class="k">Backed</span></div>
+      <div class="stat"><span class="v" id="sRef" style="color:var(--danger)">0</span><span class="k">Refused</span></div>
+      <div class="stat"><span class="v" style="color:var(--glow)">&#9679; OK</span><span class="k">On-device</span></div>
+    </div>
+    <nav>
+      <button class="tab on" data-v="course">Course</button>
+      <button class="tab" data-v="ask">Ask</button>
+      <button class="tab" data-v="practice">Quiz</button>
+      <button class="tab" data-v="insight">Insight</button>
+      <button class="theme" id="tg" title="Toggle light / dark">&#9680;</button>
+    </nav>
+  </div>
+
+  <div class="grid">
+    <aside class="rail" id="rail"></aside>
+    <main class="stage" id="stage"></main>
+    <aside class="ctx" id="ctx"></aside>
+  </div>
+</div>
+
+<script>
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+
+/* ---------- live Anchor hookup (same-origin via serve.js + SSH tunnel) ---------- */
+var ANCHOR_BASE=(location.protocol==='http:'||location.protocol==='https:')?'':null; /* null on file:// -> mock only */
+var LIVE=false;
+function setConn(on){LIVE=on;var p=$('#conn');if(p){p.textContent=on?'● live · Orin':'● offline demo';p.classList.toggle('on',on);}}
+function callAnchor(q){if(ANCHOR_BASE===null)return Promise.reject('file');
+  return fetch(ANCHOR_BASE+'/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})}).then(function(r){if(!r.ok)throw r.status;return r.json();});}
+function probeLive(){if(ANCHOR_BASE===null){setConn(false);return;}
+  fetch(ANCHOR_BASE+'/api/health').then(function(r){return r.json();}).then(function(d){setConn(!!(d&&d.ok));}).catch(function(){setConn(false);});}
+var GENQ={s5:['What is precision and accuracy of the shot?','What is the shot process?'],
+  s6:['What is a stable firing position?','What is a spot weld?'],
+  s7:['What is the aiming process?','What is desired point of impact?'],
+  s8:['What is trigger squeeze?','What is the integrated act of shooting?']};
+
+/* ---------- grounded visuals: the AI emits a spec, the front-end renders SVG ---------- */
+function lessonVisuals(sec){
+  if(sec==='s5')return diagLinkage();
+  if(sec==='s6')return diagNPA();
+  if(sec==='s7')return diagSightPicture()+intAlignSights()+diagShotProcess();
+  if(sec==='s8')return diagTriggerTimeline()+intTrigger();
+  return '';
+}
+function dcite(q,c){return '<div class="meta"><span class="nucleus"></span> diagram grounded <span class="cite" onclick="var e=this.parentNode.parentNode.querySelector(\'.src\');e&&e.classList.toggle(\'on\')">[1]</span></div>'+
+  '<div class="src"><div class="k">source passage</div><blockquote>'+q+'</blockquote><cite>'+c+'</cite></div>';}
+function diagLinkage(){function node(x,y,t){return '<rect x="'+(x-46)+'" y="'+(y-15)+'" width="92" height="30" rx="8" fill="var(--surface-2)" stroke="var(--border-lit)" stroke-width="1.5"/><text x="'+x+'" y="'+(y+5)+'" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600" font-family="Inter,sans-serif">'+t+'</text>';}
+  return '<div class="diagram"><h4>◈ The functional elements</h4><div class="dcap">Shooter, weapon, environment, and target link through every shot — the manual’s framing.</div>'+
+  '<svg viewBox="0 0 360 210" role="img" aria-label="Functional elements linkage">'+
+  '<line x1="70" y1="45" x2="180" y2="105" stroke="var(--glow)" stroke-width="1.3" opacity=".6"/><line x1="290" y1="45" x2="180" y2="105" stroke="var(--glow)" stroke-width="1.3" opacity=".6"/>'+
+  '<line x1="70" y1="165" x2="180" y2="105" stroke="var(--glow)" stroke-width="1.3" opacity=".6"/><line x1="290" y1="165" x2="180" y2="105" stroke="var(--glow)" stroke-width="1.3" opacity=".6"/>'+
+  '<circle cx="180" cy="105" r="34" fill="var(--glow-soft)" stroke="var(--glow)" stroke-width="2"/><text x="180" y="110" text-anchor="middle" fill="var(--glow)" font-size="13" font-weight="700" font-family="Inter,sans-serif">SHOT</text>'+
+  node(70,45,'Shooter')+node(290,45,'Weapon')+node(70,165,'Environment')+node(290,165,'Target')+
+  '</svg>'+dcite('The functional elements of the shot process are the linkage between the Soldier, the weapon system, the environment, and the target that directly impact the shot process.','TC 3-22.9 (May 2016, Ch 3), Ch 5 “Functional Elements of the Shot Process”, para 1, p.5-3')+'</div>';}
+function diagNPA(){return '<div class="diagram"><h4>◈ Natural point of aim</h4><div class="dcap">Relax the muscles and the barrel settles to its natural point of aim — move the body to bring it onto the target.</div>'+
+  '<svg viewBox="0 0 360 170" role="img" aria-label="Natural point of aim">'+
+  '<circle cx="300" cy="60" r="22" fill="var(--glow-soft)" stroke="var(--glow-2)" stroke-width="1.5"/><circle cx="300" cy="60" r="3" fill="var(--danger)"/><text class="dlabel" x="276" y="30">target</text>'+
+  '<circle cx="60" cy="120" r="9" fill="var(--text)" opacity=".7"/><text class="dlabel" x="40" y="150">shooter</text>'+
+  '<line x1="66" y1="116" x2="298" y2="62" stroke="var(--glow)" stroke-width="2.5"/>'+
+  '<line x1="66" y1="116" x2="300" y2="112" stroke="var(--readout)" stroke-width="1.6" stroke-dasharray="5 4"/>'+
+  '<text class="dlabel" x="150" y="80" fill="var(--glow)">natural point of aim</text><text class="dlabel" x="150" y="132" fill="var(--readout)">muscled = drifts back</text>'+
+  '</svg>'+dcite('The natural point of aim is the point where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.','TC 3-22.9 (May 2016, Ch 3), Ch 6 “Natural Point of Aim”, para 2, p.6-4')+'</div>';}
+function diagTriggerTimeline(){function seg(x,w,t,hot){return '<rect x="'+x+'" y="44" width="'+w+'" height="26" rx="6" fill="'+(hot?'var(--glow-soft)':'var(--surface-2)')+'" stroke="'+(hot?'var(--glow)':'var(--border)')+'" stroke-width="1.3"/><text x="'+(x+w/2)+'" y="61" text-anchor="middle" fill="var(--text)" font-size="10" font-family="Inter,sans-serif">'+t+'</text>';}
+  return '<div class="diagram"><h4>◈ Trigger control &amp; follow-through</h4><div class="dcap">Hold the sights through the break — trigger control lasts until the bullet leaves the muzzle, then follow-through continues.</div>'+
+  '<svg viewBox="0 0 360 108" role="img" aria-label="Trigger timeline">'+
+  seg(6,78,'take slack',false)+seg(88,84,'press straight',false)+seg(176,54,'break',true)+seg(234,120,'HOLD',true)+
+  '<line x1="234" y1="36" x2="234" y2="76" stroke="var(--readout)" stroke-width="1.5"/><text class="dlabel" x="198" y="28" fill="var(--readout)">bullet leaves muzzle</text>'+
+  '</svg>'+dcite('Trigger control is the act of firing the weapon while maintaining proper aim and adequate stabilization until the bullet leaves the muzzle.','TC 3-22.9 (May 2016, Ch 3), Ch 8 “Trigger Control”, para 2, p.8-2')+'</div>';}
+function intTrigger(){return '<div class="interactive"><div class="it">◉ Try it — press the trigger</div>'+
+  '<svg viewBox="0 0 340 92" role="img" aria-label="Trigger press">'+
+  '<circle cx="170" cy="46" r="34" fill="none" stroke="var(--dim)" stroke-width="2" opacity=".5"/><circle cx="170" cy="46" r="16" fill="var(--glow-soft)" stroke="var(--glow-2)"/><circle id="tdot" cx="170" cy="46" r="5" fill="var(--glow)"/></svg>'+
+  '<input class="sldr" type="range" min="0" max="100" value="18" oninput="updateTrigger(this.value)" aria-label="press rate">'+
+  '<div class="istatus" id="tstat">Slide slowly for a smooth press · quickly to jerk it.</div>'+
+  '<div class="gradenote">A straight, controlled press keeps the sights centered; a jerk pulls the shot — graded against TC 3-22.9, Ch 8.</div></div>';}
+window.updateTrigger=function(v){v=+v;var dot=document.getElementById('tdot'),s=document.getElementById('tstat');if(!s)return;
+  if(v<=35){if(dot){dot.setAttribute('cx',170);dot.setAttribute('cy',46);dot.setAttribute('fill','var(--glow)');}s.innerHTML='<span style="color:var(--glow);font-weight:700">✓ Clean break</span> — the sights stayed centered through the shot.';}
+  else{var off=(v-35)/65*22;if(dot){dot.setAttribute('cx',(170-off).toFixed(1));dot.setAttribute('cy',(46+off*0.7).toFixed(1));dot.setAttribute('fill','var(--danger)');}s.innerHTML='Jerked — the shot pulled <span class="num">low-left</span>. Press straight to the rear instead.';}};
+function diagSightPicture(){return '<div class="diagram"><h4>◈ Sight picture</h4>'+
+  '<div class="dcap">Generated from the cited passage — front sight post centered in the rear aperture, tip level with target center mass.</div>'+
+  '<svg viewBox="0 0 340 200" role="img" aria-label="Sight picture diagram">'+
+  '<circle cx="170" cy="104" r="80" fill="none" stroke="var(--dim)" stroke-width="2" opacity=".5"/>'+
+  '<circle cx="170" cy="90" r="36" fill="var(--glow-soft)" stroke="var(--glow-2)" stroke-width="1.5"/>'+
+  '<circle cx="170" cy="90" r="4" fill="var(--danger)"/>'+
+  '<rect x="162" y="90" width="16" height="66" rx="3" fill="var(--glow)" opacity=".92"/>'+
+  '<line x1="248" y1="62" x2="214" y2="96" stroke="var(--dim)" stroke-width="1"/>'+
+  '<text class="dlabel" x="250" y="60">rear aperture</text>'+
+  '<text class="dlabel" x="112" y="182">front sight post · centered</text>'+
+  '<text class="dlabel" x="182" y="44">target center mass</text>'+
+  '</svg><div class="meta"><span class="nucleus"></span> diagram grounded <span class="cite" onclick="var e=this.parentNode.parentNode.querySelector(\'.src\');e&&e.classList.toggle(\'on\')">[1]</span></div>'+
+  '<div class="src"><div class="k">source passage</div><blockquote>Sight alignment is the relationship between the aiming device and the firer’s eye. Sight picture is the placement of the aligned sights on the target.</blockquote><cite>TC 3-22.9 (May 2016, Ch 3), Ch 7 “Desired Point of Impact”, para 1, p.7-5</cite></div></div>';}
+function intAlignSights(){return '<div class="interactive"><div class="it">◉ Try it — align the sights</div>'+
+  '<svg viewBox="0 0 340 168" role="img" aria-label="Align the sights">'+
+  '<line x1="170" y1="26" x2="170" y2="150" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3"/>'+
+  '<circle cx="170" cy="90" r="68" fill="none" stroke="var(--dim)" stroke-width="2" opacity=".5"/>'+
+  '<circle cx="170" cy="78" r="30" fill="var(--glow-soft)" stroke="var(--glow-2)"/>'+
+  '<rect id="fpost" x="128" y="78" width="16" height="54" rx="3" fill="var(--readout)"/></svg>'+
+  '<input class="sldr" type="range" min="0" max="100" value="12" oninput="updateSights(this.value)" aria-label="move front sight">'+
+  '<div class="istatus" id="istat">Slide to center the front sight post in the aperture.</div>'+
+  '<div class="gradenote">The doctrine sight picture is centered. Off-center, the shot strings the same direction — graded against TC 3-22.9, Ch 7.</div></div>';}
+window.updateSights=function(v){v=+v;var off=(v-50)*1.32;var p=document.getElementById('fpost');if(p)p.setAttribute('x',(128+off).toFixed(1));var s=document.getElementById('istat');if(!s)return;
+  if(Math.abs(v-50)<=4){s.innerHTML='<span style="color:var(--glow);font-weight:700">✓ Aligned</span> — front sight centered in the aperture: the doctrine sight picture.';if(p)p.setAttribute('fill','var(--glow)');}
+  else{s.innerHTML='Off-center by <span class="num">'+Math.round(Math.abs(v-50))+'</span> — the shot will string '+(v<50?'left':'right')+'.';if(p)p.setAttribute('fill','var(--readout)');}};
+function diagShotProcess(){function box(x,t,dash){return '<rect x="'+x+'" y="34" width="86" height="42" rx="9" fill="var(--surface-2)" stroke="'+(dash?'var(--danger)':'var(--border-lit)')+'" stroke-width="1.5"'+(dash?' stroke-dasharray="4 3"':'')+'/><text x="'+(x+43)+'" y="59" text-anchor="middle" fill="'+(dash?'var(--danger)':'var(--text)')+'" font-size="12" font-family="var(--sans)" font-weight="600">'+t+'</text>';}
+  return '<div class="diagram"><h4>◈ The shot process — three phases</h4>'+
+  '<div class="dcap">The manual defines three phases. A “fourth phase” is exactly what the fact-checker refuses.</div>'+
+  '<svg viewBox="0 0 372 96" role="img" aria-label="Shot process phases">'+
+  box(2,'Pre-shot')+box(104,'Shot')+box(206,'Post-shot')+box(300,'4th?',true)+
+  '<text x="94" y="60" fill="var(--faint)" font-size="15">→</text><text x="196" y="60" fill="var(--faint)" font-size="15">→</text>'+
+  '<line x1="300" y1="34" x2="386" y2="76" stroke="var(--danger)" stroke-width="1.5" opacity=".7"/>'+
+  '</svg><div class="meta"><span class="nucleus"></span> diagram grounded <span class="cite" onclick="var e=this.parentNode.parentNode.querySelector(\'.src\');e&&e.classList.toggle(\'on\')">[1]</span></div>'+
+  '<div class="src"><div class="k">source passage</div><blockquote>Aiming is a continuous process conducted through pre-shot, shot, and post-shot.</blockquote><cite>TC 3-22.9 (May 2016, Ch 3), Ch 6 “Aiming”, para 3</cite></div></div>';}
+function refusedCard(text,flag){return '<div class="refused"><div class="k">refused — would not form</div>'+
+  '<p>Asked for <b>“the four phases of the shot process.”</b> '+esc(text)+' The fact-checker scored the premise at <span class="num">'+flag+'</span> and declined — <b>nothing ungrounded ships.</b></p></div>';}
+function liveClaimCard(d){var c=(d.citations&&d.citations[0])?d.citations[0].citation:'';var i='L'+Math.floor(state.ground);
+  return '<div class="org"><p>'+esc(d.text)+' <span class="cite" data-i="'+i+'">[1]</span></p>'+
+  '<div class="meta"><span class="nucleus"></span> <span class="badge" style="padding:2px 9px">● live · Orin</span> backed by the source<button class="approve done">✓ approved</button></div>'+
+  '<div class="src" data-src="'+i+'"><div class="k">source passage</div><cite>'+esc(c)+'</cite></div></div>';}
+
+$('#tg').onclick=function(){var r=document.documentElement,cur=r.getAttribute('data-theme');
+  if(!cur)cur=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');};
+
+/* ---------- board-verified content (TC 3-22.9) ---------- */
+var CLAIMS={
+  s5:[{t:"The functional elements of the shot process are the linkage between the shooter, the weapon, the environment, and the target that drive a consistent shot.",q:"The functional elements of the shot process are the linkage between the Soldier, the weapon system, the environment, and the target that directly impact the shot process.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 5 “Functional Elements of the Shot Process”, para 1, p.5-3",s:"0.95",lab:"functional elements"}],
+  s6:[{t:"Natural point of aim is where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.",q:"The natural point of aim is the point where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 6 “Natural Point of Aim”, para 2, p.6-4",s:"0.94",lab:"natural point of aim"}],
+  s7:[{t:"Sight alignment is the relationship between the aiming device and the firer’s eye; sight picture is the placement of the aligned sights on the target.",q:"Sight alignment is the relationship between the aiming device and the firer’s eye. Sight picture is the placement of the aligned sights on the target.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 7 “Desired Point of Impact”, para 1, p.7-5",s:"0.96",lab:"sight alignment vs picture"},
+      {t:"Aiming is a continuous process carried out through pre-shot, shot, and post-shot — three phases, not four.",q:"Aiming is a continuous process conducted through pre-shot, shot, and post-shot to effectively apply lead and elevation during a target engagement.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 6 “Aiming”, para 3",s:"0.93",lab:"three phases"}],
+  s8:[{t:"Trigger control is firing the weapon while keeping proper aim and stabilization until the bullet leaves the muzzle.",q:"Trigger control is the act of firing the weapon while maintaining proper aim and adequate stabilization until the bullet leaves the muzzle.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 8 “Trigger Control”, para 2, p.8-2",s:"0.95",lab:"trigger control"},
+      {t:"Follow-through is continuing to apply the shot-process elements after the shot has fired.",q:"Follow-through is the continued mental and physical application of the functional elements of the shot process after the shot has been fired.",c:"TC 3-22.9 (May 2016, Ch 3), Ch 8 “Follow-Through”, para 1, p.8-7",s:"0.95",lab:"follow-through"}]
+};
+var COURSE={
+  sections:[
+    {id:'s0',n:'Orientation',intro:true,acts:[{id:'a0',t:'Start here — how this course works',kind:'page',m:'Page',done:true}]},
+    {id:'s5',n:'Ch 5 · Functional Elements',acts:[{id:'s5',t:'Lesson: The shot process & its elements',kind:'lesson',m:'Reading · cited',done:true}]},
+    {id:'s6',n:'Ch 6 · Stability & Natural Point of Aim',acts:[{id:'s6',t:'Lesson: Stability and natural point of aim',kind:'lesson',m:'Reading · cited',done:false}]},
+    {id:'s7',n:'Ch 7 · Aiming — Sight Alignment & Picture',acts:[{id:'s7',t:'Lesson: Sight alignment vs. sight picture',kind:'lesson',m:'Reading · cited',done:false},{id:'quiz',t:'Quiz: Aiming & the shot process',kind:'quiz',m:'3 questions · confidence-graded',done:false}]},
+    {id:'s8',n:'Ch 8 · Trigger Control & Follow-Through',acts:[{id:'s8',t:'Lesson: Trigger control & follow-through',kind:'lesson',m:'Reading · cited',done:false},{id:'s8',t:'Scenario: Diagnose the group',kind:'scenario',m:'Applied · branching decisions',done:false}]}
+  ]
+};
+var QUIZ=[
+  {stem:'How many phases make up the shot process?',opts:['Three — pre-shot, shot, post-shot','Four','Five','Two'],ans:0,
+   rat:'Aiming is conducted through pre-shot, shot, and post-shot — three phases.',c:'TC 3-22.9, Ch 6 “Aiming”, para 3'},
+  {stem:'Trigger control must be maintained until…',opts:['the bullet leaves the muzzle','the trigger resets','recoil stops','the target falls'],ans:0,
+   rat:'Trigger control keeps proper aim and stabilization until the bullet leaves the muzzle.',c:'TC 3-22.9, Ch 8 “Trigger Control”, para 2, p.8-2'},
+  {stem:'Natural point of aim is achieved when…',opts:['the shooter’s muscles are relaxed and support is achieved','the shooter forces the sights on target','the trigger is pinned to the rear','the shooter holds their breath fully'],ans:0,
+   rat:'Natural point of aim is where the barrel orients with muscles relaxed and support achieved.',c:'TC 3-22.9, Ch 6 “Natural Point of Aim”, para 2, p.6-4'}
+];
+
+/* ---------- state ---------- */
+var state={view:'course',openSection:null,ground:0,ref:0,queued:0,shown:{},mastery:{},resurface:[],assessed:false};
+function completedCount(){var d=0,tot=0;COURSE.sections.forEach(function(s){s.acts.forEach(function(a){tot++;if(a.done)d++;});});return {done:d,tot:tot,pct:Math.round(d/tot*100)};}
+function actDone(id){var f=false;COURSE.sections.forEach(function(s){s.acts.forEach(function(a){if(a.id+'::'+a.kind===id&&a.done)f=true;});});return f;}
+function markDone(secId,kind){COURSE.sections.forEach(function(s){s.acts.forEach(function(a){if(a.id===secId&&a.kind===kind)a.done=true;});});}
+
+/* ---------- left rail: course index ---------- */
+function renderRail(){
+  if(state.view==='insight'){renderRailInsight();return;}
+  var c=completedCount();
+  var h='<div class="idxh"><span>Course index</span><span class="num">'+c.done+'/'+c.tot+'</span></div>'+
+    '<div class="idxprog"><span id="idxbar"></span></div>';
+  COURSE.sections.forEach(function(s){
+    var open=(state.openSection===s.id)||(state.view==='lesson'&&curLesson===s.id)||s.id==='s0';
+    h+='<div class="isec'+(open?'':' closed')+'" data-sec="'+s.id+'"><div class="sh"><span class="ch">▾</span>'+esc(s.n)+'</div><div class="iacts">';
+    s.acts.forEach(function(a){
+      var on=(state.view==='lesson'&&curLesson===s.id&&a.kind==='lesson')||(state.view==='practice'&&a.kind==='quiz');
+      h+='<div class="iact'+(on?' on':'')+'" data-go="'+a.kind+'" data-sec="'+s.id+'"><span class="ico '+a.kind+'">'+(a.kind==='quiz'?'?':a.kind==='page'?'☰':a.kind==='scenario'?'◎':'✦')+'</span>'+esc(a.t.replace(/^(Lesson|Quiz|Page|Scenario|Start here).*?: ?/,''))+
+        '<span class="cd'+(a.done?' done':'')+'">'+(a.done?'✓':'')+'</span></div>';
+    });
+    h+='</div></div>';
+  });
+  $('#rail').innerHTML=h;
+  requestAnimationFrame(function(){setTimeout(function(){var b=$('#idxbar');if(b)b.style.width=c.pct+'%';},40);});
+  $$('#rail .sh').forEach(function(sh){sh.onclick=function(){sh.parentNode.classList.toggle('closed');};});
+  $$('#rail .iact').forEach(function(it){it.onclick=function(){var k=it.dataset.go,sec=it.dataset.sec;
+    if(k==='quiz'){go('practice');}else if(k==='scenario'){openScenario();}else{openLesson(sec);}};});
+}
+function renderRailInsight(){
+  $('#rail').innerHTML='<div class="idxh"><span>Cohort</span></div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">3rd Bn · 148 Marines</span><span class="mm">148</span></div>'+
+    '<div class="idxh" style="margin-top:16px"><span>Sections</span></div>'+
+    COURSE.sections.filter(function(s){return !s.intro;}).map(function(s){return '<div class="iact"><span class="ico lesson">✦</span>'+esc(s.n.replace(/ · .*/,''))+'</div>';}).join('')+
+    '<div class="modelrow" style="margin-top:16px"><span class="md"></span><span class="mn">attempts this week</span><span class="mm">1,204</span></div>';
+}
+
+/* ---------- right context panel ---------- */
+function renderCtx(){
+  if(state.view==='course'){ctxProgress();}
+  else if(state.view==='lesson'){ctxAnchor();}
+  else if(state.view==='scenario'){ctxScenario();}
+  else if(state.view==='ask'){ctxAsk();}
+  else if(state.view==='practice'){ctxQuizNav();}
+  else if(state.view==='insight'){ctxInsight();}
+}
+function ctxProgress(){
+  var c=completedCount();
+  var upnext;
+  if(state.assessed&&state.resurface.length){
+    var order={now:0,today:1,'+3d':2};
+    var rs=state.resurface.slice().sort(function(a,b){return (order[a.when]||9)-(order[b.when]||9);});
+    upnext='<div class="ctxh" style="margin-top:18px"><span class="n"></span> tuned to your last quiz</div>'+
+      rs.map(function(r){var cls=r.when==='now'?'now':'soon';return '<div class="up '+cls+'" style="cursor:pointer" data-sec="'+r.sec+'"><span class="st"></span><span class="ut">'+esc(r.concept)+'<br><span style="color:var(--dim);font-size:11px">'+esc(r.reason)+'</span></span><span class="ud">'+r.when+'</span></div>';}).join('');
+  }else{
+    upnext='<div class="ctxh" style="margin-top:18px"><span class="n"></span> up next</div>'+
+      '<div class="up now"><span class="st"></span><span class="ut">Quiz: Aiming & shot process</span><span class="ud">due</span></div>'+
+      '<div class="up soon"><span class="st"></span><span class="ut">Lesson: Trigger control</span><span class="ud">+1d</span></div>'+
+      '<div class="note" style="margin-top:8px">Take the quiz — the queue re-tunes to what you miss.</div>';
+  }
+  var secs=COURSE.sections.filter(function(s){return !s.intro;});
+  var mastery='<div class="ctxh" style="margin-top:18px"><span class="n"></span> mastery by section</div>'+
+    secs.map(function(s){var m=masteryOf(s.id);var lo=m<45;return '<div class="mrow"><span class="ml">'+esc(s.n.split(' · ')[0])+'</span><span class="mtr"><span class="'+(lo?'lo':'')+'" data-w="'+m+'"></span></span><span class="mpv">'+m+'%</span></div>';}).join('');
+  $('#ctx').innerHTML='<div class="ctxh"><span class="n"></span> your progress</div>'+
+    '<div class="ring" id="ring" style="--p:0"><div class="l2"><div class="n">'+c.pct+'%</div><div class="u">'+c.done+' of '+c.tot+' done</div></div></div>'+
+    '<div class="modelrow" style="justify-content:center;text-align:center"><span class="mn"><span class="num">7</span>-day streak · keep it alive</span></div>'+
+    upnext+mastery;
+  requestAnimationFrame(function(){setTimeout(function(){var r=$('#ring');if(r)r.style.setProperty('--p',c.pct);$$('#ctx .mtr span').forEach(function(x){x.style.width=(x.dataset.w||0)+'%';});},60);});
+  $$('#ctx .up[data-sec]').forEach(function(u){u.onclick=function(){openLesson(u.dataset.sec);};});
+}
+function ctxAnchor(){
+  $('#ctx').innerHTML='<div class="ctxh"><span class="n"></span> runs on this device · nothing leaves</div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">The writer</span><span class="mm">gemma</span></div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">The librarian · search</span><span class="mm">bge</span></div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">The ranker</span><span class="mm">bge-ce</span></div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">The fact-checker</span><span class="mm">HHEM</span></div>'+
+    '<div class="ctxh" style="margin-top:18px"><span class="n"></span> fact-checker · claim by claim</div>'+
+    '<div class="log" id="log"><div class="logempty">Idle — tap “Generate more” in the lesson and each claim is checked against its source here.</div></div>';
+}
+function ctxQuizNav(){
+  var h='<div class="ctxh"><span class="n"></span> questions</div><div style="display:grid;gap:8px" id="qnavbox"></div>'+
+    '<div class="ctxh" style="margin-top:18px"><span class="n"></span> confidence grading</div>'+
+    '<div class="modelrow"><span class="md"></span><span class="mn">Sure &amp; right</span><span class="mm">+3</span></div>'+
+    '<div class="modelrow"><span class="md" style="background:var(--danger);box-shadow:0 0 7px var(--danger)"></span><span class="mn">Sure &amp; wrong</span><span class="mm" style="color:var(--danger)">−6</span></div>'+
+    '<div class="modelrow"><span class="md" style="background:var(--faint);box-shadow:none"></span><span class="mn">Unsure</span><span class="mm">+1 / 0</span></div>'+
+    '<p class="note">Honest “unsure” costs nothing. Confident-but-wrong is penalised hardest — that’s the Marine we most need to find.</p>';
+  $('#ctx').innerHTML=h;renderQnavBox();
+}
+function ctxInsight(){
+  $('#ctx').innerHTML='<div class="ctxh"><span class="n"></span> confidently wrong · aggregate</div>'+
+    cw('23','“The shot process has four phases”','chose it certain — source says three')+
+    cw('17','“500 m battlesight zero”','a figure that isn’t in the pub')+
+    cw('11','“Sight picture = eye-to-sight”','that’s sight alignment, not picture')+
+    '<p class="note">Top misconceptions the class held <em>with high confidence</em>. Re-teach these first — no names attached.</p>';
+}
+function cw(n,d,s){return '<div class="cw"><div class="n">'+n+'</div><div class="d">'+d+'<br><span>'+s+'</span></div></div>';}
+
+/* ---------- center: COURSE HOME ---------- */
+function renderCourse(){
+  var c=completedCount();
+  var h='<div class="view"><div class="chero"><div class="k">Program of Instruction · grounded</div>'+
+    '<h1>Rifle Marksmanship — TC 3-22.9</h1>'+
+    '<p class="sub" style="margin:0">Every lesson is written from the manual and fact-checked before you see it. Learn it, then prove you know it — graded against the source, not a guess.</p>'+
+    '<div class="pm"><span>Progress <b class="num" style="color:var(--glow)">'+c.pct+'%</b></span><span class="cprog"><span id="cbar"></span></span><span class="num">'+c.done+'/'+c.tot+'</span> done</div></div>';
+  if(state.assessed){var w=weakestSection();h+='<div class="reco"><div class="rk">◆ Recommended for you</div><div class="rt">Your weakest area right now is <b>'+esc((w.n.split(' · ').slice(-1)[0]))+'</b> — <span class="num">'+masteryOf(w.id)+'%</span> mastery, from your last quiz. Start there.</div><button class="btn sm reco-go" data-sec="'+w.id+'">Review it →</button></div>';}
+  h+='<div class="s0"><div class="t">☰ Start here — how this course works</div><p>Five chapters from TC 3-22.9. Each has a cited reading and a short confidence-graded check. A green ring means the source backs it; a red card means the AI refused because the manual didn’t support it.</p></div>';
+  h+='<div class="tiles">';
+  COURSE.sections.filter(function(s){return !s.intro;}).forEach(function(s){
+    var sd=s.acts.filter(function(a){return a.done;}).length,st=s.acts.length,sp=Math.round(sd/st*100);
+    h+='<div class="tile" data-sec="'+s.id+'"><div class="tk">'+esc(s.n.split(' · ')[0])+'</div><h3>'+esc(s.n.split(' · ')[1]||s.n)+'</h3>';
+    s.acts.forEach(function(a){
+      h+='<div class="arow" data-go="'+a.kind+'" data-sec="'+s.id+'"><span class="ico '+a.kind+'">'+(a.kind==='quiz'?'?':a.kind==='scenario'?'◎':'✦')+'</span>'+
+        '<span class="al"><span class="an">'+esc(a.t)+'</span><span class="am">'+esc(a.m)+'</span></span>'+
+        '<span class="cd'+(a.done?' done':'')+'">'+(a.done?'✓':'')+'</span></div>';
+    });
+    var mm=masteryOf(s.id);
+    h+='<div class="tmeta"><span class="tmlab">mastery</span><span class="tmtr"><span class="'+(mm<45?'lo':'')+'" data-w="'+mm+'"></span></span><span class="tmpv">'+mm+'%</span></div>';
+    h+='<div class="tprog"><span data-w="'+sp+'"></span></div></div>';
+  });
+  h+='</div></div>';
+  $('#stage').innerHTML=h;
+  requestAnimationFrame(function(){setTimeout(function(){
+    var b=$('#cbar');if(b)b.style.width=c.pct+'%';
+    $$('.tprog span').forEach(function(x){x.style.width=(x.dataset.w||0)+'%';});
+    $$('.tmtr span').forEach(function(x){x.style.width=(x.dataset.w||0)+'%';});
+  },50);});
+  $$('.reco-go').forEach(function(b){b.onclick=function(e){e.stopPropagation();openLesson(b.dataset.sec);};});
+  $$('.tile .arow').forEach(function(r){r.onclick=function(e){e.stopPropagation();var k=r.dataset.go,sec=r.dataset.sec;if(k==='quiz')go('practice');else if(k==='scenario')openScenario();else openLesson(sec);};});
+  $$('.tile').forEach(function(t){t.onclick=function(){openLesson(t.dataset.sec);};});
+}
+
+/* ---------- center: LESSON ---------- */
+var curLesson='s7';
+function openLesson(sec){curLesson=sec;state.view='lesson';state.openSection=sec;setTabs('course');renderLesson();renderRail();renderCtx();}
+function renderLesson(){
+  var sec=COURSE.sections.filter(function(s){return s.id===curLesson;})[0];
+  var claims=CLAIMS[curLesson]||[];
+  var h='<div class="view"><button class="back" id="backc">← Course</button>'+
+    '<div class="eyebrow">'+esc(sec?sec.n:'')+' · Reading</div>'+
+    '<h1>'+esc(sec?sec.n.split(' — ').slice(-1)[0].split(' · ').slice(-1)[0]:'Lesson')+'</h1>'+
+    '<div class="toolbar"><span class="badge"><span class="n"></span> grounded · cited · instructor-approved</span>'+
+    '<button class="btn sm" id="genMore">+ Generate more from source</button>'+
+    '<button class="btn ghost sm" id="genBad">Ask for something not in the source</button></div>'+
+    '<div class="flow" id="flow">'+
+      fstep('ingest','▤','Read the manual','split &amp; screen')+fstep('retrieve','⌕','Find the passages','the exact lines')+
+      fstep('generate','✦','Write it up','citing each line')+fstep('verify','✓','Fact-check','does the source say it?')+
+      fstep('serve','◈','Show it — or refuse','only what’s backed')+
+    '</div><div id="lessonOut">';
+  claims.forEach(function(cl,i){h+=claimHTML(cl,i);});
+  h+='</div>';
+  h+=lessonVisuals(curLesson);
+  if(!actDone(curLesson+'::lesson')){h+='<button class="btn" id="markDone" style="margin-top:8px">✓ Mark lesson done</button>';}
+  else{h+='<p class="note">✓ Lesson complete. It counts toward your course progress and won’t be shown again until review.</p>';}
+  h+='</div>';
+  $('#stage').innerHTML=h;
+  $('#backc').onclick=function(){go('course');};
+  wireClaims();
+  var md=$('#markDone');if(md)md.onclick=function(){markDone(curLesson,'lesson');renderLesson();renderRail();renderCtx();};
+  var gm=$('#genMore');if(gm)gm.onclick=function(){generate(false);};
+  var gb=$('#genBad');if(gb)gb.onclick=function(){generate(true);};
+}
+function fstep(id,ic,a,b){return '<div class="fstep" data-s="'+id+'"><span class="fi">'+ic+'</span><span class="fl"><span class="a">'+a+'</span><span class="b">'+b+'</span></span></div>';}
+function claimHTML(cl,i){return '<div class="org" style="animation-delay:'+(i*70)+'ms"><p>'+esc(cl.t)+' <span class="cite" data-i="'+i+'">[1]</span></p>'+
+  '<div class="meta"><span class="nucleus"></span> backed by the source · match <span class="num">'+cl.s+'</span><span class="sl">/1</span>'+
+  '<button class="approve done">✓ approved</button></div>'+
+  '<div class="src" data-src="'+i+'"><div class="k">source passage</div><blockquote>'+esc(cl.q)+'</blockquote><cite>'+esc(cl.c)+'</cite></div></div>';}
+function wireClaims(){$$('#stage .cite').forEach(function(c){c.onclick=function(){var e=$('#stage .src[data-src="'+c.dataset.i+'"]');if(e)e.classList.toggle('on');};});}
+
+/* generate + verification theatre */
+function flowSeq(){['ingest','retrieve','generate','verify','serve'].forEach(function(s,i){setTimeout(function(){$$('#flow .fstep').forEach(function(f){f.classList.remove('lit');});var el=$('#flow .fstep[data-s="'+s+'"]');if(el)el.classList.add('lit');},reduce?0:i*170);});}
+function logReset(){var l=$('#log');if(l)l.innerHTML='';}
+function logRow(ok,tx,sc,delay){setTimeout(function(){var l=$('#log');if(!l)return;var d=document.createElement('div');d.className='logrow '+(ok?'ok':'no');d.innerHTML='<span class="ic">'+(ok?'✓':'✗')+'</span><span class="tx">'+tx+'</span>'+(sc?'<span class="sc">'+sc+'</span>':'<span class="sc">refused</span>');l.appendChild(d);l.scrollTop=l.scrollHeight;},reduce?0:delay);}
+function generate(bad){
+  var out=$('#lessonOut');if(!out)return;
+  logReset();flowSeq();
+  if(bad){
+    /* one refusal only — never duplicate it */
+    var existing=$('#lessonOut .refused');
+    if(existing){existing.style.animation='none';existing.offsetHeight;existing.style.animation='bloom .5s both';return;}
+    out.insertAdjacentHTML('beforeend','<div class="org" id="shim" style="border-style:dashed"><p style="color:var(--glow);margin:0">◍ checking the premise against the manual…</p></div>');
+    var showRef=function(text,flag){var s=$('#shim');if(s)s.remove();out.insertAdjacentHTML('beforeend',refusedCard(text,flag));state.ref++;bump();logRow(false,'“four phases of the shot process” — not in the source',null,200);};
+    callAnchor('What are the four phases of the shot process?').then(function(d){
+      var f=(d.premise_flags&&d.premise_flags[0]&&d.premise_flags[0].support!=null)?(+d.premise_flags[0].support).toFixed(2):'0.40';
+      showRef(d.text||'The manual describes three phases — pre-shot, shot, post-shot — not four.',f);
+    }).catch(function(){setTimeout(function(){showRef('The manual describes three — pre-shot, shot, post-shot. The fact-checker found nothing entailing a fourth.','0.40');},reduce?0:700);});
+    return;
+  }
+  /* generate more — deduped by question AND by citation, so it can never repeat */
+  var shown=state.shown[curLesson]||(state.shown[curLesson]={});
+  /* seed shown-citations from the claims already on the page */
+  (CLAIMS[curLesson]||[]).forEach(function(cl){shown['c:'+cl.c]=1;});
+  if(!LIVE){
+    if(!$('#genNote'))out.insertAdjacentHTML('beforeend','<div class="note" id="genNote" style="margin-top:12px">Offline demo — the pre-verified points above are the full grounded set. Connect the Orin (live) and this button pulls a <b>fresh, cited</b> point from the manual on demand.</div>');
+    return;
+  }
+  var qs=(GENQ[curLesson]||[]).slice();
+  (function tryNext(){
+    var q=null;while(qs.length){var cand=qs.shift();if(!shown[cand]){q=cand;shown[cand]=1;break;}}
+    if(!q){if(!$('#genNote'))out.insertAdjacentHTML('beforeend','<div class="note" id="genNote" style="margin-top:12px">No new source-backed points for this lesson — every grounded claim is already shown.</div>');return;}
+    out.insertAdjacentHTML('beforeend','<div class="org" id="shim" style="border-style:dashed"><p style="color:var(--glow);margin:0">◍ '+esc(q)+' …</p></div>');
+    callAnchor(q).then(function(d){var s=$('#shim');if(s)s.remove();
+      if(d.abstained||!(d.citations&&d.citations.length)){logRow(false,'“'+q+'” — not in the source',null,120);tryNext();return;}
+      var cstr=d.citations[0].citation;if(shown['c:'+cstr]){tryNext();return;}shown['c:'+cstr]=1;
+      out.insertAdjacentHTML('beforeend',liveClaimCard(d));wireClaims();state.ground++;bump();logRow(true,'“'+q+'” — backed by source','live');
+    }).catch(function(){var s=$('#shim');if(s)s.remove();if(!$('#genNote'))out.insertAdjacentHTML('beforeend','<div class="note" id="genNote" style="margin-top:12px">Couldn’t reach the tutor just now — try again, or check the Orin connection (pill up top).</div>');});
+  })();
+}
+
+/* ---------- center: QUIZ (CBM) ---------- */
+var quiz={i:0,ans:[],conf:[],flag:[],submitted:false};
+function resetQuiz(){quiz={i:0,ans:QUIZ.map(function(){return null;}),conf:QUIZ.map(function(){return null;}),flag:QUIZ.map(function(){return false;}),submitted:false,scored:false};}
+function renderQuiz(){
+  if(!quiz.ans||quiz.ans.length!==QUIZ.length)resetQuiz();
+  if(quiz.submitted){renderReview();return;}
+  var i=quiz.i,q=QUIZ[i];
+  var h='<div class="view"><div class="eyebrow">Ch 7 · Performance check · confidence-graded</div><h1>Quiz: Aiming & the shot process</h1>'+
+    '<p class="sub">Answer, then say how sure you are — <b style="color:var(--glow)">before</b> you see the result. Graded against TC 3-22.9.</p>'+
+    '<div class="qwrap"><div class="qtop"><span class="qn">Question <span class="num">'+(i+1)+'</span> of <span class="num">'+QUIZ.length+'</span></span>'+
+    '<button class="flag'+(quiz.flag[i]?' on':'')+'" id="flagb">⚑ '+(quiz.flag[i]?'Flagged':'Flag')+'</button></div>'+
+    '<div class="q">'+esc(q.stem)+'</div><div class="opts" id="opts">';
+  q.opts.forEach(function(o,j){h+='<div class="opt'+(quiz.ans[i]===j?' sel':'')+'" data-j="'+j+'"><span class="lt">'+'ABCD'[j]+'</span> '+esc(o)+'</div>';});
+  h+='</div><div class="conf"><div class="lbl">How sure are you?</div><div class="cbm" id="cbm">'+
+    cf(i,1,'Unsure','+1 / 0')+cf(i,2,'Fairly sure','+2 / −2')+cf(i,3,'Certain','+3 / −6')+'</div>';
+  h+='<div class="qnav"><button class="btn ghost sm" id="prevb"'+(i===0?' disabled style="opacity:.4"':'')+'>← Prev</button>'+
+    (i<QUIZ.length-1?'<button class="btn sm" id="nextb">Next →</button>':'<button class="btn sm" id="finishb">Finish attempt →</button>')+
+    '<div class="qgrid" id="qgrid"></div></div></div></div>';
+  $('#stage').innerHTML=h;
+  $$('#opts .opt').forEach(function(o){o.onclick=function(){quiz.ans[i]=+o.dataset.j;$$('#opts .opt').forEach(function(x){x.classList.remove('sel');});o.classList.add('sel');renderQgrid();renderQnavBox();};});
+  $$('#cbm .cf').forEach(function(b){b.onclick=function(){quiz.conf[i]=+b.dataset.c;$$('#cbm .cf').forEach(function(x){x.classList.remove('on');});b.classList.add('on');};});
+  $('#flagb').onclick=function(){quiz.flag[i]=!quiz.flag[i];renderQuiz();};
+  var pv=$('#prevb');if(pv)pv.onclick=function(){if(quiz.i>0){quiz.i--;renderQuiz();}};
+  var nx=$('#nextb');if(nx)nx.onclick=function(){quiz.i++;renderQuiz();};
+  var fn=$('#finishb');if(fn)fn.onclick=function(){
+    if(quiz.ans.indexOf(null)>=0||quiz.conf.indexOf(null)>=0){alert('Answer every question and set your confidence first — that’s the point.');return;}
+    quiz.submitted=true;renderQuiz();markDone('s7','quiz');};
+  renderQgrid();renderCtx();
+}
+function cf(i,c,t,s){return '<div class="cf'+(quiz.conf[i]===c?' on':'')+'" data-c="'+c+'"><div class="ct">'+t+'</div><div class="cs">'+s+'</div></div>';}
+function renderQgrid(){var g=$('#qgrid');if(!g)return;g.innerHTML=QUIZ.map(function(q,j){
+  var cls='qb'+(j===quiz.i?' cur':'')+(quiz.ans[j]!=null?' ans':'')+(quiz.flag[j]?' flag':'');return '<button class="'+cls+'" data-j="'+j+'">'+(j+1)+'</button>';}).join('');
+  $$('#qgrid .qb').forEach(function(b){b.onclick=function(){quiz.i=+b.dataset.j;renderQuiz();};});}
+function renderQnavBox(){var box=$('#qnavbox');if(!box)return;box.innerHTML=QUIZ.map(function(q,j){
+  var st=quiz.ans[j]!=null?'ok':'';return '<div class="up'+(st?' ':' ')+'" style="cursor:pointer" data-j="'+j+'"><span class="st" style="background:'+(quiz.ans[j]!=null?'var(--glow);box-shadow:0 0 8px var(--glow)':'var(--faint);box-shadow:none')+'"></span><span class="ut">Q'+(j+1)+' · '+esc(q.stem.slice(0,26))+'…</span><span class="ud">'+(quiz.ans[j]!=null?'answered':'—')+'</span></div>';}).join('');
+  $$('#qnavbox .up').forEach(function(u){u.onclick=function(){quiz.i=+u.dataset.j;renderQuiz();};});}
+function renderReview(){
+  if(!quiz.scored){applyQuizToMastery();quiz.scored=true;}
+  var pts=0,max=0;QUIZ.forEach(function(q,i){var ok=quiz.ans[i]===q.ans,c=quiz.conf[i];max+=c;pts+=ok?c:(c===1?0:c===2?-2:-6);});
+  var confright=0,conftot=0;QUIZ.forEach(function(q,i){if(quiz.conf[i]===3){conftot++;if(quiz.ans[i]===q.ans)confright++;}});
+  var h='<div class="view"><div class="eyebrow">Ch 7 · Review</div><h1>Your attempt</h1>'+
+    '<div class="qwrap" style="margin-bottom:16px;display:flex;align-items:center;gap:22px;flex-wrap:wrap">'+
+    '<div><div class="scorebig'+(pts<0?' warn':'')+'">'+(pts>0?'+':'')+pts+'</div><div class="note" style="margin:2px 0 0">confidence score (max +'+max+')</div></div>'+
+    '<div style="flex:1;min-width:200px"><p style="margin:0;color:var(--text);font-size:14px">'+
+    (confright<conftot?'You marked <b style="color:var(--danger)">'+ (conftot-confright) +' “certain” answer'+((conftot-confright)>1?'s':'')+' wrong</b> — the confidently-wrong case. It costs the most, and those items come back this session.':'Well calibrated — your confidence matched your accuracy. Nice work.')+
+    '</p></div></div>';
+  QUIZ.forEach(function(q,i){var ok=quiz.ans[i]===q.ans,c=['','Unsure','Fairly sure','Certain'][quiz.conf[i]];
+    h+='<div class="revq"><div class="rh"><span style="color:var(--bright);font-weight:600">Q'+(i+1)+'. '+esc(q.stem)+'</span><span class="rr '+(ok?'ok':'no')+'">'+(ok?'✓ correct':'✗ wrong')+' · '+c+'</span></div>'+
+      '<div style="font-size:13.5px;color:var(--text)">Your answer: <b style="color:'+(ok?'var(--glow)':'var(--danger)')+'">'+esc(q.opts[quiz.ans[i]])+'</b>'+(ok?'':' — correct: <b style="color:var(--glow)">'+esc(q.opts[q.ans])+'</b>')+'</div>'+
+      '<div class="note" style="margin-top:8px">'+esc(q.rat)+' <span class="cite" data-r="'+i+'">[1]</span></div>'+
+      '<div class="src" data-rs="'+i+'"><div class="k">source passage</div><blockquote>'+esc(q.rat)+'</blockquote><cite>'+esc(q.c)+'</cite></div></div>';});
+  h+='<button class="btn" id="retry" style="margin-top:6px">Retake</button> <button class="btn ghost" id="tocourse" style="margin-top:6px">← Back to course</button></div>';
+  $('#stage').innerHTML=h;
+  $$('#stage .cite').forEach(function(c){c.onclick=function(){var e=$('#stage .src[data-rs="'+c.dataset.r+'"]');if(e)e.classList.toggle('on');};});
+  $('#retry').onclick=function(){resetQuiz();renderQuiz();renderCtx();};
+  $('#tocourse').onclick=function(){go('course');};
+  renderCtx();
+}
+
+/* ---------- center: INSIGHT ---------- */
+function renderInsight(){
+  var h='<div class="view"><div class="eyebrow">Instructor · Aggregate — no per-student rows</div><h1>Class Insight</h1>'+
+    '<p class="sub">Where the class is weak, and where confidence outran knowledge — so you steer the next lesson. Aggregate by construction.</p>'+
+    '<div class="kpis"><div class="kpi"><div class="v">148</div><div class="k">Marines active this week</div></div>'+
+    '<div class="kpi"><div class="v warn">57%</div><div class="k">miss rate · Trigger Control</div></div>'+
+    '<div class="kpi"><div class="v warn">54%</div><div class="k">accuracy when “certain”</div></div></div>'+
+    '<div class="panelcard"><div class="cardhead"><h3>Miss rate by section</h3><span class="tag">warmer = weaker</span></div><div id="gaps">'+
+    gap('Sight Alignment & Picture',18,0)+gap('Functional Elements',34,0)+gap('Trigger Control',57,1)+gap('Natural Point of Aim',41,0)+gap('Follow-Through',23,0)+
+    '</div></div>'+
+    '<div class="panelcard"><div class="cardhead"><h3>Confidence vs. accuracy</h3><span class="tag">the confidently-wrong signal</span></div>'+
+    '<div class="scatter" id="scatter"><div class="gl" style="bottom:25%"></div><div class="gl" style="bottom:50%"></div><div class="gl" style="bottom:75%"></div><div class="quad">high confidence<br>low accuracy</div></div>'+
+    '<div class="axis"><span>guessing</span><span>unsure</span><span>fairly sure</span><span>certain →</span></div>'+
+    '<p class="note">Each bubble is a confidence band, sized by volume, placed by how often it was actually right. The <b style="color:var(--danger)">red bubble</b> top-right — <span class="num">certain</span> yet <span class="num">54%</span> correct — is the cohort a normal quiz never surfaces.</p></div>'+
+    '<div class="privacy">🔒 aggregate only — this view takes no learner parameter; it <b>cannot</b> return one Marine’s answers by construction.</div></div>';
+  $('#stage').innerHTML=h;
+  requestAnimationFrame(function(){setTimeout(function(){$$('#gaps .bar span').forEach(function(s){s.style.width=(s.dataset.w||0)+'%';});animScatter();},60);});
+}
+function gap(s,w,hi){return '<div class="gap"><div class="s">'+s+'</div><div class="bar"><span class="'+(hi?'hi':'')+'" data-w="'+w+'"></span></div><div class="pct">'+w+'%</div></div>';}
+function animScatter(){var sc=$('#scatter');if(!sc||sc.dataset.done)return;sc.dataset.done='1';var pts=[{x:14,y:34,r:44,w:0,n:''},{x:38,y:52,r:60,w:0,n:''},{x:62,y:74,r:70,w:0,n:''},{x:86,y:54,r:80,w:1,n:'54%'}];
+  pts.forEach(function(p,i){var b=document.createElement('div');b.className='blob'+(p.w?' warn':'');b.style.left=p.x+'%';b.style.bottom=p.y+'%';b.style.width=b.style.height='6px';if(p.n)b.innerHTML='<span class="bn">'+p.n+'</span>';sc.appendChild(b);
+    setTimeout(function(){b.style.transition='all .7s cubic-bezier(.2,.8,.2,1)';b.style.width=b.style.height=p.r+'px';b.style.opacity='.85';},reduce?0:140+i*150);});}
+
+/* ---------- center: SCENARIO (applied, branching) ---------- */
+var SCENARIO={start:'n1',nodes:{
+  n1:{sit:'Prone, 175 m target. Your first three rounds group tight — but low and left of center mass. Your position feels solid. What do you check first?',choices:[
+    {t:'My trigger control — am I disturbing the sights as it breaks?',to:'nTrig',good:true,fb:'Strong instinct. A tight group displaced as a unit points to a consistent input error, and trigger control is the usual culprit: you must keep the sights on target until the bullet leaves the muzzle.',cite:'TC 3-22.9, Ch 8 “Trigger Control”, para 2, p.8-2'},
+    {t:'My natural point of aim — is the rifle settling left of the target?',to:'nNPA',good:true,fb:'Also sound. If your NPA sits left of the target you fight the rifle back right every shot. NPA is where the barrel orients with your muscles relaxed.',cite:'TC 3-22.9, Ch 6 “Natural Point of Aim”, para 2, p.6-4'},
+    {t:'The rifle’s zero must be off — send it to the armorer.',to:'nZero',good:false,fb:'Jumping to equipment. A consistent shooter error looks identical to a bad zero — rule out your fundamentals first. (The tutor has no zeroing procedure in this corpus to back that claim, either.)',cite:null}
+  ]},
+  nTrig:{sit:'You dry-fire and watch the sights: they dip left just as the trigger breaks — you’re anticipating the recoil. What fixes it?',choices:[
+    {t:'Press straight to the rear and follow through — hold the sight picture after the break.',to:'nWin',good:true,fb:'That’s it. Trigger control maintains aim and stabilization until the bullet leaves the muzzle, and follow-through continues the shot-process elements after it fires.',cite:'TC 3-22.9, Ch 8 “Follow-Through”, para 1, p.8-7'},
+    {t:'Grip harder and slap the trigger faster to beat the wobble.',to:'nBad',good:false,fb:'That amplifies the disturbance. Speed and grip tension don’t replace a straight, controlled press.',cite:'TC 3-22.9, Ch 8 “Trigger Control”, para 2, p.8-2'}
+  ]},
+  nNPA:{sit:'You relax into the position and let the rifle settle — it points left of center mass. How do you correct the natural point of aim?',choices:[
+    {t:'Shift my whole body to move the NPA onto the target.',to:'nWin',good:true,fb:'Correct. You move NPA by repositioning the body, not by muscling the sights — the closer NPA is to the target, the less muscle support is required.',cite:'TC 3-22.9, Ch 6 “Natural Point of Aim”, para 2, p.6-4'},
+    {t:'Just push the muzzle right and hold it there for each shot.',to:'nBad',good:false,fb:'Muscling the sights over is the error — it won’t hold under recoil and the group drifts back to your true NPA.',cite:'TC 3-22.9, Ch 6 “Natural Point of Aim”, para 2, p.6-4'}
+  ]},
+  nZero:{sit:'Before touching the rifle, the coach has you fire one group with a deliberate, textbook trigger press and a settled NPA. The group centers up. What does that tell you?',choices:[
+    {t:'It was me — fundamentals, not the equipment.',to:'nWin',good:true,fb:'Right. Isolate the shooter before the hardware. The group moved because the input changed, and the functional elements tie the shooter to the shot.',cite:'TC 3-22.9, Ch 5 “Functional Elements of the Shot Process”, para 1, p.5-3'}
+  ]},
+  nBad:{sit:'The next group opens up and stays left. The coach stops you — back to fundamentals. Pick the doctrinal fix.',choices:[
+    {t:'Straight press + follow-through, and move NPA by shifting the body.',to:'nWin',good:true,fb:'Good — back on doctrine.',cite:'TC 3-22.9, Ch 8 “Trigger Control”, para 2, p.8-2'}
+  ]},
+  nWin:{end:true,sit:'You reset: NPA settled on center mass, a straight trigger press, sights held through the break. The next group centers and tightens. That is the shot process working as one.',practiced:['Diagnosed a displaced group by fundamentals, not equipment','Applied trigger control and follow-through','Corrected the natural point of aim by moving the body']}
+}};
+var scenarioState={node:'n1',picked:null};
+function openScenario(){scenarioState={node:SCENARIO.start,picked:null};state.view='scenario';setTabs('course');renderScenario();renderRail();renderCtx();}
+function renderScenario(){
+  var node=SCENARIO.nodes[scenarioState.node];
+  var h='<div class="view"><button class="back" id="backc">← Course</button>'+
+    '<div class="eyebrow">Ch 8 · Apply · Range Coach</div><h1>Scenario: Diagnose the group</h1>'+
+    '<p class="sub">Apply the fundamentals to a real coaching problem. Each choice is graded against TC 3-22.9 — right or wrong, you see why, with the citation.</p>'+
+    '<div class="scn"><div class="scnk">Situation</div><p>'+esc(node.sit)+'</p></div>';
+  if(node.end){
+    h+='<div class="scnwin"><div class="scnk">Debrief — what you practiced</div><div class="pract">';
+    node.practiced.forEach(function(p){h+='<div class="prow">✓ '+esc(p)+'</div>';});
+    h+='</div></div><button class="btn" id="scnDone" style="margin-top:8px">✓ Complete scenario</button> <button class="btn ghost" id="scnRetry" style="margin-top:8px">Run again</button></div>';
+    $('#stage').innerHTML=h;$('#backc').onclick=function(){go('course');};
+    $('#scnDone').onclick=function(){markDone('s8','scenario');go('course');};
+    $('#scnRetry').onclick=function(){openScenario();};return;
+  }
+  h+='<div class="choices">';
+  if(scenarioState.picked==null){
+    node.choices.forEach(function(c,i){h+='<button class="choice" data-i="'+i+'"><span class="cl">'+'ABCD'[i]+'</span> '+esc(c.t)+'</button>';});
+    h+='</div>';
+  }else{
+    node.choices.forEach(function(cc,i){var st=i===scenarioState.picked?(cc.good?' good':' bad'):' dim';h+='<button class="choice'+st+'" disabled><span class="cl">'+'ABCD'[i]+'</span> '+esc(cc.t)+'</button>';});
+    h+='</div>';
+    var c=node.choices[scenarioState.picked];
+    h+='<div class="fb '+(c.good?'good':'bad')+'"><div class="scnk">'+(c.good?'✓ Sound':'✗ Off-doctrine')+'</div><p>'+esc(c.fb)+(c.cite?' <span class="cite" id="scnc">[1]</span>':'')+'</p>'+
+      (c.cite?'<div class="src" id="scns"><div class="k">source passage</div><cite>'+esc(c.cite)+'</cite></div>':'')+'</div>'+
+      '<button class="btn" id="scnNext" style="margin-top:6px">Continue →</button>';
+  }
+  h+='</div>';
+  $('#stage').innerHTML=h;$('#backc').onclick=function(){go('course');};
+  if(scenarioState.picked==null){$$('#stage .choice').forEach(function(b){b.onclick=function(){scenarioState.picked=+b.dataset.i;renderScenario();};});}
+  else{var sc=$('#scnc');if(sc)sc.onclick=function(){var e=$('#scns');if(e)e.classList.toggle('on');};
+    $('#scnNext').onclick=function(){scenarioState.node=node.choices[scenarioState.picked].to;scenarioState.picked=null;renderScenario();};}
+}
+function ctxScenario(){$('#ctx').innerHTML='<div class="ctxh"><span class="n"></span> fundamentals in play</div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">Trigger control</span><span class="mm">Ch 8</span></div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">Follow-through</span><span class="mm">Ch 8</span></div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">Natural point of aim</span><span class="mm">Ch 6</span></div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">Functional elements</span><span class="mm">Ch 5</span></div>'+
+  '<p class="note">Every branch’s feedback is grounded in the cited fundamental — the scenario <b style="color:var(--text)">applies</b> doctrine, it doesn’t invent it.</p>';}
+
+/* ---------- center: ASK THE TUTOR (Operational Support) ---------- */
+var ASKCANNED=[
+  {k:['sight alignment','sight picture'],a:'Sight alignment is the relationship between the aiming device and the firer’s eye. Sight picture is the placement of the aligned sights on the target.',c:'TC 3-22.9, Ch 7 “Desired Point of Impact”, para 1, p.7-5'},
+  {k:['trigger control','trigger'],a:'Trigger control is firing the weapon while maintaining proper aim and adequate stabilization until the bullet leaves the muzzle.',c:'TC 3-22.9, Ch 8 “Trigger Control”, para 2, p.8-2'},
+  {k:['natural point of aim','npa'],a:'The natural point of aim is where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.',c:'TC 3-22.9, Ch 6 “Natural Point of Aim”, para 2, p.6-4'},
+  {k:['functional element','shot process element'],a:'The functional elements of the shot process are the linkage between the shooter, the weapon, the environment, and the target that drive a consistent shot.',c:'TC 3-22.9, Ch 5 “Functional Elements of the Shot Process”, para 1, p.5-3'},
+  {k:['follow-through','follow through'],a:'Follow-through is the continued application of the shot-process elements after the shot has fired.',c:'TC 3-22.9, Ch 8 “Follow-Through”, para 1, p.8-7'},
+  {k:['aiming process','pre-shot','pre shot'],a:'Aiming is a continuous process conducted through pre-shot, shot, and post-shot — three phases.',c:'TC 3-22.9, Ch 6 “Aiming”, para 3'},
+  {k:['point of impact','center of mass','center of visible mass'],a:'The desired point of impact is where the shooter wants the round to strike — typically the center of visible mass.',c:'TC 3-22.9, Ch 7 “Desired Point of Impact”, para 5, p.7-5'}
+];
+var ASKREFUSE=[{k:['four phases','6 phases','six phases','4 phases'],flag:'0.40',t:'The sources do not support that the shot process has four phases — the manual describes three: pre-shot, shot, post-shot.'}];
+function askLookup(q){var s=(' '+q.toLowerCase()+' ');
+  for(var i=0;i<ASKREFUSE.length;i++)for(var j=0;j<ASKREFUSE[i].k.length;j++)if(s.indexOf(ASKREFUSE[i].k[j])>=0)return {refuse:true,t:ASKREFUSE[i].t,flag:ASKREFUSE[i].flag};
+  for(var i=0;i<ASKCANNED.length;i++)for(var j=0;j<ASKCANNED[i].k.length;j++)if(s.indexOf(ASKCANNED[i].k[j])>=0)return {a:ASKCANNED[i].a,c:ASKCANNED[i].c};
+  return {refuse:true,t:'I can’t answer that from the doctrine on this device — nothing in the indexed corpus supports it.',flag:null};}
+function answerInline(res){return '<div class="org"><p>'+esc(res.a)+' <span class="cite" onclick="var e=this.closest(\'.org\').querySelector(\'.src\');e&&e.classList.toggle(\'on\')">[1]</span></p>'+
+  '<div class="meta"><span class="nucleus"></span> '+(LIVE?'<span class="badge" style="padding:2px 9px">● live · Orin</span> ':'')+'backed by the source</div>'+
+  '<div class="src"><div class="k">source passage</div><cite>'+esc(res.c)+'</cite></div></div>';}
+function refusedInline(res){return '<div class="refused"><div class="k">refused — not in the source</div><p>'+esc(res.t)+(res.flag?' <span class="num">'+res.flag+'</span> premise support.':'')+'</p></div>';}
+function renderAsk(){
+  var chips=['What is sight alignment and sight picture?','What is trigger control?','What is a natural point of aim?','What are the four phases of the shot process?'];
+  var h='<div class="view"><div class="eyebrow">Operational Support · just-in-time grounded reference</div>'+
+    '<h1>Ask the doctrine</h1><p class="sub">Ask any marksmanship question — get an answer cited to TC 3-22.9, or an honest “not in the source.” Runs on the device, offline.</p>'+
+    '<div class="askbar"><input id="askq" class="askinput" placeholder="e.g. What is trigger control?" autocomplete="off"><button class="btn" id="askgo">Ask</button></div>'+
+    '<div class="chips">'+chips.map(function(c){return '<button class="chip">'+esc(c)+'</button>';}).join('')+'</div>'+
+    '<div id="askout"></div></div>';
+  $('#stage').innerHTML=h;
+  $$('#stage .chip').forEach(function(b){b.onclick=function(){$('#askq').value=b.textContent;doAsk();};});
+  $('#askgo').onclick=doAsk;$('#askq').onkeydown=function(e){if(e.key==='Enter')doAsk();};
+  setTimeout(function(){var i=$('#askq');if(i)i.focus();},60);
+}
+function doAsk(){var i=$('#askq');if(!i)return;var q=i.value.trim();if(!q)return;i.value='';
+  var out=$('#askout');
+  out.insertAdjacentHTML('afterbegin','<div class="org" id="askshim" style="border-style:dashed"><p style="color:var(--glow);margin:0">◍ searching the doctrine on this device…</p></div>');
+  var render=function(res){var s=$('#askshim');if(s)s.remove();
+    out.insertAdjacentHTML('afterbegin','<div class="askitem"><div class="askq">'+esc(q)+'</div>'+(res.refuse?refusedInline(res):answerInline(res))+'</div>');};
+  if(LIVE){callAnchor(q).then(function(d){
+    if(d.abstained&&d.premise_flags&&d.premise_flags[0])render({refuse:true,t:d.text,flag:(+d.premise_flags[0].support).toFixed(2)});
+    else if(d.abstained)render({refuse:true,t:d.text,flag:null});
+    else render({a:d.text,c:(d.citations&&d.citations[0])?d.citations[0].citation:''});
+  }).catch(function(){render(askLookup(q));});}
+  else setTimeout(function(){render(askLookup(q));},reduce?0:500);
+}
+function ctxAsk(){$('#ctx').innerHTML='<div class="ctxh"><span class="n"></span> runs on this device · nothing leaves</div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">The librarian · search</span><span class="mm">bge</span></div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">The writer</span><span class="mm">gemma</span></div>'+
+  '<div class="modelrow"><span class="md"></span><span class="mn">The fact-checker</span><span class="mm">HHEM</span></div>'+
+  '<p class="note">It answers only what TC 3-22.9 supports, cites it, and refuses the rest — the same grounded engine behind every lesson. Nothing leaves the device.</p>';}
+
+/* ---------- adaptivity (Personalized Learning) ---------- */
+var QMAP=['s7','s8','s6'];
+var QCONCEPT=['Phases of the shot process','Trigger control','Natural point of aim'];
+function masteryOf(sec){if(state.mastery[sec]!=null)return state.mastery[sec];var d=false;COURSE.sections.forEach(function(s){if(s.id===sec)s.acts.forEach(function(a){if(a.kind==='lesson'&&a.done)d=true;});});return d?52:22;}
+function weakestSection(){var secs=COURSE.sections.filter(function(s){return !s.intro;}),w=secs[0],wm=101;secs.forEach(function(s){var m=masteryOf(s.id);if(m<wm){wm=m;w=s;}});return w;}
+function applyQuizToMastery(){state.resurface=[];state.assessed=true;
+  QUIZ.forEach(function(q,i){var ok=quiz.ans[i]===q.ans,conf=quiz.conf[i],sec=QMAP[i];var cur=masteryOf(sec);
+    if(!ok){state.mastery[sec]=Math.max(5,cur-22);state.resurface.push({sec:sec,concept:QCONCEPT[i],reason:(conf>=2?'certain but wrong':'missed'),when:(conf>=2?'now':'today')});}
+    else{state.mastery[sec]=Math.min(100,cur+(conf>=2?18:8));if(conf<2)state.resurface.push({sec:sec,concept:QCONCEPT[i],reason:'right but unsure',when:'+3d'});}});
+}
+
+/* ---------- router ---------- */
+function bump(){var g=$('#sGround'),r=$('#sRef');if(g)g.textContent=state.ground;if(r)r.textContent=state.ref;}
+function setTabs(v){$$('nav .tab').forEach(function(t){t.classList.toggle('on',t.dataset.v===v);});}
+function go(v){state.view=v;setTabs((v==='lesson'||v==='scenario')?'course':v);
+  if(v==='course')renderCourse();
+  else if(v==='lesson')renderLesson();
+  else if(v==='scenario')renderScenario();
+  else if(v==='ask')renderAsk();
+  else if(v==='practice'){renderQuiz();}
+  else if(v==='insight')renderInsight();
+  renderRail();renderCtx();window.scrollTo&&$('#stage')&&($('#stage').scrollTop=0);}
+$$('nav .tab').forEach(function(t){t.onclick=function(){go(t.dataset.v);};});
+
+/* init */
+bump();probeLive();go('course');
+</script>
+</body>
+</html>
