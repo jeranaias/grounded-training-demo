@@ -38,6 +38,7 @@ body{background:radial-gradient(120% 80% at 50% -10%,var(--mote1),transparent 55
 .gp .n{width:7px;height:7px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow);animation:pulse 2.6s infinite}
 @keyframes pulse{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
 @keyframes bloom{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes sweep{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
 nav{margin-left:auto;display:flex;gap:5px;align-items:center}
 nav .tab{background:none;border:none;color:var(--dim);font-family:var(--sans);font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;transition:.18s}
 nav .tab:hover{color:var(--text)}nav .tab.on{color:var(--void);background:var(--glow);box-shadow:0 0 22px var(--glow-soft)}
@@ -49,55 +50,84 @@ h1{font-size:25px;color:var(--bright);letter-spacing:-.02em;margin:0 0 4px;font-
 .sub{color:var(--dim);font-size:14px;margin:0 0 20px;max-width:64ch}
 .banner{background:color-mix(in srgb,var(--glow) 8%,var(--surface));border:1px solid var(--border-lit);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--dim);margin-bottom:18px}
 .banner b{color:var(--bright)}
-/* studio */
 .label{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:2px 0 8px}
-textarea,.fakefile{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.55;outline:none;resize:vertical}
-.fakefile{display:flex;align-items:center;gap:10px;color:var(--dim);cursor:default;font-family:var(--sans)}
+textarea{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.55;outline:none;resize:vertical}
+.fakefile{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;display:flex;align-items:center;gap:10px;color:var(--dim);font-family:var(--sans);flex-wrap:wrap}
 .chip2{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--text)}
 .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}
 .btn{background:linear-gradient(180deg,var(--glow),color-mix(in srgb,var(--glow) 70%,#000));color:var(--void);border:none;border-radius:12px;padding:10px 17px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 0 24px var(--glow-soft)}
-.btn:hover{filter:brightness(1.07)}.btn.ghost{background:none;color:var(--glow);border:1px solid var(--border-lit);box-shadow:none}.btn.sm{padding:7px 13px;font-size:13px}.btn[disabled]{opacity:.5;cursor:default}
+.btn:hover{filter:brightness(1.07)}.btn.ghost{background:none;color:var(--glow);border:1px solid var(--border-lit);box-shadow:none}.btn[disabled]{opacity:.5;cursor:default}
 .status{font-size:12.5px;color:var(--dim)}
 .genlog{margin-top:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;max-height:340px;overflow:auto}
+.genlog:empty{display:none}
 .genline{padding:2px 0;white-space:pre-wrap}.genline.dim{color:var(--dim)}.genline.sec{color:var(--bright);font-weight:700;margin-top:6px}.genline.ok{color:var(--glow)}.genline.warn{color:var(--readout)}.genline.done{color:var(--glow);font-weight:700;margin-top:8px}
-/* course tiles */
-.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:18px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
 .hero .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:999px;padding:4px 11px;margin-top:10px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:999px;padding:4px 11px}
+.badge .n{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow)}
+.reviewtool{background:var(--surface);border:1px solid var(--border-lit);border-radius:16px;padding:18px 20px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
+.reviewtool h2{margin:0 0 4px;font-size:16px;color:var(--bright);font-weight:800;display:flex;align-items:center;gap:8px}
+.reviewtool p{margin:0 0 14px;font-size:13px;color:var(--dim);max-width:62ch}
+.aibtn{background:linear-gradient(180deg,var(--glow-2),color-mix(in srgb,var(--glow-2) 65%,#000));color:#fff;border:none;border-radius:12px;padding:11px 18px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 26px var(--mote2);display:inline-flex;align-items:center;gap:9px}
+.aibtn:hover{filter:brightness(1.08)}
+.ailog{margin-top:6px;font-family:var(--mono);font-size:12.5px}
+.ailog .l{padding:2px 0;color:var(--dim)}.ailog .l.hit{color:var(--readout)}.ailog .l.ok{color:var(--glow)}
+.scan{height:4px;border-radius:3px;background:var(--track);overflow:hidden;margin:10px 0 2px;position:relative}
+.scan>i{position:absolute;left:0;top:0;bottom:0;width:34%;background:linear-gradient(90deg,transparent,var(--glow-2),transparent);animation:sweep 1s linear infinite}
+.summary{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stat{display:inline-flex;flex-direction:column;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:8px 14px;min-width:88px}
+.stat b{font-family:var(--mono);font-size:20px;color:var(--bright);font-variant-numeric:tabular-nums;line-height:1}
+.stat.flagged b{color:var(--readout)}.stat.solid b{color:var(--glow)}
+.stat span{font-size:11px;color:var(--dim);margin-top:3px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;backdrop-filter:blur(10px);box-shadow:var(--lift);cursor:pointer;transition:.18s;position:relative;overflow:hidden}
-.tile:hover{border-color:var(--border-lit);transform:translateY(-2px)}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px 14px;backdrop-filter:blur(10px);box-shadow:var(--lift);cursor:pointer;transition:.16s;position:relative;overflow:hidden;text-align:left;width:100%;font:inherit;color:inherit;display:block}
+.tile:hover{border-color:var(--border-lit);transform:translateY(-2px)}.tile:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
 .tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
 .tile .tk{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-.tile h3{font-size:16px;color:var(--bright);margin:3px 0 8px;font-weight:700}.tile .meta{font-size:13px;color:var(--dim)}
-/* org / cards */
+.tile h3{font-size:16px;color:var(--bright);margin:3px 0 8px;font-weight:700}.tile .meta{font-size:12.5px;color:var(--dim);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tile .prev{font-size:12.5px;color:var(--text);margin:8px 0 10px;opacity:.85}
+.tile .open{color:var(--glow);font-size:12.5px;font-weight:700}
+.pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-flex;align-items:center;gap:5px}
+.pill.flag{color:var(--readout);background:color-mix(in srgb,var(--readout) 14%,transparent);border:1px solid color-mix(in srgb,var(--readout) 38%,transparent)}
+.pill.done{color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit)}
 .back{background:none;border:none;color:var(--glow);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:12px}
-.org{padding:16px 18px;border-radius:15px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;backdrop-filter:blur(10px);box-shadow:var(--lift);margin-bottom:12px;animation:bloom .4s both}
-.org::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
+.prog{height:6px;background:var(--track);border-radius:4px;overflow:hidden;margin:6px 0 2px}.prog>i{display:block;height:100%;background:var(--glow);box-shadow:0 0 10px var(--glow);transition:width .3s}
+.progwrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--lift)}
+.progwrap .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--dim);margin-bottom:7px;flex-wrap:wrap}
+.org{padding:16px 18px;border-radius:15px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;backdrop-filter:blur(10px);box-shadow:var(--lift);margin-bottom:12px}
+.org::before,.diagram::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
+.org.flagged::before,.diagram.flagged::before{background:linear-gradient(var(--readout),transparent);box-shadow:0 0 14px var(--readout)}
 .org p{margin:0 0 8px;color:var(--text);font-size:14.5px}
 .cite{font-family:var(--mono);font-size:11px;color:var(--glow);border:1px solid var(--border-lit);border-radius:6px;padding:1px 7px;white-space:nowrap}
 .meta{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim);flex-wrap:wrap}
 .nucleus{width:8px;height:8px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow);animation:pulse 2.4s infinite;display:inline-block}
 .srcline{margin-top:8px;font-size:12px;color:var(--dim);font-family:var(--mono)}
 .diagram{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:15px 17px;margin-bottom:12px;backdrop-filter:blur(10px);box-shadow:var(--lift);position:relative;overflow:hidden}
-.diagram::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
-.diagram h4{margin:0 0 3px;font-size:14.5px;color:var(--bright);font-weight:700}.dcap{font-size:12px;color:var(--dim);margin:0 0 12px}
+.diagram h4{margin:0 0 3px;font-size:14.5px;color:var(--bright);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dcap{font-size:12px;color:var(--dim);margin:0 0 12px}
 .diagram svg{width:100%;max-width:360px;height:auto;display:block;margin:2px auto 6px}
 .railh{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--glow)}
 .qopts{display:grid;gap:6px;margin:8px 0}
 .qopt{display:flex;align-items:center;gap:9px;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13.5px;color:var(--text);background:var(--surface-2)}
 .qopt.correct{border-color:var(--border-lit);background:var(--glow-soft);color:var(--bright)}.qlt{font-family:var(--mono);color:var(--dim);font-size:12px}
 .fcgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.fc{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:14px 16px}
+.fc{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;position:relative;overflow:hidden}
+.fc.flagged{border-color:color-mix(in srgb,var(--readout) 40%,transparent)}
 .fcq{font-size:13.5px;font-weight:700;color:var(--bright);margin-bottom:6px}.fca{font-size:13px;color:var(--dim)}
-/* review controls */
+.verdict{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;margin:8px 0 2px;font-family:var(--mono);line-height:1.45}
+.verdict.solid{color:var(--glow)}.verdict.flag{color:var(--readout)}
+.verdict b{font-weight:700}
 .review{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
 .rbtns,.rrevise{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.rb{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:9px;padding:5px 11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:.15s}
+.rb{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:9px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:.15s}
 .rb:hover{border-color:var(--border-lit)}.rb.ok{color:var(--glow);border-color:var(--border-lit)}.rb.no{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
-.rmsg{font-size:12px;color:var(--glow)}.rrev{font-family:var(--mono);font-size:11px;color:var(--readout)}
+.done-appr,.done-rej,.done-rev{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;border-radius:9px;padding:5px 12px}
+.done-appr{color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit)}
+.done-rej{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent)}
+.done-rev{color:var(--readout);background:color-mix(in srgb,var(--readout) 12%,transparent);border:1px solid color-mix(in srgb,var(--readout) 38%,transparent)}
+.done-rev .rrev{font-family:var(--mono);font-size:11px;opacity:.8}
+.rmsg{font-size:12px;color:var(--glow)}
 .rinput{flex:1;min-width:240px;background:var(--surface-2);border:1px solid var(--border-lit);border-radius:9px;padding:7px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none}
-.approved{opacity:.72}.rejected{opacity:.4}
+.approved{opacity:.72}.rejected{opacity:.42}
 .note{color:var(--dim);font-size:12.5px;margin-top:16px}
 @media(max-width:680px){.tiles,.fcgrid{grid-template-columns:1fr}}
 </style>
@@ -1256,10 +1286,24 @@ var COURSE = {
 };
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
 var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-$('#tg').onclick=function(){var r=document.documentElement,c=r.getAttribute('data-theme');if(!c)c=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',c==='dark'?'light':'dark');};
+
+var state={ aiDone:false, review:{} };
+var FLAGS={
+  '0:pre:0':'Distractors B and C are near-synonyms — a sharp student rules out both at once. Rewrite so each wrong answer targets a distinct misconception.',
+  '1:lesson:0':'Grounded and accurate, but it states the rule without a coaching cue. Add what a coach watches for on the firing line so the Marine can self-correct.',
+  '2:post:1':'The stem reads two ways. Pin the timing — specify "at the instant the shot breaks" — so a knowledgeable Marine is not marked wrong.',
+  '3:flash:2':'The back mostly restates the front. Make the answer carry the reason, not just the term.'
+};
+
 var COL={dim:'var(--dim)',glow:'var(--glow)',glow2:'var(--glow-2)',danger:'var(--danger)',readout:'var(--readout)',none:'none'};
 function col(c){return COL[c]||c||'none';}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function keys(i){var s=COURSE.sections[i],a=[];s.lessons.forEach(function(_,li){a.push(i+':lesson:'+li);});if(s.diagram)a.push(i+':diagram:0');s.pre.forEach(function(_,q){a.push(i+':pre:'+q);});s.post.forEach(function(_,q){a.push(i+':post:'+q);});s.flashcards.forEach(function(_,f){a.push(i+':flash:'+f);});return a;}
+function reviewedCount(i){return keys(i).filter(function(k){return state.review[k];}).length;}
+function flagCount(i){return keys(i).filter(function(k){return FLAGS[k];}).length;}
+function totalItems(){return COURSE.sections.reduce(function(n,_,i){return n+keys(i).length;},0);}
+function totalReviewed(){return COURSE.sections.reduce(function(n,_,i){return n+reviewedCount(i);},0);}
+function secOf(key){return +key.split(':')[0];}
 
 function svgSpec(spec){
   if(!spec||!spec.elements)return '';
@@ -1270,78 +1314,145 @@ function svgSpec(spec){
     if(e.type==='text')return '<text x="'+e.x+'" y="'+e.y+'" fill="var(--dim)" font-size="10" font-family="monospace">'+esc(e.text)+'</text>';
     return '';
   }).join('');
-  return '<svg viewBox="'+(spec.viewBox||'0 0 340 200')+'" role="img">'+parts+'</svg>';
+  return '<svg viewBox="'+(spec.viewBox||'0 0 340 200')+'" role="img" aria-label="AI-generated diagram">'+parts+'</svg>';
 }
-/* review controls (visual) */
-function review(id){return '<div class="review" data-r="'+id+'"><div class="rbtns">'+
-  '<button class="rb ok" onclick="rApprove(this)">✓ Approve</button>'+
-  '<button class="rb" onclick="rOpen(this)">✎ Revise</button>'+
-  '<button class="rb no" onclick="rReject(this)">✕ Reject</button></div></div>';}
-window.rApprove=function(b){var w=b.closest('[data-r]');w.innerHTML='<span class="rmsg">✓ Approved</span>';w.closest('.org,.fc,.diagram').classList.add('approved');};
-window.rReject=function(b){var w=b.closest('[data-r]');w.innerHTML='<span class="rmsg" style="color:var(--danger)">✕ Rejected</span>';w.closest('.org,.fc,.diagram').classList.add('rejected');};
-window.rOpen=function(b){var w=b.closest('[data-r]');w.querySelector('.rbtns').style.display='none';
-  var d=document.createElement('div');d.className='rrevise';d.innerHTML='<input class="rinput" placeholder="What should the AI fix? (stays grounded in the source)"><button class="rb ok" onclick="rSend(this)">Send to AI</button><button class="rb" onclick="rCancel(this)">Cancel</button>';w.appendChild(d);d.querySelector('input').focus();};
-window.rCancel=function(b){var w=b.closest('[data-r]');w.querySelector('.rrevise').remove();w.querySelector('.rbtns').style.display='';};
-window.rSend=function(b){var w=b.closest('[data-r]');var note=w.querySelector('input').value||'polish';w.innerHTML='<span class="rmsg">◍ AI polishing…</span>';
-  setTimeout(function(){w.innerHTML='<div class="rbtns"><span class="rrev">rev 1</span><span class="rmsg">Revised ✓ — grounded in the source</span><button class="rb ok" onclick="rApprove(this)">✓ Approve</button></div>';},reduce?0:900);};
 
-/* views */
+function verdict(key){
+  if(!state.aiDone||state.review[key])return '';
+  if(FLAGS[key])return '<div class="verdict flag"><span>⚑</span><span><b>Needs a close look — </b>'+esc(FLAGS[key])+'</span></div>';
+  return '<div class="verdict solid"><span>✓</span><span>AI review: grounded and clear.</span></div>';
+}
+function review(key){
+  var st=state.review[key],inner;
+  if(st==='approved')inner='<span class="done-appr">✓ Approved</span>';
+  else if(st==='rejected')inner='<span class="done-rej">✕ Rejected</span>';
+  else if(st==='revised')inner='<span class="done-rev">◍ Revised <span class="rrev">rev 1</span></span> <button class="rb ok" data-act="approve" data-k="'+key+'">✓ Approve</button>';
+  else inner='<button class="rb ok" data-act="approve" data-k="'+key+'">✓ Approve</button>'+
+             '<button class="rb" data-act="revopen" data-k="'+key+'">✎ Revise</button>'+
+             '<button class="rb no" data-act="reject" data-k="'+key+'">✕ Reject</button>';
+  return '<div class="review" data-review="'+key+'"><div class="rbtns">'+inner+'</div></div>';
+}
+function itemClass(base,key){var c=base;if(state.review[key]==='approved')c+=' approved';if(state.review[key]==='rejected')c+=' rejected';if(state.aiDone&&!state.review[key]&&FLAGS[key])c+=' flagged';return c;}
+
 function setView(v,sec){
   $$('nav .tab').forEach(function(t){t.classList.toggle('on',t.dataset.v===v);});
   if(v==='studio')renderStudio();else if(v==='course')renderCourse();else if(v==='lesson')renderLesson(sec);
   window.scrollTo(0,0);
 }
+
 function renderStudio(){
   $('#stage').innerHTML='<div class="view"><div class="eyebrow">Instructor · Content Generation</div>'+
    '<h1>Studio</h1><p class="sub">Attach the source doctrine and a Program of Instruction. Generate a complete, grounded course — cited lessons, diagrams, pre/post tests, flashcards — all left pending your review.</p>'+
    '<div class="label">1 · Source corpus</div><div class="fakefile"><span class="chip2">📄 TC 3-22.9 (Rifle and Carbine).pdf</span> <b style="color:var(--glow)">182 chunks indexed</b> · coordinate-aware extraction</div>'+
    '<div class="label" style="margin-top:16px">2 · Program of Instruction</div>'+
    '<textarea rows="7" spellcheck="false">PROGRAM OF INSTRUCTION — Rifle &amp; Carbine Marksmanship (TC 3-22.9)\nEnabling Learning Objectives:\n'+COURSE.sections.map(function(s,i){return '  '+(i+1)+'. '+esc(s.title.replace(/^Obj \d+ · /,''));}).join('\n')+'</textarea>'+
-   '<div class="toolbar"><button class="btn" id="gen">Generate course</button><span class="status">Grounded, cited, PENDING your review — nothing reaches a student until you approve it.</span></div>'+
-   '<div id="genlog"></div></div>';
-  $('#gen').onclick=runGen;
+   '<div class="toolbar"><button class="btn" data-act="generate">Generate course</button><span class="status">Grounded, cited, PENDING your review — nothing reaches a student until you approve it.</span></div>'+
+   '<div class="genlog" id="genlog"></div></div>';
 }
 function runGen(){
-  var log=$('#genlog');log.className='genlog';log.innerHTML='';
+  var log=$('#genlog');if(!log)return;log.innerHTML='';
   var evs=[['Job started — generating in the background (finishes even if you leave).','dim'],['Parsing the POI…',''],['Found '+COURSE.sections.length+' objectives.','dim'],['Grounding against your attached corpus (182 chunks).','dim']];
   COURSE.sections.forEach(function(s){evs.push(['▸ '+s.title,'sec']);
     if(s.lessons.length)evs.push(['    ✓ lesson','ok']);
     evs.push([s.diagram?'    ✓ diagram':'    — diagram (not supported by the passage)',s.diagram?'ok':'warn']);
     evs.push(['    ✓ pre-test ×'+s.pre.length,'ok']);evs.push(['    ✓ post-test ×'+s.post.length,'ok']);evs.push(['    ✓ flashcards ×'+s.flashcards.length,'ok']);});
-  evs.push(['✓ Course generated — all items are PENDING your review.','done']);
-  $('#gen').disabled=true;var i=0;
-  (function step(){if(i>=evs.length){$('#gen').disabled=false;var b=document.createElement('button');b.className='btn ghost';b.style.marginTop='12px';b.textContent='Review the course →';b.onclick=function(){setView('course');};log.appendChild(b);return;}
-    var d=document.createElement('div');d.className='genline '+evs[i][1];d.textContent=evs[i][0];log.appendChild(d);log.scrollTop=log.scrollHeight;i++;setTimeout(step,reduce?0:evs[i-1][0][0]==='▸'?220:120);})();
+  evs.push(['✓ Course generated — '+totalItems()+' items, all PENDING your review.','done']);
+  var gb=$('[data-act=generate]');if(gb)gb.disabled=true;var i=0;
+  (function step(){if(i>=evs.length){if(gb)gb.disabled=false;var b=document.createElement('button');b.className='btn ghost';b.style.marginTop='12px';b.setAttribute('data-act','course');b.textContent='Review the course →';log.appendChild(b);return;}
+    var d=document.createElement('div');d.className='genline '+evs[i][1];d.textContent=evs[i][0];log.appendChild(d);log.scrollTop=log.scrollHeight;i++;setTimeout(step,reduce?0:evs[i-1][0][0]==='▸'?200:110);})();
 }
+
 function renderCourse(){
-  var items=COURSE.sections.reduce(function(n,s){return n+s.lessons.length+(s.diagram?1:0)+s.pre.length+s.post.length+s.flashcards.length;},0);
+  var total=totalItems(),flagged=COURSE.sections.reduce(function(n,_,i){return n+flagCount(i);},0),reviewed=totalReviewed();
   var h='<div class="view"><div class="eyebrow">Program of Instruction · generated · grounded</div>'+
    '<div class="hero"><div class="k">Sourced from '+esc(COURSE.course.sourceId)+' · AI-generated · pending review</div><h1>Rifle Marksmanship</h1>'+
-   '<p class="sub" style="margin:6px 0 0">Generated from a POI, grounded in the manual, fact-checked. <span class="num">'+COURSE.sections.length+'</span> chapters · <span class="num">'+items+'</span> items.</p>'+
-   '<div class="badge"><span class="n"></span> attach doctrine + POI → grounded course → instructor review</div></div><div class="tiles">';
-  COURSE.sections.forEach(function(s,i){var c=s.lessons.length+(s.diagram?1:0)+s.pre.length+s.post.length+s.flashcards.length;
-    h+='<div class="tile" data-i="'+i+'"><div class="tk">'+esc(s.title.split(' · ')[0])+'</div><h3>'+esc(s.title.split(' · ')[1]||s.title)+'</h3>'+
-       '<div class="meta"><span class="num">'+c+'</span> items · pending review</div>'+
-       (s.lessons[0]?'<p class="meta" style="margin-top:8px;color:var(--text)">'+esc(s.lessons[0].stem.slice(0,90))+'…</p>':'')+'</div>';});
+   '<p class="sub" style="margin:6px 0 12px">Generated from a POI, grounded in the manual, fact-checked. <span class="num">'+COURSE.sections.length+'</span> chapters · <span class="num">'+total+'</span> items.</p>'+
+   '<div class="badge"><span class="n"></span> attach doctrine + POI → grounded course → instructor review</div></div>';
+  if(!state.aiDone){
+    h+='<div class="reviewtool" id="rt"><h2>⚑ Review with AI</h2>'+
+       '<p>Before you read '+total+' items line by line, let the strong authoring model re-read every item against TC 3-22.9 and flag the ones that obviously need your eyes — weak grounding, a soft distractor, a missing coaching cue. You still decide; it just points you at what matters.</p>'+
+       '<button class="aibtn" data-act="aireview">◈ Review with AI</button></div>';
+  }else{
+    h+='<div class="reviewtool"><h2>◈ AI critical review complete</h2>'+
+       '<p>The strong model re-read all '+total+' items against the source. Open the flagged chapters first — each flagged item carries the model\'s note on exactly what to check.</p>'+
+       '<div class="summary"><span class="stat"><b>'+total+'</b><span>items reviewed</span></span>'+
+       '<span class="stat flagged"><b>'+flagged+'</b><span>flagged for a look</span></span>'+
+       '<span class="stat solid"><b>'+(total-flagged)+'</b><span>look solid</span></span>'+
+       '<span class="stat"><b>'+reviewed+'/'+total+'</b><span>you\'ve actioned</span></span></div></div>';
+  }
+  h+='<div class="tiles">';
+  COURSE.sections.forEach(function(s,i){var c=keys(i).length,fl=flagCount(i),rv=reviewedCount(i);
+    h+='<button class="tile" data-act="open" data-i="'+i+'"><div class="tk">'+esc(s.title.split(' · ')[0])+'</div><h3>'+esc(s.title.split(' · ')[1]||s.title)+'</h3>'+
+       '<div class="meta"><span class="num">'+c+'</span> items'+
+       (state.aiDone&&fl?' <span class="pill flag">⚑ '+fl+' flagged</span>':'')+
+       (rv?' <span class="pill done">✓ '+rv+'/'+c+'</span>':'')+'</div>'+
+       (s.lessons[0]?'<p class="prev">'+esc(s.lessons[0].stem.slice(0,88))+'…</p>':'')+
+       '<div class="open">Open chapter →</div></button>';});
   h+='</div></div>';
   $('#stage').innerHTML=h;
-  $$('.tile').forEach(function(t){t.onclick=function(){setView('lesson',+t.dataset.i);};});
 }
+function runAIReview(){
+  var rt=$('#rt');if(!rt)return;
+  var flagged=COURSE.sections.reduce(function(n,_,i){return n+flagCount(i);},0),total=totalItems();
+  rt.innerHTML='<h2>◈ Reviewing with AI</h2><div class="scan"><i></i></div><div class="ailog" id="al"></div>';
+  var al=$('#al');
+  var lines=[['Re-reading each item against TC 3-22.9…',''],['Checking every claim traces to the cited passage…',''],['Testing that wrong answers are plausible but clearly wrong…','']];
+  Object.keys(FLAGS).forEach(function(k){var p=k.split(':');lines.push(['⚑ Ch '+(+p[0]+1)+' · '+p[1]+' — '+FLAGS[k].split(/[.—]/)[0].trim()+'.','hit']);});
+  lines.push(['✓ '+(total-flagged)+' items look solid · '+flagged+' flagged for a close look.','ok']);
+  var i=0;(function step(){if(i>=lines.length){setTimeout(function(){state.aiDone=true;renderCourse();window.scrollTo(0,0);},reduce?0:450);return;}
+    var d=document.createElement('div');d.className='l '+lines[i][1];d.textContent=lines[i][0];al.appendChild(d);i++;setTimeout(step,reduce?0:500);})();
+}
+
 function renderLesson(i){
-  var s=COURSE.sections[i];var n=0;
-  var h='<div class="view"><button class="back" id="bk">← Course</button><div class="eyebrow">'+esc(s.title.split(' · ')[0])+' · generated · pending review</div>'+
-   '<h1>'+esc(s.title.split(' · ')[1]||s.title)+'</h1>'+
-   '<div class="banner">⏳ <b>AI-generated — pending review.</b> Approve, or <b>Revise</b> with a note and the AI re-authors it, still grounded in the source. Nothing reaches a student until approved.</div>';
-  s.lessons.forEach(function(l){n++;h+='<div class="org"><p>'+esc(l.stem)+'</p><div class="meta"><span class="nucleus"></span> backed by the source'+(l.citation&&l.citation.citation?' · <span class="cite">'+esc(l.citation.citation)+'</span>':'')+'</div>'+review('l'+n)+'</div>';});
-  if(s.diagram){h+='<div class="diagram"><h4>◈ '+esc(s.diagram.title)+' <span class="badge" style="margin-left:6px">AI-generated</span></h4><div class="dcap">Drafted by the strong model from the cited passage — pending review.</div>'+svgSpec(s.diagram.spec)+'<div class="meta"><span class="nucleus"></span> diagram grounded'+(s.diagram.cite?' · <span class="num">'+esc(s.diagram.cite)+'</span>':'')+'</div>'+review('d')+'</div>';}
-  [['Pre-test',s.pre],['Post-test',s.post]].forEach(function(pp){if(!pp[1].length)return;h+='<div class="railh" style="margin:16px 0 8px">'+pp[0]+' <span class="num">'+pp[1].length+'</span></div>';
-    pp[1].forEach(function(q,qi){h+='<div class="org"><p><b>'+esc(q.stem)+'</b></p><div class="qopts">'+(q.options||[]).map(function(o,j){return '<div class="qopt'+(j===q.answer?' correct':'')+'"><span class="qlt">'+'ABCD'[j]+'</span> '+esc(o)+(j===q.answer?' ✓':'')+'</div>';}).join('')+'</div>'+(q.rationale?'<div class="srcline">key — '+esc(q.rationale)+'</div>':'')+review(pp[0]+qi)+'</div>';});});
+  var s=COURSE.sections[i];var scrollY=window.__keep?window.scrollY:0;
+  var total=keys(i).length,rv=reviewedCount(i),fl=flagCount(i);
+  var h='<div class="view"><button class="back" data-act="course">← Course</button><div class="eyebrow">'+esc(s.title.split(' · ')[0])+' · generated · pending review</div>'+
+   '<h1>'+esc(s.title.split(' · ')[1]||s.title)+'</h1>';
+  h+='<div class="progwrap"><div class="row"><span>'+(state.aiDone?(fl?'<span style="color:var(--readout)">⚑ '+fl+' flagged by AI</span> · ':'<span style="color:var(--glow)">✓ AI: all look solid</span> · '):'')+'Reviewed <b style="color:var(--bright)">'+rv+'</b> of '+total+'</span>'+
+     (rv<total?'<button class="rb ok" data-act="approverest" data-i="'+i+'">Approve the rest</button>':'<span style="color:var(--glow);font-weight:700">✓ Chapter reviewed</span>')+
+     '</div><div class="prog"><i style="width:'+Math.round(rv/total*100)+'%"></i></div></div>';
+  if(!state.aiDone)h+='<div class="banner">⏳ <b>AI-generated — pending review.</b> Approve, <b>Revise</b> with a note (the AI re-authors it, still grounded), or Reject. Tip: run <b>Review with AI</b> on the course page first to see what needs a close look.</div>';
+
+  s.lessons.forEach(function(l,li){var k=i+':lesson:'+li;h+='<div class="'+itemClass('org',k)+'"><p>'+esc(l.stem)+'</p><div class="meta"><span class="nucleus"></span> backed by the source'+(l.citation&&l.citation.citation?' · <span class="cite">'+esc(l.citation.citation)+'</span>':'')+'</div>'+verdict(k)+review(k)+'</div>';});
+  if(s.diagram){var dk=i+':diagram:0';h+='<div class="'+itemClass('diagram',dk)+'"><h4>◈ '+esc(s.diagram.title)+' <span class="badge">AI-generated</span></h4><div class="dcap">Drafted by the strong model from the cited passage.</div>'+svgSpec(s.diagram.spec)+'<div class="meta"><span class="nucleus"></span> diagram grounded'+(s.diagram.cite?' · <span class="num">'+esc(s.diagram.cite)+'</span>':'')+'</div>'+verdict(dk)+review(dk)+'</div>';}
+  [['Pre-test',s.pre,'pre'],['Post-test',s.post,'post']].forEach(function(pp){if(!pp[1].length)return;h+='<div class="railh" style="margin:16px 0 8px">'+pp[0]+' <span class="num">'+pp[1].length+'</span></div>';
+    pp[1].forEach(function(q,qi){var k=i+':'+pp[2]+':'+qi;h+='<div class="'+itemClass('org',k)+'"><p><b>'+esc(q.stem)+'</b></p><div class="qopts">'+(q.options||[]).map(function(o,j){return '<div class="qopt'+(j===q.answer?' correct':'')+'"><span class="qlt">'+'ABCD'[j]+'</span> '+esc(o)+(j===q.answer?' ✓':'')+'</div>';}).join('')+'</div>'+(q.rationale?'<div class="srcline">key — '+esc(q.rationale)+'</div>':'')+verdict(k)+review(k)+'</div>';});});
   if(s.flashcards.length){h+='<div class="railh" style="margin:16px 0 8px">Study flashcards <span class="num">'+s.flashcards.length+'</span></div><div class="fcgrid">';
-    s.flashcards.forEach(function(f,fi){h+='<div class="fc"><div class="fcq">'+esc(f.front)+'</div><div class="fca">'+esc(f.back)+'</div>'+review('f'+fi)+'</div>';});h+='</div>';}
-  h+='<p class="note">A static snapshot of one generated chapter, for evaluation. In the app this is a live Next.js + Postgres surface; every item here was generated grounded in TC 3-22.9 and left pending review.</p></div>';
-  $('#stage').innerHTML=h;$('#bk').onclick=function(){setView('course');};
+    s.flashcards.forEach(function(f,fi){var k=i+':flash:'+fi;h+='<div class="'+itemClass('fc',k)+'"><div class="fcq">'+esc(f.front)+'</div><div class="fca">'+esc(f.back)+'</div>'+verdict(k)+review(k)+'</div>';});h+='</div>';}
+  h+='<p class="note">A static snapshot of one generated chapter, for evaluation. In the live app this is a Next.js + Postgres surface; every item was generated grounded in TC 3-22.9 and left pending review, and "Review with AI" / "Revise" call the strong authoring model.</p></div>';
+  $('#stage').innerHTML=h;
+  if(window.__keep){window.scrollTo(0,scrollY);window.__keep=false;}
 }
-$$('nav .tab[data-v]').forEach(function(t){t.onclick=function(){setView(t.dataset.v);};});
+function reRenderLessonKeep(i){window.__keep=true;renderLesson(i);}
+
+document.addEventListener('click',function(ev){
+  var t=ev.target.closest('[data-act]');if(!t)return;var a=t.dataset.act;
+  if(a==='generate')runGen();
+  else if(a==='course')setView('course');
+  else if(a==='studio')setView('studio');
+  else if(a==='open')setView('lesson',+t.dataset.i);
+  else if(a==='aireview')runAIReview();
+  else if(a==='approve'){state.review[t.dataset.k]='approved';reRenderLessonKeep(secOf(t.dataset.k));}
+  else if(a==='reject'){state.review[t.dataset.k]='rejected';reRenderLessonKeep(secOf(t.dataset.k));}
+  else if(a==='revopen')openRevise(t);
+  else if(a==='revsend')sendRevise(t);
+  else if(a==='revcancel')reRenderLessonKeep(secOf(t.closest('[data-review]').dataset.review));
+  else if(a==='approverest'){var i=+t.dataset.i;keys(i).forEach(function(k){if(!state.review[k])state.review[k]='approved';});reRenderLessonKeep(i);}
+});
+$$('nav .tab[data-v]').forEach(function(tab){tab.addEventListener('click',function(){setView(tab.dataset.v);});});
+$('#tg').onclick=function(){var r=document.documentElement,c=r.getAttribute('data-theme');if(!c)c=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',c==='dark'?'light':'dark');};
+
+function openRevise(btn){
+  var box=btn.closest('[data-review]'),key=box.dataset.review;
+  box.querySelector('.rbtns').innerHTML='<div class="rrevise"><input class="rinput" placeholder="What should the AI fix? (stays grounded in the source)" '+(FLAGS[key]?'value="'+esc(FLAGS[key].split(/[.—]/)[0].trim())+'"':'')+'><button class="rb ok" data-act="revsend" data-k="'+key+'">Send to AI</button><button class="rb" data-act="revcancel">Cancel</button></div>';
+  var inp=box.querySelector('.rinput');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+}
+function sendRevise(btn){
+  var box=btn.closest('[data-review]'),key=box.dataset.review;
+  box.querySelector('.rbtns').innerHTML='<span class="rmsg">◍ AI re-authoring, grounded in the source…</span>';
+  setTimeout(function(){state.review[key]='revised';reRenderLessonKeep(secOf(key));},reduce?0:1000);
+}
+
 setView('studio');
 </script>
 </body>
