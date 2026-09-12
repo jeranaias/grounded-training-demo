@@ -4,184 +4,333 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SchoolCircle — Grounded AI Training</title>
-<meta name="description" content="Grounded AI training on doctrine — cited courses, tutoring, and assessment that runs offline on the edge, or refuses when the source doesn't support an answer.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="description" content="An AI-native LMS built to the schoolhouse brief: cited courses, a doctrine tutor, adaptive study plans, and provable mastery — every claim traced to the manual, verified on-device, or refused. The instructor ratifies everything. Runs offline on a Jetson.">
 <style>
 :root{
-  --bg:#eef2f6;--panel:#fff;--panel2:#f5f8fb;--ink:#16202b;--dim:#5c6b7a;--faint:#93a2b2;
-  --line:rgba(20,40,60,.12);--line2:rgba(20,40,60,.06);
-  --teal:#0a9c8d;--teal-soft:rgba(10,156,141,.12);--amber:#b0640a;--red:#c0392b;
-  --lift:0 1px 2px rgba(20,40,60,.06),0 8px 26px rgba(20,40,60,.07);
-  --disp:'Chakra Petch',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --bg:#f5f5f7;--surface:#fff;--surface-2:#ececef;
+  --border:rgba(0,0,0,.08);--border-soft:rgba(0,0,0,.06);
+  --text:#1d1d1f;--dim:#6e6e73;--faint:#86868b;
+  --accent:#b3122e;--accent-bright:#e0334f;--accent-tint:rgba(179,18,46,.10);
+  --good:#1e7a3c;--warning:#b0731a;--critical:#c2410c;--critical-tint:#fff5f0;
+  --seq:#8a95a3;
+  --shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04);
+  --lift:0 10px 28px rgba(0,0,0,.10),0 0 0 .5px rgba(0,0,0,.04);
+  --radius:18px;
+  --sans:-apple-system,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --mono:"SF Mono","Cascadia Code",Consolas,ui-monospace,monospace;
 }
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){
-  --bg:#070b10;--panel:#0f151d;--panel2:#131b25;--ink:#dce6f0;--dim:#8898a8;--faint:#5a6b7a;
-  --line:rgba(120,160,200,.14);--line2:rgba(120,160,200,.06);
-  --teal:#2fd6c3;--teal-soft:rgba(47,214,195,.13);--amber:#f2a900;--red:#ff6b6b;
-  --lift:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.5);
-}}
-:root[data-theme=dark]{
-  --bg:#070b10;--panel:#0f151d;--panel2:#131b25;--ink:#dce6f0;--dim:#8898a8;--faint:#5a6b7a;
-  --line:rgba(120,160,200,.14);--line2:rgba(120,160,200,.06);
-  --teal:#2fd6c3;--teal-soft:rgba(47,214,195,.13);--amber:#f2a900;--red:#ff6b6b;
-  --lift:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.5);
-}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:radial-gradient(120% 70% at 85% -8%,var(--teal-soft),transparent 55%),var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
 img{max-width:100%}
-.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
-h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.01em;text-wrap:balance;margin:0}
-a{color:var(--teal)}
-.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line)}
-.topin{max-width:1040px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:14px}
-.brand{font-family:var(--disp);font-weight:700;font-size:17px}
-.brand .gp{font-family:var(--body);font-weight:500;font-size:12px;color:var(--dim);margin-left:8px}
-.top nav{margin-left:auto;display:flex;gap:6px;align-items:center}
-.top nav a{font-size:13.5px;font-weight:600;color:var(--dim);text-decoration:none;padding:7px 11px;border-radius:9px}
-.top nav a:hover{color:var(--ink)}
-.top nav .cta{background:var(--teal);color:var(--bg)}
-.theme{background:none;border:1px solid var(--line);color:var(--dim);width:32px;height:32px;border-radius:9px;font-size:14px;cursor:pointer}
-.hero{padding:64px 0 40px;text-align:center}
-.kick{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
-.hero h1{font-size:clamp(34px,6.2vw,60px);font-weight:800;line-height:1.02;margin:14px auto 0;max-width:16ch}
-.hero h1 .g{color:var(--teal)}
-.hero p{font-size:17px;color:var(--dim);max-width:60ch;margin:18px auto 0}
-.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
-.btn{font-weight:700;font-size:15px;padding:12px 20px;border-radius:12px;text-decoration:none;border:1px solid var(--line)}
-.btn.p{background:var(--teal);color:var(--bg);border-color:var(--teal);box-shadow:0 0 26px var(--teal-soft)}
-.btn.s{background:var(--panel);color:var(--ink)}
-.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:44px 0}
-.pillar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--lift)}
-.pillar .ic{font-size:22px}
-.pillar h3{font-size:16px;margin:10px 0 5px}
-.pillar p{font-size:13px;color:var(--dim);margin:0}
-.sec{margin:54px 0 0}
-.sec .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
-.sec h2{font-size:27px;font-weight:700;margin:8px 0 6px}
-.sec .sub{color:var(--dim);font-size:15px;max-width:70ch;margin:0 0 22px}
-.caps{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.cap{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:12px;padding:16px 18px;box-shadow:var(--lift)}
-.cap h4{font-size:16px}.cap p{font-size:13.5px;color:var(--dim);margin:5px 0 0}
-.cap .uc{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-top:8px;display:inline-block}
-.samples{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.sample{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--lift)}
-.sample .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
-.sample .txt{font-size:14px;line-height:1.55}
-.cite{font-family:var(--mono);font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:6px;padding:1px 7px;display:inline-block;margin-top:10px}
-.tier{display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:13px;padding:6px 0;border-top:1px solid var(--line2)}
-.tier .t{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;padding-top:2px}
-.tier.u .t{color:var(--red)}.tier.s .t{color:var(--amber)}.tier.p .t{color:var(--teal)}
-.refuse{border-left-color:var(--red)!important}
-.qa .q{font-weight:700}.qa .q::before{content:"▸ ";color:var(--teal)}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;font-family:var(--mono);border-radius:999px;padding:3px 10px;margin-bottom:8px}
-.badge.ok{color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal)}
-.badge.no{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid color-mix(in srgb,var(--red) 40%,transparent)}
-.arsenal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.repo{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--lift);text-decoration:none;color:inherit;transition:.15s}
-.repo:hover{border-color:var(--teal);transform:translateY(-2px)}
-.repo .rn{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--teal)}
-.repo .rr{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.45}
-.foot{margin:56px 0 40px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);text-align:center}
-@media(max-width:760px){.pillars,.caps,.samples{grid-template-columns:1fr}.arsenal{grid-template-columns:1fr 1fr}}
+a{color:var(--accent);text-decoration:none}
+h1,h2,h3,h4{margin:0;letter-spacing:-.02em;text-wrap:balance}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+/* ---------- frosted top bar ---------- */
+.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(180%);border-bottom:.5px solid var(--border)}
+.topin{max-width:1080px;margin:0 auto;padding:.7rem 22px;display:flex;align-items:center;gap:1rem}
+.brand{font-weight:700;font-size:1.12rem;letter-spacing:-.02em}
+.brand span{color:var(--accent)}
+.by{font-size:.78rem;color:var(--dim);border-left:1px solid var(--border);padding-left:1rem}
+.top nav{margin-left:auto;display:flex;gap:.2rem;align-items:center}
+.top nav a{font-size:.85rem;font-weight:500;color:var(--dim);padding:.4rem .7rem;border-radius:8px}
+.top nav a:hover{color:var(--text);background:rgba(0,0,0,.05)}
+.top nav a.cta{background:var(--accent);color:#fff;font-weight:600;padding:.42rem .95rem;border-radius:980px}
+.top nav a.cta:hover{filter:brightness(1.12);background:var(--accent)}
+@media(max-width:720px){.by{display:none}.top nav a:not(.cta){display:none}}
+
+/* ---------- hero ---------- */
+.hero{padding:5rem 0 2.5rem;text-align:center}
+.kick{font-size:.8rem;font-weight:600;letter-spacing:.02em;color:var(--accent)}
+.hero h1{font-size:clamp(2.3rem,6vw,4rem);font-weight:700;line-height:1.04;margin:.7rem auto 0;max-width:15ch}
+.hero h1 .g{color:var(--accent)}
+.hero p{font-size:1.12rem;color:var(--dim);max-width:60ch;margin:1.2rem auto 0}
+.btns{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1.8rem}
+.btn{font-weight:600;font-size:.98rem;padding:0 1.4rem;height:2.9rem;border-radius:980px;display:inline-flex;align-items:center;gap:.5rem}
+.btn.p{background:var(--accent);color:#fff}
+.btn.p:hover{filter:brightness(1.12)}
+.btn.s{background:rgba(0,0,0,.05);color:var(--text)}
+.btn.s:hover{background:rgba(0,0,0,.09)}
+
+/* ---------- guardrail chips ---------- */
+.rails{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin:2.4rem 0 0}
+.rail{background:var(--surface);box-shadow:var(--shadow);border-radius:14px;padding:1rem 1.15rem;text-align:left}
+.rail .rl{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+.rail h4{font-size:1rem;font-weight:600;margin:.35rem 0 .25rem}
+.rail p{font-size:.85rem;color:var(--dim);margin:0}
+@media(max-width:720px){.rails{grid-template-columns:1fr}}
+
+/* ---------- sections ---------- */
+.sec{margin:5rem 0 0}
+.sec-h{max-width:64ch}
+.sec .lbl{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.sec h2{font-size:clamp(1.6rem,3.6vw,2.2rem);font-weight:700;margin:.5rem 0 .5rem;letter-spacing:-.028em}
+.sec .sub{color:var(--dim);font-size:1.05rem;margin:0}
+
+/* ---------- brief coverage table ---------- */
+.cov{margin-top:1.8rem;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--radius);overflow:hidden}
+.covrow{display:grid;grid-template-columns:1.35fr 1fr auto;gap:1rem;align-items:center;padding:.85rem 1.4rem;border-bottom:.5px solid var(--border)}
+.covrow:last-child{border-bottom:none}
+.covrow.head{background:var(--surface-2);padding-top:.6rem;padding-bottom:.6rem}
+.covrow.head span{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.covwant{font-size:.94rem;font-weight:500}
+.covwant small{display:block;color:var(--faint);font-size:.78rem;font-weight:400;margin-top:.1rem}
+.covcap{font-size:.9rem;color:var(--dim)}
+.covcap b{color:var(--accent);font-weight:600}
+.pill{font-size:.72rem;font-weight:700;letter-spacing:.02em;padding:.2rem .6rem;border-radius:980px;white-space:nowrap}
+.pill.ship{background:rgba(30,122,60,.12);color:var(--good)}
+.pill.build{background:rgba(176,115,26,.14);color:var(--warning)}
+@media(max-width:720px){.covrow{grid-template-columns:1fr auto;gap:.5rem}.covcap{grid-column:1;font-size:.82rem}.covrow.head span:nth-child(2){display:none}}
+
+/* ---------- two seats ---------- */
+.seats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.8rem}
+.seat{background:var(--surface);box-shadow:var(--shadow);border-radius:var(--radius);padding:1.4rem 1.5rem}
+.seat .st{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.seat h3{font-size:1.25rem;font-weight:700;margin:.25rem 0 1rem}
+.seat ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.7rem}
+.seat li{font-size:.92rem;display:flex;gap:.6rem;align-items:flex-start}
+.seat li .d{flex:none;width:1.5rem;height:1.5rem;border-radius:7px;display:grid;place-items:center;background:var(--accent-tint);color:var(--accent);font-size:.8rem;margin-top:.05rem}
+.seat li b{font-weight:600}
+.seat li span{color:var(--dim)}
+@media(max-width:720px){.seats{grid-template-columns:1fr}}
+
+/* ---------- real output samples ---------- */
+.samples{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.8rem}
+.sample{background:var(--surface);box-shadow:var(--shadow);border-radius:var(--radius);padding:1.2rem 1.35rem}
+.sample .h{font-size:.72rem;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--faint);margin-bottom:.6rem}
+.sample .txt{font-size:.92rem;line-height:1.55;color:var(--text)}
+.sample .q{font-weight:600;font-size:.98rem;margin-bottom:.35rem}
+.cite{display:inline-block;font-family:var(--mono);font-size:.74rem;color:var(--dim);background:rgba(0,0,0,.05);border-radius:6px;padding:.12em .5em;margin-top:.7rem}
+.badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.74rem;font-weight:700;border-radius:980px;padding:.2rem .6rem;margin-bottom:.6rem}
+.badge.ok{background:rgba(30,122,60,.12);color:var(--good)}
+.badge.no{background:var(--critical-tint);color:var(--critical);box-shadow:inset 0 0 0 1px rgba(194,65,12,.25)}
+.tier{display:grid;grid-template-columns:5rem 1fr;gap:.6rem;font-size:.85rem;padding:.4rem 0;border-top:.5px solid var(--border)}
+.tier .t{font-family:var(--mono);font-size:.68rem;font-weight:700;text-transform:uppercase;padding-top:.1rem}
+.tier.u .t{color:var(--critical)}.tier.s .t{color:var(--warning)}.tier.p .t{color:var(--good)}
+.tier span{color:var(--dim)}
+@media(max-width:720px){.samples{grid-template-columns:1fr}}
+
+/* ---------- spine pipeline ---------- */
+.spine{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-top:1.8rem}
+.node{background:var(--surface);box-shadow:var(--shadow);border-radius:14px;padding:1.15rem 1.2rem;position:relative}
+.node .n{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--accent)}
+.node h4{font-size:1rem;font-weight:600;margin:.4rem 0 .3rem}
+.node p{font-size:.82rem;color:var(--dim);margin:0}
+@media(max-width:720px){.spine{grid-template-columns:1fr 1fr}}
+
+/* ---------- arsenal ---------- */
+.arsenal{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1.8rem}
+.repo{display:block;background:var(--surface);box-shadow:var(--shadow);border-radius:14px;padding:1.05rem 1.2rem;transition:box-shadow .15s,transform .15s}
+.repo:hover{box-shadow:var(--lift);transform:translateY(-2px)}
+.repo .rn{font-weight:700;font-size:1rem;color:var(--text);display:flex;align-items:center;gap:.5rem;justify-content:space-between}
+.repo .rn .tg{font-size:.64rem;font-weight:700;letter-spacing:.03em;padding:.12rem .45rem;border-radius:980px}
+.repo .rn .tg.ship{background:rgba(30,122,60,.12);color:var(--good)}
+.repo .rn .tg.build{background:rgba(176,115,26,.14);color:var(--warning)}
+.repo .rr{font-size:.83rem;color:var(--dim);margin-top:.35rem;line-height:1.45}
+@media(max-width:720px){.arsenal{grid-template-columns:1fr}}
+
+/* ---------- offline callout ---------- */
+.edge{margin-top:1.8rem;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--radius);padding:1.6rem 1.7rem;display:grid;grid-template-columns:auto 1fr;gap:1.4rem;align-items:center}
+.edge .big{font-size:2.6rem}
+.edge h3{font-size:1.3rem;font-weight:700;margin:0 0 .4rem}
+.edge p{font-size:.95rem;color:var(--dim);margin:0}
+.edge code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);border-radius:5px;padding:.05em .35em;color:var(--accent)}
+@media(max-width:600px){.edge{grid-template-columns:1fr;text-align:center}}
+
+/* ---------- foot ---------- */
+.foot{margin:5rem 0 3rem;padding-top:1.4rem;border-top:.5px solid var(--border);font-size:.82rem;color:var(--faint);text-align:center;line-height:1.7}
+.foot .dot{color:var(--border)}
 </style>
 </head>
 <body>
+
 <div class="top"><div class="topin">
-  <span class="brand">SchoolCircle<span class="gp">grounded by Anchor</span></span>
+  <span class="brand">School<span>Circle</span></span>
+  <span class="by">grounded by Anchor</span>
   <nav>
+    <a href="#brief">The brief</a>
+    <a href="#experience">Experience</a>
     <a href="#arsenal">Open source</a>
-    <a class="cta" href="demo.html">See a generated course →</a>
-    <button class="theme" id="tg" title="Toggle theme">◐</button>
+    <a class="cta" href="demo.html">Walk a course →</a>
   </nav>
 </div></div>
 
 <div class="wrap">
+
+  <!-- HERO -->
   <section class="hero">
-    <div class="kick">Grounded AI training · for doctrine · on the edge</div>
-    <h1>AI training that <span class="g">won't make things up.</span></h1>
-    <p>Generate cited courses, tutor from the source, and assess Marines to mastery — every claim traceable to the manual, verified on-device, or <b>refused</b> when the doctrine doesn't support it. Runs offline on a Jetson. Nothing an instructor didn't approve ever reaches a student.</p>
+    <div class="kick">For the schoolhouse · grounded in doctrine · runs on the edge</div>
+    <h1>The LMS that <span class="g">won't make things up.</span></h1>
+    <p>An AI-native learning platform built to the brief: cited courses, a doctrine tutor, adaptive study plans, and mastery you can prove. Every AI claim traces to the manual, is verified on-device, or is <b>refused</b>. The instructor ratifies everything — and the whole loop runs offline on a Jetson.</p>
     <div class="btns">
       <a class="btn p" href="demo.html">Walk a generated course →</a>
-      <a class="btn s" href="#arsenal">The open-source arsenal</a>
+      <a class="btn s" href="#brief">See how it maps to the brief</a>
+    </div>
+
+    <div class="rails">
+      <div class="rail">
+        <div class="rl">Guardrail</div>
+        <h4>AI drafts, humans ratify</h4>
+        <p>An instructor reviews and approves every AI-generated assessment before a Marine ever sees it.</p>
+      </div>
+      <div class="rail">
+        <div class="rl">Guardrail</div>
+        <h4>No AI in proctoring</h4>
+        <p>Human input only, by design. The AI never touches proctoring or proctor-code creation.</p>
+      </div>
+      <div class="rail">
+        <div class="rl">Guardrail</div>
+        <h4>Instructor owns the truth</h4>
+        <p>Authoritative training content stays instructor-owned. The AI drafts around it; it never overwrites it.</p>
+      </div>
     </div>
   </section>
 
-  <div class="pillars">
-    <div class="pillar"><div class="ic">📎</div><h3>Grounded</h3><p>Every answer cites the exact passage — or says it can't. Cite-or-refuse, not confident guessing.</p></div>
-    <div class="pillar"><div class="ic">✓</div><h3>Verified</h3><p>On-device HHEM checks faithfulness; grounding, rubrics, and doctrinal fidelity are all proven, not asserted.</p></div>
-    <div class="pillar"><div class="ic">📡</div><h3>Offline</h3><p>The full delivery loop runs on a Jetson Orin with the network pulled. Built for the schoolhouse and the field.</p></div>
-    <div class="pillar"><div class="ic">🎖️</div><h3>Human-led</h3><p>AI drafts; an instructor approves, edits, or rejects. Nothing unreviewed reaches a Marine.</p></div>
-  </div>
-
-  <section class="sec">
-    <div class="lbl">What it does</div>
-    <h2>One grounded platform, many jobs</h2>
-    <p class="sub">Load doctrine and a program of instruction; the platform builds and delivers the training around it.</p>
-    <div class="caps">
-      <div class="cap"><h4>📐 Generate a course</h4><p>A POI + the manual → cited lessons, diagrams, pre/post tests, a scenario with coaching, discussion prompts, and an instructor summary.</p><span class="uc">Content Generation · MCPP</span></div>
-      <div class="cap"><h4>🔮 Ask the doctrine</h4><p>A tutor that answers straight from the source with citations — or an honest "not in the source."</p><span class="uc">Personalized Learning</span></div>
-      <div class="cap"><h4>📏 Rubrics from standards</h4><p>Turn a Training &amp; Readiness standard into a behaviorally-anchored rating scale, traceable, with reliability math.</p><span class="uc">Performance Assessment</span></div>
-      <div class="cap"><h4>🪨 Assess to mastery</h4><p>A conversational check that scores each answer against a rubric, coaches the gap, and records a mastery score.</p><span class="uc">Performance Assessment</span></div>
-      <div class="cap"><h4>🧭 Measure learning</h4><p>Pre→post learning gain, class gaps, and competency evidence from the learning that actually happened.</p><span class="uc">Learning Analytics</span></div>
-      <div class="cap"><h4>🎴 Drops into your LMS</h4><p>Export any course to a SCORM 1.2/2004 cartridge that loads into MarineNet or Moodle and reports scores.</p><span class="uc">Interoperability</span></div>
+  <!-- BRIEF COVERAGE -->
+  <section class="sec" id="brief">
+    <div class="sec-h">
+      <div class="lbl">Built to the brief</div>
+      <h2>Every ask on the board, answered</h2>
+      <p class="sub">The chief instructor's wishlist, mapped to what the platform does today. Shipped pieces are standalone, open-source, and tested; the rest are in build for the event.</p>
+    </div>
+    <div class="cov">
+      <div class="covrow head"><span>The ask</span><span>What answers it</span><span>Status</span></div>
+      <div class="covrow"><div class="covwant">Doctrine-grounded interactive lessons<small>Chatbot on doctrine, open sources, and student outlines</small></div><div class="covcap"><b>Ask the doctrine</b> — Sourcerer + Anchor</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">PDF drop → study guide + practice<small>Adjustable difficulty, MC + written, with rationale</small></div><div class="covcap"><b>Quarry</b> + <b>Coursewright</b></div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Reference generation from POIs</div><div class="covcap"><b>Quarry</b> — tasks &amp; references from the POI</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Mastery visualization vs the question bank</div><div class="covcap"><b>Whetstone</b> + <b>Sextant</b></div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Instructor insight loop<small>Where students missed and why → a lesson review</small></div><div class="covcap"><b>Sextant</b> — class gaps, competency evidence</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">SCORM / LMS interoperability</div><div class="covcap"><b>Cartridge</b> — loads into MarineNet / Moodle</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Rubrics from standards<small>Behaviorally-anchored, with rater reliability</small></div><div class="covcap"><b>Rubricon</b> — T&amp;R standard → BARS</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Adaptive study-plan generator<small>Syllabus + calendar → 3 COAs, with reminders</small></div><div class="covcap"><b>Cadence</b> — behind / on track / ahead + .ics</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">Automated AARs<small>Course-level shortcomings across class iterations</small></div><div class="covcap"><b>Hotwash</b> — grades the curriculum, not the student</div><span class="pill ship">Shipped</span></div>
+      <div class="covrow"><div class="covwant">"How do I learn?" learner profile<small>Survey → shapes each course's lesson plan</small></div><div class="covcap"><b>Waypoint</b> — learner-profile → planning</div><span class="pill build">Building</span></div>
+      <div class="covrow"><div class="covwant">Certificates &amp; graduation packages</div><div class="covcap"><b>Cartridge+</b> — grad package as course output</div><span class="pill build">Building</span></div>
+      <div class="covrow"><div class="covwant">Auto-enrollment for CY/FY + EPME</div><div class="covcap"><b>Requirements homepage</b> — no manual roster entry</div><span class="pill build">Building</span></div>
     </div>
   </section>
 
+  <!-- TWO SEATS -->
+  <section class="sec" id="experience">
+    <div class="sec-h">
+      <div class="lbl">One platform, two seats</div>
+      <h2>What the Marine sees. What the instructor keeps.</h2>
+      <p class="sub">Students get a clean path to mastery. Instructors stay in command of the course — the AI only ever hands them a draft.</p>
+    </div>
+    <div class="seats">
+      <div class="seat">
+        <div class="st">The student</div>
+        <h3>A clear path to mastery</h3>
+        <ul>
+          <li><span class="d">◆</span><span><b>Ask the doctrine.</b> A tutor that answers from the source with a citation — or an honest "not in the source."</span></li>
+          <li><span class="d">◆</span><span><b>Adaptive study plan.</b> Your week in three courses of action — behind, on track, or ahead — synced to the calendar.</span></li>
+          <li><span class="d">◆</span><span><b>Discuss to mastery.</b> A conversational check that scores each answer, coaches the gap, and records the score.</span></li>
+          <li><span class="d">◆</span><span><b>Practice with rationale.</b> Questions that tell you <i>why</i> an answer is right or wrong, at the difficulty you need.</span></li>
+          <li><span class="d">◆</span><span><b>See your own mastery.</b> A bar per topic against the question bank. Yours only.</span></li>
+        </ul>
+      </div>
+      <div class="seat">
+        <div class="st">The instructor</div>
+        <h3>Command of the course</h3>
+        <ul>
+          <li><span class="d">◆</span><span><b>Generate a course.</b> A POI + the manual → cited lessons, tests, a scenario, and discussion prompts — left pending your review.</span></li>
+          <li><span class="d">◆</span><span><b>Rubrics from standards.</b> A T&amp;R standard → a behaviorally-anchored rating scale, traceable, with reliability math.</span></li>
+          <li><span class="d">◆</span><span><b>Run it live.</b> A competitive in-class quiz off the generated bank — a live read on where the class actually is.</span></li>
+          <li><span class="d">◆</span><span><b>Insight loop.</b> Where the class missed and why, drafted into a short lesson review to get them back on track.</span></li>
+          <li><span class="d">◆</span><span><b>Course AAR.</b> End-of-course critiques, sorted into short- and long-term fixes — sharper every iteration.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- REAL OUTPUT -->
   <section class="sec">
-    <div class="lbl">Real output</div>
-    <h2>Not mockups — actual grounded output</h2>
-    <p class="sub">Generated from real doctrine (TC 3-22.9, NAVMC 3500.44E, MCWP 5-10), left pending instructor review.</p>
+    <div class="sec-h">
+      <div class="lbl">Real output</div>
+      <h2>Not mockups — actual grounded output</h2>
+      <p class="sub">Generated from real doctrine (TC 3-22.9, NAVMC 3500.44E, MCWP 5-10) and left pending instructor review.</p>
+    </div>
     <div class="samples">
       <div class="sample">
         <div class="h">Generated micro-lesson · trigger control</div>
-        <div class="txt">Trigger control and follow-through minimize your arc of movement so the bullet leaves the muzzle while the sights are still on target. It requires a smooth, consistent rearward squeeze, with the finger where it naturally lays for the best mechanical advantage. <b>The most common error is dropping control after the shot</b> — keep your head on the stock, eye open, and hold the trigger to the rear through recoil until you feel the sear reset.</div>
+        <div class="txt">Trigger control and follow-through minimize your arc of movement so the round leaves the muzzle while the sights are still on target. It takes a smooth, consistent rearward squeeze, finger where it naturally lays for the best mechanical advantage. <b>The most common error is dropping control after the shot</b> — keep your head on the stock, eye open, and hold the trigger to the rear through recoil until the sear resets.</div>
         <span class="cite">TC 3-22.9, Ch 8 · p.8-2</span>
       </div>
       <div class="sample">
         <div class="h">Generated BARS rubric · "Defend a Position"</div>
         <div class="tier u"><span class="t">Unsat</span><span>Leaves the position visible to the front for lack of camouflage.</span></div>
         <div class="tier s"><span class="t">Satisf.</span><span>Completes the fighting position and applies camouflage that breaks up its outline.</span></div>
-        <div class="tier p"><span class="t">Prof.</span><span>Renders the position indistinguishable from the surrounding terrain; assists on alternates.</span></div>
+        <div class="tier p"><span class="t">Prof.</span><span>Renders the position indistinguishable from surrounding terrain; assists on alternates.</span></div>
         <span class="cite">traced to NAVMC 3500.44E task</span>
       </div>
       <div class="sample">
         <span class="badge ok">✓ Grounded · HHEM verified</span>
-        <div class="qa"><div class="q">What is sight alignment?</div>
-        <div class="txt" style="margin-top:6px">Sight alignment is the relationship between the rear aperture, the front sight post, and the aiming eye — the post centered and level in the aperture [1].</div></div>
+        <div class="q">What is sight alignment?</div>
+        <div class="txt">Sight alignment is the relationship between the rear aperture, the front sight post, and the aiming eye — the post centered and level in the aperture.</div>
         <span class="cite">TC 3-22.9, Ch 7 · p.7-3</span>
       </div>
-      <div class="sample refuse">
+      <div class="sample">
         <span class="badge no">⛔ Refused</span>
-        <div class="qa"><div class="q">What's the max range of a Javelin missile?</div>
-        <div class="txt" style="margin-top:6px">"I can't answer that from the doctrine I have on this device. Nothing in the indexed corpus supports an answer." <b>It won't invent what the source doesn't contain.</b></div></div>
+        <div class="q">What's the max range of a Javelin missile?</div>
+        <div class="txt">"I can't answer that from the doctrine on this device. Nothing in the indexed corpus supports an answer." <b>It won't invent what the source doesn't contain.</b></div>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="arsenal">
-    <div class="lbl">Open source</div>
-    <h2>Built from standalone, Apache-2.0 parts</h2>
-    <p class="sub">Each is a real library you can use on its own; together they are the platform. All public, all tested.</p>
-    <div class="arsenal">
-      <a class="repo" href="https://github.com/jeranaias/anchor"><div class="rn">Anchor</div><div class="rr">Offline grounding engine — retrieval · cite-or-refuse · HHEM, on the edge.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/quarry"><div class="rn">⛏️ Quarry</div><div class="rr">Dense PDFs → clean text, chunks, and structured tasks.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/rubricon"><div class="rn">📏 Rubricon</div><div class="rr">Standards → BARS rubrics; verifies grounding + rater reliability.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/coursewright"><div class="rn">📐 Coursewright</div><div class="rr">Objectives + sources → a full cited course as JSON.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/sourcerer"><div class="rn">🔮 Sourcerer</div><div class="rr">Cite-or-refuse Q&amp;A with a faithfulness check.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/whetstone"><div class="rn">🪨 Whetstone</div><div class="rr">Conversational discuss-to-mastery, grounded.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/sextant"><div class="rn">🧭 Sextant</div><div class="rr">Learning gain, class gaps, competency evidence.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/understudy"><div class="rn">🎭 Understudy</div><div class="rr">A doctrine-bound agent + a fidelity benchmark.</div></a>
-      <a class="repo" href="https://github.com/jeranaias/cartridge"><div class="rn">🎴 Cartridge</div><div class="rr">Course JSON → a SCORM cartridge for any LMS.</div></a>
+  <!-- SPINE -->
+  <section class="sec">
+    <div class="sec-h">
+      <div class="lbl">How it stays honest</div>
+      <h2>The same spine under every feature</h2>
+      <p class="sub">Course, tutor, rubric, quiz — all of it runs the same four steps. That's why the guarantee holds everywhere.</p>
+    </div>
+    <div class="spine">
+      <div class="node"><div class="n">01</div><h4>Ground</h4><p>Retrieve and re-rank the exact passages from the indexed corpus for the task at hand.</p></div>
+      <div class="node"><div class="n">02</div><h4>Cite or refuse</h4><p>Answer only from those passages, with a citation — or abstain when they don't support one.</p></div>
+      <div class="node"><div class="n">03</div><h4>Verify</h4><p>An on-device HHEM check scores faithfulness before anything is shown. Low score, no show.</p></div>
+      <div class="node"><div class="n">04</div><h4>Human review</h4><p>The instructor approves, edits, or rejects. Nothing unreviewed reaches a Marine.</p></div>
     </div>
   </section>
 
-  <div class="foot">Unclassified · releasable · built on public doctrine · a grounded AI training platform</div>
-</div>
+  <!-- ARSENAL -->
+  <section class="sec" id="arsenal">
+    <div class="sec-h">
+      <div class="lbl">Open source</div>
+      <h2>Built from standalone, Apache-2.0 parts</h2>
+      <p class="sub">Each is a real library you can use on its own; together they are the platform. All eleven are public, Apache-2.0, and tested — including the study-plan and after-action gap-fills.</p>
+    </div>
+    <div class="arsenal">
+      <a class="repo" href="https://github.com/jeranaias/anchor"><div class="rn">Anchor<span class="tg ship">shipped</span></div><div class="rr">Offline grounding engine — retrieval · cite-or-refuse · HHEM, on the edge.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/quarry"><div class="rn">Quarry<span class="tg ship">shipped</span></div><div class="rr">Dense PDFs → clean text, chunks, and structured tasks.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/rubricon"><div class="rn">Rubricon<span class="tg ship">shipped</span></div><div class="rr">Standards → BARS rubrics; verifies grounding + rater reliability.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/coursewright"><div class="rn">Coursewright<span class="tg ship">shipped</span></div><div class="rr">Objectives + sources → a full cited course as JSON.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/sourcerer"><div class="rn">Sourcerer<span class="tg ship">shipped</span></div><div class="rr">Cite-or-refuse Q&amp;A with a faithfulness check.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/whetstone"><div class="rn">Whetstone<span class="tg ship">shipped</span></div><div class="rr">Conversational discuss-to-mastery, grounded.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/sextant"><div class="rn">Sextant<span class="tg ship">shipped</span></div><div class="rr">Learning gain, class gaps, competency evidence.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/understudy"><div class="rn">Understudy<span class="tg ship">shipped</span></div><div class="rr">A doctrine-bound agent + a fidelity benchmark.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/cartridge"><div class="rn">Cartridge<span class="tg ship">shipped</span></div><div class="rr">Course JSON → a SCORM cartridge for any LMS.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/cadence"><div class="rn">Cadence<span class="tg ship">shipped</span></div><div class="rr">Syllabus + calendar → a 3-COA study plan with .ics export and reminders.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/hotwash"><div class="rn">Hotwash<span class="tg ship">shipped</span></div><div class="rr">End-of-course critiques → a ranked AAR worklist across class iterations.</div></a>
+    </div>
+  </section>
 
-<script>
-document.getElementById('tg').onclick=function(){var r=document.documentElement,c=r.getAttribute('data-theme');if(!c)c=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',c==='dark'?'light':'dark');};
-</script>
+  <!-- OFFLINE -->
+  <section class="sec">
+    <div class="edge">
+      <div class="big">📡</div>
+      <div>
+        <h3>Runs offline. Swaps models in one file.</h3>
+        <p>The whole delivery loop runs on a Jetson Orin with the network pulled — built for the schoolhouse and the field. Every model call sits behind a single adapter, so if the compute at the event turns out to be something else, or shows up late, we change <code>one file</code> — not the app. There's a local path that works regardless of what allocation lands.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    Unclassified · releasable · built on public doctrine<br>
+    <span class="dot">— </span>a grounded AI training platform for the schoolhouse<span class="dot"> —</span>
+  </div>
+
+</div>
 </body>
 </html>

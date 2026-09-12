@@ -9,23 +9,23 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#e9eff8;--void-deep:#dde6f2;--surface:rgba(255,255,255,.74);--surface-2:rgba(255,255,255,.52);
-  --border:rgba(40,72,140,.14);--border-lit:rgba(11,160,145,.42);--text:#37415a;--dim:#6b7690;--bright:#0f1729;--faint:#9aa4bd;
-  --glow:#0a9c8d;--glow-2:#4f6fe0;--glow-soft:rgba(11,160,145,.15);--readout:#b15e10;--danger:#cf3f3f;
-  --mote1:rgba(11,160,145,.16);--mote2:rgba(79,111,224,.14);--lift:0 2px 10px rgba(40,72,140,.08);--track:rgba(40,72,140,.1);
-  --sans:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --void:#f5f5f7;--void-deep:#f5f5f7;--surface:#ffffff;--surface-2:#ececef;
+  --border:rgba(0,0,0,.08);--border-lit:rgba(179,18,46,.42);--text:#1d1d1f;--dim:#6e6e73;--bright:#1d1d1f;--faint:#86868b;
+  --glow:#b3122e;--glow-2:#b3122e;--glow-soft:rgba(179,18,46,.10);--readout:#b0731a;--danger:#c2410c;
+  --mote1:transparent;--mote2:transparent;--lift:0 2px 12px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04);--track:rgba(0,0,0,.06);
+  --sans:-apple-system,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;--mono:"SF Mono","Cascadia Code",Consolas,ui-monospace,monospace;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){
-  --void:#05060b;--void-deep:#020208;--surface:rgba(16,20,36,.55);--surface-2:rgba(22,28,48,.5);
-  --border:rgba(120,150,220,.14);--border-lit:rgba(110,242,224,.35);--text:#cbd3e6;--dim:#7c86a3;--bright:#f4f7ff;--faint:#59627e;
-  --glow:#6ef2e0;--glow-2:#8aa2ff;--glow-soft:rgba(110,242,224,.16);--readout:#ffb673;--danger:#ff8a8a;
-  --mote1:rgba(110,242,224,.2);--mote2:rgba(138,162,255,.18);--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(2,4,10,.6);
+  --void:#0d1117;--void-deep:#0a0e13;--surface:#161b22;--surface-2:#1c2330;
+  --border:rgba(255,255,255,.1);--border-lit:rgba(224,51,79,.5);--text:#e6edf3;--dim:#9aa7b8;--bright:#ffffff;--faint:#64748b;
+  --glow:#e0334f;--glow-2:#e0334f;--glow-soft:rgba(224,51,79,.18);--readout:#fab219;--danger:#ff6b6b;
+  --mote1:transparent;--mote2:transparent;--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(0,0,0,.4);
 }}
 :root[data-theme=dark]{
-  --void:#05060b;--void-deep:#020208;--surface:rgba(16,20,36,.55);--surface-2:rgba(22,28,48,.5);
-  --border:rgba(120,150,220,.14);--border-lit:rgba(110,242,224,.35);--text:#cbd3e6;--dim:#7c86a3;--bright:#f4f7ff;--faint:#59627e;
-  --glow:#6ef2e0;--glow-2:#8aa2ff;--glow-soft:rgba(110,242,224,.16);--readout:#ffb673;--danger:#ff8a8a;
-  --mote1:rgba(110,242,224,.2);--mote2:rgba(138,162,255,.18);--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(2,4,10,.6);
+  --void:#0d1117;--void-deep:#0a0e13;--surface:#161b22;--surface-2:#1c2330;
+  --border:rgba(255,255,255,.1);--border-lit:rgba(224,51,79,.5);--text:#e6edf3;--dim:#9aa7b8;--bright:#ffffff;--faint:#64748b;
+  --glow:#e0334f;--glow-2:#e0334f;--glow-soft:rgba(224,51,79,.18);--readout:#fab219;--danger:#ff6b6b;
+  --mote1:transparent;--mote2:transparent;--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(0,0,0,.4);
 }
 *{box-sizing:border-box}html,body{margin:0}
 body{background:radial-gradient(120% 80% at 50% -10%,var(--mote1),transparent 55%),radial-gradient(90% 60% at 100% 110%,var(--mote2),transparent 55%),var(--void-deep);
@@ -130,6 +130,20 @@ textarea{width:100%;background:var(--surface-2);border:1px solid var(--border);b
 .approved{opacity:.72}.rejected{opacity:.42}
 .note{color:var(--dim);font-size:12.5px;margin-top:16px}
 @media(max-width:680px){.tiles,.fcgrid{grid-template-columns:1fr}}
+</style>
+<style>
+/* House-style reskin — flatten the cosmos glow to Apple-glass on scarlet. Appended last. */
+body{background:var(--void-deep)!important}
+.top{background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(180%)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .top{background:rgba(13,17,23,.72)}}
+:root[data-theme=dark] .top{background:rgba(13,17,23,.72)}
+.btn{background:var(--glow);color:#fff;box-shadow:none;border-radius:980px;font-weight:600}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:rgba(0,0,0,.05);color:var(--text);border:none}
+nav .tab.on{background:var(--glow);color:#fff;box-shadow:none}
+.gp .n{box-shadow:none;animation:none;background:#1e7a3c}
+.banner{background:var(--surface);border:1px solid var(--border);box-shadow:var(--lift)}
+h1,.brand{color:var(--bright)}
 </style>
 </head>
 <body>
