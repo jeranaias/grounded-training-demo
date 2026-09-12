@@ -3,1457 +3,185 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SchoolCircle — Grounded Course Generation</title>
+<title>SchoolCircle — Grounded AI Training</title>
+<meta name="description" content="Grounded AI training on doctrine — cited courses, tutoring, and assessment that runs offline on the edge, or refuses when the source doesn't support an answer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#e9eff8;--void-deep:#dde6f2;--surface:rgba(255,255,255,.74);--surface-2:rgba(255,255,255,.52);
-  --border:rgba(40,72,140,.14);--border-lit:rgba(11,160,145,.42);--text:#37415a;--dim:#6b7690;--bright:#0f1729;--faint:#9aa4bd;
-  --glow:#0a9c8d;--glow-2:#4f6fe0;--glow-soft:rgba(11,160,145,.15);--readout:#b15e10;--danger:#cf3f3f;
-  --mote1:rgba(11,160,145,.16);--mote2:rgba(79,111,224,.14);--lift:0 2px 10px rgba(40,72,140,.08);--track:rgba(40,72,140,.1);
-  --sans:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --bg:#eef2f6;--panel:#fff;--panel2:#f5f8fb;--ink:#16202b;--dim:#5c6b7a;--faint:#93a2b2;
+  --line:rgba(20,40,60,.12);--line2:rgba(20,40,60,.06);
+  --teal:#0a9c8d;--teal-soft:rgba(10,156,141,.12);--amber:#b0640a;--red:#c0392b;
+  --lift:0 1px 2px rgba(20,40,60,.06),0 8px 26px rgba(20,40,60,.07);
+  --disp:'Chakra Petch',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){
-  --void:#05060b;--void-deep:#020208;--surface:rgba(16,20,36,.55);--surface-2:rgba(22,28,48,.5);
-  --border:rgba(120,150,220,.14);--border-lit:rgba(110,242,224,.35);--text:#cbd3e6;--dim:#7c86a3;--bright:#f4f7ff;--faint:#59627e;
-  --glow:#6ef2e0;--glow-2:#8aa2ff;--glow-soft:rgba(110,242,224,.16);--readout:#ffb673;--danger:#ff8a8a;
-  --mote1:rgba(110,242,224,.2);--mote2:rgba(138,162,255,.18);--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(2,4,10,.6);
+  --bg:#070b10;--panel:#0f151d;--panel2:#131b25;--ink:#dce6f0;--dim:#8898a8;--faint:#5a6b7a;
+  --line:rgba(120,160,200,.14);--line2:rgba(120,160,200,.06);
+  --teal:#2fd6c3;--teal-soft:rgba(47,214,195,.13);--amber:#f2a900;--red:#ff6b6b;
+  --lift:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.5);
 }}
 :root[data-theme=dark]{
-  --void:#05060b;--void-deep:#020208;--surface:rgba(16,20,36,.55);--surface-2:rgba(22,28,48,.5);
-  --border:rgba(120,150,220,.14);--border-lit:rgba(110,242,224,.35);--text:#cbd3e6;--dim:#7c86a3;--bright:#f4f7ff;--faint:#59627e;
-  --glow:#6ef2e0;--glow-2:#8aa2ff;--glow-soft:rgba(110,242,224,.16);--readout:#ffb673;--danger:#ff8a8a;
-  --mote1:rgba(110,242,224,.2);--mote2:rgba(138,162,255,.18);--lift:0 4px 18px rgba(0,0,0,.4);--track:rgba(2,4,10,.6);
+  --bg:#070b10;--panel:#0f151d;--panel2:#131b25;--ink:#dce6f0;--dim:#8898a8;--faint:#5a6b7a;
+  --line:rgba(120,160,200,.14);--line2:rgba(120,160,200,.06);
+  --teal:#2fd6c3;--teal-soft:rgba(47,214,195,.13);--amber:#f2a900;--red:#ff6b6b;
+  --lift:0 1px 2px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}html,body{margin:0}
-body{background:radial-gradient(120% 80% at 50% -10%,var(--mote1),transparent 55%),radial-gradient(90% 60% at 100% 110%,var(--mote2),transparent 55%),var(--void-deep);
-  color:var(--text);font-family:var(--sans);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--readout)}
-.top{display:flex;align-items:center;gap:16px;height:56px;padding:0 22px;position:sticky;top:0;z-index:20;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--void) 82%,transparent),transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
-.brand{font-weight:900;font-size:18px;color:var(--bright);letter-spacing:-.02em}
-.gp{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--dim)}
-.gp .n{width:7px;height:7px;border-radius:50%;background:var(--glow);box-shadow:0 0 10px var(--glow);animation:pulse 2.6s infinite}
-@keyframes pulse{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
-@keyframes bloom{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-@keyframes sweep{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
-nav{margin-left:auto;display:flex;gap:5px;align-items:center}
-nav .tab{background:none;border:none;color:var(--dim);font-family:var(--sans);font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;transition:.18s}
-nav .tab:hover{color:var(--text)}nav .tab.on{color:var(--void);background:var(--glow);box-shadow:0 0 22px var(--glow-soft)}
-.theme{background:none;border:1px solid var(--border);color:var(--dim);border-radius:9px;width:32px;height:32px;font-size:14px;cursor:pointer}
-main{max-width:900px;margin:0 auto;padding:26px 22px 80px}
-.view{animation:bloom .4s both}
-.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
-h1{font-size:25px;color:var(--bright);letter-spacing:-.02em;margin:0 0 4px;font-weight:800}
-.sub{color:var(--dim);font-size:14px;margin:0 0 20px;max-width:64ch}
-.banner{background:color-mix(in srgb,var(--glow) 8%,var(--surface));border:1px solid var(--border-lit);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--dim);margin-bottom:18px}
-.banner b{color:var(--bright)}
-.label{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin:2px 0 8px}
-textarea{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.55;outline:none;resize:vertical}
-.fakefile{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 15px;display:flex;align-items:center;gap:10px;color:var(--dim);font-family:var(--sans);flex-wrap:wrap}
-.chip2{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--text)}
-.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}
-.btn{background:linear-gradient(180deg,var(--glow),color-mix(in srgb,var(--glow) 70%,#000));color:var(--void);border:none;border-radius:12px;padding:10px 17px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 0 24px var(--glow-soft)}
-.btn:hover{filter:brightness(1.07)}.btn.ghost{background:none;color:var(--glow);border:1px solid var(--border-lit);box-shadow:none}.btn[disabled]{opacity:.5;cursor:default}
-.status{font-size:12.5px;color:var(--dim)}
-.genlog{margin-top:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;font-family:var(--mono);font-size:12.5px;max-height:340px;overflow:auto}
-.genlog:empty{display:none}
-.genline{padding:2px 0;white-space:pre-wrap}.genline.dim{color:var(--dim)}.genline.sec{color:var(--bright);font-weight:700;margin-top:6px}.genline.ok{color:var(--glow)}.genline.warn{color:var(--readout)}.genline.done{color:var(--glow);font-weight:700;margin-top:8px}
-.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
-.hero .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit);border-radius:999px;padding:4px 11px}
-.badge .n{width:6px;height:6px;border-radius:50%;background:var(--glow);box-shadow:0 0 8px var(--glow)}
-.reviewtool{background:var(--surface);border:1px solid var(--border-lit);border-radius:16px;padding:18px 20px;margin-bottom:16px;backdrop-filter:blur(10px);box-shadow:var(--lift)}
-.reviewtool h2{margin:0 0 4px;font-size:16px;color:var(--bright);font-weight:800;display:flex;align-items:center;gap:8px}
-.reviewtool p{margin:0 0 14px;font-size:13px;color:var(--dim);max-width:62ch}
-.aibtn{background:linear-gradient(180deg,var(--glow-2),color-mix(in srgb,var(--glow-2) 65%,#000));color:#fff;border:none;border-radius:12px;padding:11px 18px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 0 26px var(--mote2);display:inline-flex;align-items:center;gap:9px}
-.aibtn:hover{filter:brightness(1.08)}
-.ailog{margin-top:6px;font-family:var(--mono);font-size:12.5px}
-.ailog .l{padding:2px 0;color:var(--dim)}.ailog .l.hit{color:var(--readout)}.ailog .l.ok{color:var(--glow)}
-.scan{height:4px;border-radius:3px;background:var(--track);overflow:hidden;margin:10px 0 2px;position:relative}
-.scan>i{position:absolute;left:0;top:0;bottom:0;width:34%;background:linear-gradient(90deg,transparent,var(--glow-2),transparent);animation:sweep 1s linear infinite}
-.summary{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.stat{display:inline-flex;flex-direction:column;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:8px 14px;min-width:88px}
-.stat b{font-family:var(--mono);font-size:20px;color:var(--bright);font-variant-numeric:tabular-nums;line-height:1}
-.stat.flagged b{color:var(--readout)}.stat.solid b{color:var(--glow)}
-.stat span{font-size:11px;color:var(--dim);margin-top:3px}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px 14px;backdrop-filter:blur(10px);box-shadow:var(--lift);cursor:pointer;transition:.16s;position:relative;overflow:hidden;text-align:left;width:100%;font:inherit;color:inherit;display:block}
-.tile:hover{border-color:var(--border-lit);transform:translateY(-2px)}.tile:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
-.tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
-.tile .tk{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-.tile h3{font-size:16px;color:var(--bright);margin:3px 0 8px;font-weight:700}.tile .meta{font-size:12.5px;color:var(--dim);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.tile .prev{font-size:12.5px;color:var(--text);margin:8px 0 10px;opacity:.85}
-.tile .open{color:var(--glow);font-size:12.5px;font-weight:700}
-.pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-flex;align-items:center;gap:5px}
-.pill.flag{color:var(--readout);background:color-mix(in srgb,var(--readout) 14%,transparent);border:1px solid color-mix(in srgb,var(--readout) 38%,transparent)}
-.pill.done{color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit)}
-.back{background:none;border:none;color:var(--glow);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:12px}
-.prog{height:6px;background:var(--track);border-radius:4px;overflow:hidden;margin:6px 0 2px}.prog>i{display:block;height:100%;background:var(--glow);box-shadow:0 0 10px var(--glow);transition:width .3s}
-.progwrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;box-shadow:var(--lift)}
-.progwrap .row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--dim);margin-bottom:7px;flex-wrap:wrap}
-.org{padding:16px 18px;border-radius:15px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;backdrop-filter:blur(10px);box-shadow:var(--lift);margin-bottom:12px}
-.org::before,.diagram::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--glow),transparent);box-shadow:0 0 14px var(--glow);opacity:.9}
-.org.flagged::before,.diagram.flagged::before{background:linear-gradient(var(--readout),transparent);box-shadow:0 0 14px var(--readout)}
-.org p{margin:0 0 8px;color:var(--text);font-size:14.5px}
-.cite{font-family:var(--mono);font-size:11px;color:var(--glow);border:1px solid var(--border-lit);border-radius:6px;padding:1px 7px;white-space:nowrap}
-.meta{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--dim);flex-wrap:wrap}
-.nucleus{width:8px;height:8px;border-radius:50%;background:var(--glow);box-shadow:0 0 12px var(--glow);animation:pulse 2.4s infinite;display:inline-block}
-.srcline{margin-top:8px;font-size:12px;color:var(--dim);font-family:var(--mono)}
-.diagram{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:15px 17px;margin-bottom:12px;backdrop-filter:blur(10px);box-shadow:var(--lift);position:relative;overflow:hidden}
-.diagram h4{margin:0 0 3px;font-size:14.5px;color:var(--bright);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dcap{font-size:12px;color:var(--dim);margin:0 0 12px}
-.diagram svg{width:100%;max-width:360px;height:auto;display:block;margin:2px auto 6px}
-.railh{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--glow)}
-.qopts{display:grid;gap:6px;margin:8px 0}
-.qopt{display:flex;align-items:center;gap:9px;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13.5px;color:var(--text);background:var(--surface-2)}
-.qopt.correct{border-color:var(--border-lit);background:var(--glow-soft);color:var(--bright)}.qlt{font-family:var(--mono);color:var(--dim);font-size:12px}
-.fcgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.fc{background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:14px 16px;position:relative;overflow:hidden}
-.fc.flagged{border-color:color-mix(in srgb,var(--readout) 40%,transparent)}
-.fcq{font-size:13.5px;font-weight:700;color:var(--bright);margin-bottom:6px}.fca{font-size:13px;color:var(--dim)}
-.verdict{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;margin:8px 0 2px;font-family:var(--mono);line-height:1.45}
-.verdict.solid{color:var(--glow)}.verdict.flag{color:var(--readout)}
-.verdict b{font-weight:700}
-.review{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
-.rbtns,.rrevise{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.rb{border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:9px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:.15s}
-.rb:hover{border-color:var(--border-lit)}.rb.ok{color:var(--glow);border-color:var(--border-lit)}.rb.no{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
-.done-appr,.done-rej,.done-rev{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;border-radius:9px;padding:5px 12px}
-.done-appr{color:var(--glow);background:var(--glow-soft);border:1px solid var(--border-lit)}
-.done-rej{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent);border:1px solid color-mix(in srgb,var(--danger) 35%,transparent)}
-.done-rev{color:var(--readout);background:color-mix(in srgb,var(--readout) 12%,transparent);border:1px solid color-mix(in srgb,var(--readout) 38%,transparent)}
-.done-rev .rrev{font-family:var(--mono);font-size:11px;opacity:.8}
-.rmsg{font-size:12px;color:var(--glow)}
-.rinput{flex:1;min-width:240px;background:var(--surface-2);border:1px solid var(--border-lit);border-radius:9px;padding:7px 11px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none}
-.approved{opacity:.72}.rejected{opacity:.42}
-.note{color:var(--dim);font-size:12.5px;margin-top:16px}
-@media(max-width:680px){.tiles,.fcgrid{grid-template-columns:1fr}}
+body{background:radial-gradient(120% 70% at 85% -8%,var(--teal-soft),transparent 55%),var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.01em;text-wrap:balance;margin:0}
+a{color:var(--teal)}
+.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line)}
+.topin{max-width:1040px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:14px}
+.brand{font-family:var(--disp);font-weight:700;font-size:17px}
+.brand .gp{font-family:var(--body);font-weight:500;font-size:12px;color:var(--dim);margin-left:8px}
+.top nav{margin-left:auto;display:flex;gap:6px;align-items:center}
+.top nav a{font-size:13.5px;font-weight:600;color:var(--dim);text-decoration:none;padding:7px 11px;border-radius:9px}
+.top nav a:hover{color:var(--ink)}
+.top nav .cta{background:var(--teal);color:var(--bg)}
+.theme{background:none;border:1px solid var(--line);color:var(--dim);width:32px;height:32px;border-radius:9px;font-size:14px;cursor:pointer}
+.hero{padding:64px 0 40px;text-align:center}
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.hero h1{font-size:clamp(34px,6.2vw,60px);font-weight:800;line-height:1.02;margin:14px auto 0;max-width:16ch}
+.hero h1 .g{color:var(--teal)}
+.hero p{font-size:17px;color:var(--dim);max-width:60ch;margin:18px auto 0}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.btn{font-weight:700;font-size:15px;padding:12px 20px;border-radius:12px;text-decoration:none;border:1px solid var(--line)}
+.btn.p{background:var(--teal);color:var(--bg);border-color:var(--teal);box-shadow:0 0 26px var(--teal-soft)}
+.btn.s{background:var(--panel);color:var(--ink)}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:44px 0}
+.pillar{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--lift)}
+.pillar .ic{font-size:22px}
+.pillar h3{font-size:16px;margin:10px 0 5px}
+.pillar p{font-size:13px;color:var(--dim);margin:0}
+.sec{margin:54px 0 0}
+.sec .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.sec h2{font-size:27px;font-weight:700;margin:8px 0 6px}
+.sec .sub{color:var(--dim);font-size:15px;max-width:70ch;margin:0 0 22px}
+.caps{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cap{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:12px;padding:16px 18px;box-shadow:var(--lift)}
+.cap h4{font-size:16px}.cap p{font-size:13.5px;color:var(--dim);margin:5px 0 0}
+.cap .uc{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-top:8px;display:inline-block}
+.samples{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sample{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--lift)}
+.sample .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.sample .txt{font-size:14px;line-height:1.55}
+.cite{font-family:var(--mono);font-size:11px;color:var(--teal);border:1px solid var(--teal);border-radius:6px;padding:1px 7px;display:inline-block;margin-top:10px}
+.tier{display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:13px;padding:6px 0;border-top:1px solid var(--line2)}
+.tier .t{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;padding-top:2px}
+.tier.u .t{color:var(--red)}.tier.s .t{color:var(--amber)}.tier.p .t{color:var(--teal)}
+.refuse{border-left-color:var(--red)!important}
+.qa .q{font-weight:700}.qa .q::before{content:"▸ ";color:var(--teal)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;font-family:var(--mono);border-radius:999px;padding:3px 10px;margin-bottom:8px}
+.badge.ok{color:var(--teal);background:var(--teal-soft);border:1px solid var(--teal)}
+.badge.no{color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid color-mix(in srgb,var(--red) 40%,transparent)}
+.arsenal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.repo{display:block;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--lift);text-decoration:none;color:inherit;transition:.15s}
+.repo:hover{border-color:var(--teal);transform:translateY(-2px)}
+.repo .rn{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--teal)}
+.repo .rr{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.45}
+.foot{margin:56px 0 40px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);text-align:center}
+@media(max-width:760px){.pillars,.caps,.samples{grid-template-columns:1fr}.arsenal{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<div class="top">
-  <span class="brand">SchoolCircle</span>
-  <span class="gp"><span class="n"></span> grounded by Anchor</span>
+<div class="top"><div class="topin">
+  <span class="brand">SchoolCircle<span class="gp">grounded by Anchor</span></span>
   <nav>
-    <button class="tab on" data-v="studio">Studio</button>
-    <button class="tab" data-v="course">Course</button>
-    <button class="theme" id="tg" title="Toggle light/dark">◐</button>
+    <a href="#arsenal">Open source</a>
+    <a class="cta" href="demo.html">See a generated course →</a>
+    <button class="theme" id="tg" title="Toggle theme">◐</button>
   </nav>
+</div></div>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="kick">Grounded AI training · for doctrine · on the edge</div>
+    <h1>AI training that <span class="g">won't make things up.</span></h1>
+    <p>Generate cited courses, tutor from the source, and assess Marines to mastery — every claim traceable to the manual, verified on-device, or <b>refused</b> when the doctrine doesn't support it. Runs offline on a Jetson. Nothing an instructor didn't approve ever reaches a student.</p>
+    <div class="btns">
+      <a class="btn p" href="demo.html">Walk a generated course →</a>
+      <a class="btn s" href="#arsenal">The open-source arsenal</a>
+    </div>
+  </section>
+
+  <div class="pillars">
+    <div class="pillar"><div class="ic">📎</div><h3>Grounded</h3><p>Every answer cites the exact passage — or says it can't. Cite-or-refuse, not confident guessing.</p></div>
+    <div class="pillar"><div class="ic">✓</div><h3>Verified</h3><p>On-device HHEM checks faithfulness; grounding, rubrics, and doctrinal fidelity are all proven, not asserted.</p></div>
+    <div class="pillar"><div class="ic">📡</div><h3>Offline</h3><p>The full delivery loop runs on a Jetson Orin with the network pulled. Built for the schoolhouse and the field.</p></div>
+    <div class="pillar"><div class="ic">🎖️</div><h3>Human-led</h3><p>AI drafts; an instructor approves, edits, or rejects. Nothing unreviewed reaches a Marine.</p></div>
+  </div>
+
+  <section class="sec">
+    <div class="lbl">What it does</div>
+    <h2>One grounded platform, many jobs</h2>
+    <p class="sub">Load doctrine and a program of instruction; the platform builds and delivers the training around it.</p>
+    <div class="caps">
+      <div class="cap"><h4>📐 Generate a course</h4><p>A POI + the manual → cited lessons, diagrams, pre/post tests, a scenario with coaching, discussion prompts, and an instructor summary.</p><span class="uc">Content Generation · MCPP</span></div>
+      <div class="cap"><h4>🔮 Ask the doctrine</h4><p>A tutor that answers straight from the source with citations — or an honest "not in the source."</p><span class="uc">Personalized Learning</span></div>
+      <div class="cap"><h4>📏 Rubrics from standards</h4><p>Turn a Training &amp; Readiness standard into a behaviorally-anchored rating scale, traceable, with reliability math.</p><span class="uc">Performance Assessment</span></div>
+      <div class="cap"><h4>🪨 Assess to mastery</h4><p>A conversational check that scores each answer against a rubric, coaches the gap, and records a mastery score.</p><span class="uc">Performance Assessment</span></div>
+      <div class="cap"><h4>🧭 Measure learning</h4><p>Pre→post learning gain, class gaps, and competency evidence from the learning that actually happened.</p><span class="uc">Learning Analytics</span></div>
+      <div class="cap"><h4>🎴 Drops into your LMS</h4><p>Export any course to a SCORM 1.2/2004 cartridge that loads into MarineNet or Moodle and reports scores.</p><span class="uc">Interoperability</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="lbl">Real output</div>
+    <h2>Not mockups — actual grounded output</h2>
+    <p class="sub">Generated from real doctrine (TC 3-22.9, NAVMC 3500.44E, MCWP 5-10), left pending instructor review.</p>
+    <div class="samples">
+      <div class="sample">
+        <div class="h">Generated micro-lesson · trigger control</div>
+        <div class="txt">Trigger control and follow-through minimize your arc of movement so the bullet leaves the muzzle while the sights are still on target. It requires a smooth, consistent rearward squeeze, with the finger where it naturally lays for the best mechanical advantage. <b>The most common error is dropping control after the shot</b> — keep your head on the stock, eye open, and hold the trigger to the rear through recoil until you feel the sear reset.</div>
+        <span class="cite">TC 3-22.9, Ch 8 · p.8-2</span>
+      </div>
+      <div class="sample">
+        <div class="h">Generated BARS rubric · "Defend a Position"</div>
+        <div class="tier u"><span class="t">Unsat</span><span>Leaves the position visible to the front for lack of camouflage.</span></div>
+        <div class="tier s"><span class="t">Satisf.</span><span>Completes the fighting position and applies camouflage that breaks up its outline.</span></div>
+        <div class="tier p"><span class="t">Prof.</span><span>Renders the position indistinguishable from the surrounding terrain; assists on alternates.</span></div>
+        <span class="cite">traced to NAVMC 3500.44E task</span>
+      </div>
+      <div class="sample">
+        <span class="badge ok">✓ Grounded · HHEM verified</span>
+        <div class="qa"><div class="q">What is sight alignment?</div>
+        <div class="txt" style="margin-top:6px">Sight alignment is the relationship between the rear aperture, the front sight post, and the aiming eye — the post centered and level in the aperture [1].</div></div>
+        <span class="cite">TC 3-22.9, Ch 7 · p.7-3</span>
+      </div>
+      <div class="sample refuse">
+        <span class="badge no">⛔ Refused</span>
+        <div class="qa"><div class="q">What's the max range of a Javelin missile?</div>
+        <div class="txt" style="margin-top:6px">"I can't answer that from the doctrine I have on this device. Nothing in the indexed corpus supports an answer." <b>It won't invent what the source doesn't contain.</b></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="arsenal">
+    <div class="lbl">Open source</div>
+    <h2>Built from standalone, Apache-2.0 parts</h2>
+    <p class="sub">Each is a real library you can use on its own; together they are the platform. All public, all tested.</p>
+    <div class="arsenal">
+      <a class="repo" href="https://github.com/jeranaias/anchor"><div class="rn">Anchor</div><div class="rr">Offline grounding engine — retrieval · cite-or-refuse · HHEM, on the edge.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/quarry"><div class="rn">⛏️ Quarry</div><div class="rr">Dense PDFs → clean text, chunks, and structured tasks.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/rubricon"><div class="rn">📏 Rubricon</div><div class="rr">Standards → BARS rubrics; verifies grounding + rater reliability.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/coursewright"><div class="rn">📐 Coursewright</div><div class="rr">Objectives + sources → a full cited course as JSON.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/sourcerer"><div class="rn">🔮 Sourcerer</div><div class="rr">Cite-or-refuse Q&amp;A with a faithfulness check.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/whetstone"><div class="rn">🪨 Whetstone</div><div class="rr">Conversational discuss-to-mastery, grounded.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/sextant"><div class="rn">🧭 Sextant</div><div class="rr">Learning gain, class gaps, competency evidence.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/understudy"><div class="rn">🎭 Understudy</div><div class="rr">A doctrine-bound agent + a fidelity benchmark.</div></a>
+      <a class="repo" href="https://github.com/jeranaias/cartridge"><div class="rn">🎴 Cartridge</div><div class="rr">Course JSON → a SCORM cartridge for any LMS.</div></a>
+    </div>
+  </section>
+
+  <div class="foot">Unclassified · releasable · built on public doctrine · a grounded AI training platform</div>
 </div>
-<main id="stage"></main>
 
 <script>
-var COURSE = {
-  "course": {
-    "title": "Generated Course",
-    "sourceId": "attached corpus"
-  },
-  "sections": [
-    {
-      "title": "Obj 1 · Describe the functional elements of the shot…",
-      "lessons": [
-        {
-          "id": "cmtw14rkx003lqj64zo24og6i",
-          "stem": "Mastering the shot process requires you to understand the four interdependent functional elements: Stability, Aim, Control, and Movement. These elements link you to your weapon and the environment to ensure consistency, accuracy, and precision during an engagement. The most common error is failing to maintain these elements until the shot is complete, particularly stability, which must be sustained until the recoil pulse has ceased. To correct this, you must consciously manage your posture, trigger control, and sight alignment as a single, continuous process. Coaching cue: 'Hold your stability through the recoil.'",
-          "citation": {
-            "page": null,
-            "pubId": "TC 3-22.9",
-            "citation": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-          },
-          "revision": 0
-        }
-      ],
-      "diagram": {
-        "title": "Functional Elements of the Shot Process",
-        "spec": {
-          "cite": "TC 3-22.9 (Rifle and Carbine)",
-          "title": "Functional Elements of the Shot Process",
-          "refused": false,
-          "viewBox": "0 0 340 200",
-          "elements": [
-            {
-              "x": 170,
-              "y": 15,
-              "fill": "glow2",
-              "text": "Functional Elements of the Shot Process",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 195,
-              "fill": "glow",
-              "text": "These four elements are interdependent",
-              "type": "text"
-            },
-            {
-              "r": 28,
-              "cx": 170,
-              "cy": 112.5,
-              "fill": "dim",
-              "type": "circle",
-              "stroke": "glow2"
-            },
-            {
-              "x": 170,
-              "y": 108,
-              "fill": "glow",
-              "text": "SHOT",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 122,
-              "fill": "glow",
-              "text": "PROCESS",
-              "type": "text"
-            },
-            {
-              "x1": 140,
-              "x2": 150,
-              "y1": 75,
-              "y2": 95,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 200,
-              "x2": 190,
-              "y1": 75,
-              "y2": 95,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 140,
-              "x2": 150,
-              "y1": 145,
-              "y2": 130,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 200,
-              "x2": 190,
-              "y1": 145,
-              "y2": 130,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "h": 55,
-              "w": 120,
-              "x": 20,
-              "y": 35,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow"
-            },
-            {
-              "x": 80,
-              "y": 50,
-              "fill": "glow2",
-              "text": "STABILITY",
-              "type": "text"
-            },
-            {
-              "x": 80,
-              "y": 65,
-              "fill": "readout",
-              "text": "Consistent base",
-              "type": "text"
-            },
-            {
-              "x": 80,
-              "y": 78,
-              "fill": "readout",
-              "text": "Manage recoil",
-              "type": "text"
-            },
-            {
-              "h": 55,
-              "w": 120,
-              "x": 200,
-              "y": 35,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow"
-            },
-            {
-              "x": 260,
-              "y": 50,
-              "fill": "glow2",
-              "text": "AIM",
-              "type": "text"
-            },
-            {
-              "x": 260,
-              "y": 65,
-              "fill": "readout",
-              "text": "Orient weapon",
-              "type": "text"
-            },
-            {
-              "x": 260,
-              "y": 78,
-              "fill": "readout",
-              "text": "Align sights",
-              "type": "text"
-            },
-            {
-              "h": 55,
-              "w": 120,
-              "x": 20,
-              "y": 130,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow"
-            },
-            {
-              "x": 80,
-              "y": 145,
-              "fill": "glow2",
-              "text": "MOVEMENT",
-              "type": "text"
-            },
-            {
-              "x": 80,
-              "y": 160,
-              "fill": "readout",
-              "text": "Move during",
-              "type": "text"
-            },
-            {
-              "x": 80,
-              "y": 173,
-              "fill": "readout",
-              "text": "engagement",
-              "type": "text"
-            },
-            {
-              "h": 55,
-              "w": 120,
-              "x": 200,
-              "y": 130,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow"
-            },
-            {
-              "x": 260,
-              "y": 145,
-              "fill": "glow2",
-              "text": "CONTROL",
-              "type": "text"
-            },
-            {
-              "x": 260,
-              "y": 160,
-              "fill": "readout",
-              "text": "Conscious actions",
-              "type": "text"
-            },
-            {
-              "x": 260,
-              "y": 173,
-              "fill": "readout",
-              "text": "Trigger control",
-              "type": "text"
-            }
-          ]
-        },
-        "cite": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-      },
-      "pre": [
-        {
-          "id": "cmtw15yjq003tqj64cm97emgr",
-          "stem": "According to the functional elements of the shot process, which element involves the conscious actions of the Soldier regarding whether, when, and how to engage a target?",
-          "options": [
-            "Control",
-            "Stability",
-            "Aim",
-            "Movement"
-          ],
-          "answer": 0,
-          "rationale": "According to paragraph 5-11, Control is defined as all conscious actions of the Soldier before, during, and after the shot process, specifically including whether, when, and how to engage."
-        },
-        {
-          "id": "cmtw15yjv003vqj64szbulr0i",
-          "stem": "Which functional element requires the Soldier to stabilize the weapon to provide a consistent base until the recoil pulse has ceased?",
-          "options": [
-            "Aim",
-            "Movement",
-            "Stability",
-            "Control"
-          ],
-          "answer": 2,
-          "rationale": "Paragraph 5-11 and the Chapter 6 overview state that Stability is the process where the Soldier stabilizes the weapon to provide a consistent base to fire from and maintain until the recoil pulse/impulse has ceased."
-        }
-      ],
-      "post": [
-        {
-          "id": "cmtw160r6003zqj64zmf6qv7o",
-          "stem": "According to the shot process functional elements, which element involves the conscious actions of the Soldier regarding whether, when, and how to engage a target?",
-          "options": [
-            "Control",
-            "Stability",
-            "Aim",
-            "Movement"
-          ],
-          "answer": 0,
-          "rationale": "According to paragraph 5-11, Control is defined as all conscious actions of the Soldier before, during, and after the shot process, including trigger control and the decision of whether, when, and how to engage."
-        },
-        {
-          "id": "cmtw160r90041qj64eitoeyt0",
-          "stem": "Which functional element of the shot process requires a Soldier to establish a consistent base for the weapon and maintain it until the recoil pulse has ceased?",
-          "options": [
-            "Aim",
-            "Movement",
-            "Stability",
-            "Control"
-          ],
-          "answer": 2,
-          "rationale": "Paragraph 5-11 and the Chapter 6 introduction define Stability as the process where the Soldier stabilizes the weapon to provide a consistent base to fire from and maintain through the shot process until the recoil pulse/impulse has ceased."
-        }
-      ],
-      "flashcards": [
-        {
-          "id": "cmtw162fu0045qj64x59231xx",
-          "front": "What are the four functional elements of the shot process that a Soldier must establish, maintain, and sustain for an accurate shot?",
-          "back": "Stability, Aim, Control, and Movement."
-        },
-        {
-          "id": "cmtw162fz0047qj64cwww6s5i",
-          "front": "According to the functional elements of the shot process, what does the element of 'Control' incorporate?",
-          "back": "All conscious actions before, during, and after the shot process (specifically trigger control), whether, when, and how to engage, and the Soldier's function regarding safety and the responsibility of firing."
-        },
-        {
-          "id": "cmtw162g10049qj64t9f9100y",
-          "front": "In the context of the functional element 'Stability,' what are the four functions through which stability is provided?",
-          "back": "Support, muscle relaxation, natural point of aim, and recoil management."
-        }
-      ]
-    },
-    {
-      "title": "Obj 2 · Explain natural point of aim and how to corr…",
-      "lessons": [
-        {
-          "id": "cmtw1643u004jqj64j3efodd5",
-          "stem": "Natural point of aim (NPA) is the point where your barrel naturally orients when your muscles are relaxed and support is achieved. Mastering NPA is vital because the closer it is to your target, the less muscle support you require, leading to a more stable position that is resistant to recoil. A common error is using muscle tension to force the sights onto the target, which causes fatigue and increases your wobble area. To correct this, assume your position, close your eyes, and take one breath cycle; if your sights are not on the target when you open them, physically shift your body position rather than using your arms to move the weapon. Coaching cue: 'Relax into the bone, don't fight the stone.'",
-          "citation": {
-            "page": null,
-            "pubId": "TC 3-22.9",
-            "citation": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-          },
-          "revision": 0
-        }
-      ],
-      "diagram": {
-        "title": "Natural Point of Aim (NPOA) & Correction",
-        "spec": {
-          "cite": "Attached corpus · TC 3-22.9 (Rifle and Carbine)",
-          "title": "Natural Point of Aim (NPOA) & Correction",
-          "refused": false,
-          "viewBox": "0 0 340 200",
-          "elements": [
-            {
-              "x": 10,
-              "y": 30,
-              "fill": "danger",
-              "text": "Target (Point of Aim)",
-              "type": "text"
-            },
-            {
-              "r": 15,
-              "cx": 50,
-              "cy": 70,
-              "fill": "none",
-              "type": "circle",
-              "stroke": "danger"
-            },
-            {
-              "x1": 50,
-              "x2": 50,
-              "y1": 50,
-              "y2": 90,
-              "type": "line",
-              "stroke": "danger"
-            },
-            {
-              "x1": 30,
-              "x2": 70,
-              "y1": 70,
-              "y2": 70,
-              "type": "line",
-              "stroke": "danger"
-            },
-            {
-              "x": 70,
-              "y": 160,
-              "fill": "glow2",
-              "text": "Initial NPOA",
-              "type": "text"
-            },
-            {
-              "x": 70,
-              "y": 175,
-              "fill": "dim",
-              "text": "(Wobble Area)",
-              "type": "text"
-            },
-            {
-              "r": 15,
-              "cx": 100,
-              "cy": 120,
-              "fill": "none",
-              "type": "circle",
-              "stroke": "glow2"
-            },
-            {
-              "r": 25,
-              "cx": 100,
-              "cy": 120,
-              "fill": "none",
-              "type": "circle",
-              "stroke": "dim"
-            },
-            {
-              "x1": 100,
-              "x2": 100,
-              "y1": 100,
-              "y2": 140,
-              "type": "line",
-              "stroke": "glow2"
-            },
-            {
-              "x1": 80,
-              "x2": 120,
-              "y1": 120,
-              "y2": 120,
-              "type": "line",
-              "stroke": "glow2"
-            },
-            {
-              "x1": 85,
-              "x2": 65,
-              "y1": 105,
-              "y2": 85,
-              "type": "line",
-              "stroke": "glow"
-            },
-            {
-              "x1": 65,
-              "x2": 75,
-              "y1": 85,
-              "y2": 85,
-              "type": "line",
-              "stroke": "glow"
-            },
-            {
-              "x1": 65,
-              "x2": 65,
-              "y1": 85,
-              "y2": 95,
-              "type": "line",
-              "stroke": "glow"
-            },
-            {
-              "x": 75,
-              "y": 95,
-              "fill": "glow",
-              "text": "Adjust Position",
-              "type": "text"
-            },
-            {
-              "h": 175,
-              "w": 165,
-              "x": 165,
-              "y": 15,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "dim"
-            },
-            {
-              "x": 170,
-              "y": 30,
-              "fill": "readout",
-              "text": "NPOA Correction Steps:",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 50,
-              "fill": "glow",
-              "text": "1. Assume steady position",
-              "type": "text"
-            },
-            {
-              "x": 180,
-              "y": 65,
-              "fill": "glow",
-              "text": "& get to natural pause",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 85,
-              "fill": "glow",
-              "text": "2. Close eyes, 1 cycle,",
-              "type": "text"
-            },
-            {
-              "x": 180,
-              "y": 100,
-              "fill": "glow",
-              "text": "open on natural pause",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 120,
-              "fill": "glow",
-              "text": "3. Sights lay at NPOA",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 140,
-              "fill": "glow",
-              "text": "4. Adjust position until",
-              "type": "text"
-            },
-            {
-              "x": 180,
-              "y": 155,
-              "fill": "glow",
-              "text": "NPOA = Target",
-              "type": "text"
-            },
-            {
-              "x": 170,
-              "y": 175,
-              "fill": "glow",
-              "text": "5. Repeat process",
-              "type": "text"
-            }
-          ]
-        },
-        "cite": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-      },
-      "pre": [
-        {
-          "id": "cmtw16zjp004rqj64cyg4laev",
-          "stem": "According to the provided text, what is the definition of the 'natural point of aim'?",
-          "options": [
-            "The point where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.",
-            "The specific area where the sights oscillate slightly around and through the target's center.",
-            "The relationship between the shooter's upper body and the direction of the weapon.",
-            "The extent that the human eye can see at any given moment without using magnification."
-          ],
-          "answer": 0,
-          "rationale": "Section 6-5 explicitly defines the natural point of aim as 'the point where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved.'"
-        },
-        {
-          "id": "cmtw16zju004tqj64k8hffqgb",
-          "stem": "If a Soldier opens their eyes during the natural pause and finds the sights are not on the target's point of aim, what action should they take to correct it?",
-          "options": [
-            "Increase muscle tension in the major muscle groups to pull the weapon toward the target.",
-            "Adjust the trigger control and breathing cycle to compensate for the misalignment.",
-            "Make small adjustments to their position to get the reticle or front sight post back on the point of aim.",
-            "Switch to a position with less skeletal support to increase mobility and target acquisition."
-          ],
-          "answer": 2,
-          "rationale": "Section 6-7 states that if the natural point of aim is not on the target, the Soldier 'should make small adjustments to their position to get the reticle or front sight post back on their point of aim' and repeat the process until aligned."
-        }
-      ],
-      "post": [
-        {
-          "id": "cmtw1727e004xqj64uttmq89j",
-          "stem": "According to the provided text, how should a Soldier adjust their natural point of aim if the sights are not aligned with the target's point of aim after opening their eyes?",
-          "options": [
-            "Make small adjustments to their position until the reticle or front sight post is on the point of aim.",
-            "Use muscle tension to force the barrel toward the target while maintaining the current position.",
-            "Increase the size of the wobble area to compensate for the misalignment.",
-            "Switch to a more mobile position to allow for faster lateral movement."
-          ],
-          "answer": 0,
-          "rationale": "Section 6-7 states that if the natural point of aim is not on the target, the Soldier 'should make small adjustments to their position to get the reticle or front sight post back on their point of aim' and repeat the process until aligned."
-        },
-        {
-          "id": "cmtw1727i004zqj64gvmvtj8g",
-          "stem": "When checking the natural point of aim, what specific action should a Soldier take immediately after closing their eyes and going through one cycle?",
-          "options": [
-            "Adjust their stock weld to improve eye relief.",
-            "Open their eyes on the natural pause to see where the sights are laying.",
-            "Engage the trigger control phase of the shot process.",
-            "Shift their weight to increase skeletal support."
-          ],
-          "answer": 1,
-          "rationale": "Section 6-7 describes the process for checking the natural point of aim: the Soldier should assume a steady position, reach the natural pause, close their eyes for one cycle, and then 'open their eyes on the natural pause' to identify where the sights are laying."
-        }
-      ],
-      "flashcards": [
-        {
-          "id": "cmtw173sd0053qj642reriqrg",
-          "front": "What is the definition of 'natural point of aim' according to the passage?",
-          "back": "The point where the barrel naturally orients when the shooter’s muscles are relaxed and support is achieved."
-        },
-        {
-          "id": "cmtw173sh0055qj64esuey9bf",
-          "front": "How does a Soldier check their natural point of aim?",
-          "back": "Assume a steady position, reach the natural pause, close their eyes for one cycle, and then open them. The location where the sights are laying at that time is the natural point of aim."
-        },
-        {
-          "id": "cmtw173sk0057qj64ghgqxtfq",
-          "front": "What action should a Soldier take if their natural point of aim is not on the target's point of aim?",
-          "back": "Make small adjustments to their position to get the reticle or front sight post back on the point of aim, repeating the process until they align."
-        }
-      ]
-    },
-    {
-      "title": "Obj 3 · Explain sight alignment, sight picture, and …",
-      "lessons": [
-        {
-          "id": "cmtw175ta005hqj64hp87pf76",
-          "stem": "Mastering your aim requires understanding three distinct components: sight alignment, which is the physical alignment of your aiming device; sight picture, the placement of those aligned sights on the target; and the desired point of impact, where you actually want the round to strike. These elements are critical because at any range different from your zero, your point of aim and desired point of impact will not align, requiring you to calculate a specific hold-off. A common error occurs when shooters fail to focus on the front sight post or reticle, leading to incorrect sight alignment. To correct this, you must maintain sight alignment throughout the entire positioning of the sights on the target. Remember: sight alignment is the first and most important part of the aiming process. Coaching cue: Focus on the reticle, not the target.",
-          "citation": {
-            "page": null,
-            "pubId": "TC 3-22.9",
-            "citation": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-          },
-          "revision": 0
-        }
-      ],
-      "diagram": {
-        "title": "Aiming Process: Sight Alignment & Sight Picture",
-        "spec": {
-          "cite": "TC 3-22.9 (Rifle and Carbine)",
-          "title": "Aiming Process: Sight Alignment & Sight Picture",
-          "refused": false,
-          "viewBox": "0 0 340 200",
-          "elements": [
-            {
-              "x": 10,
-              "y": 15,
-              "text": "Aiming Process: Sight Alignment & Sight Picture",
-              "type": "text"
-            },
-            {
-              "r": 4,
-              "cx": 20,
-              "cy": 70,
-              "fill": "glow2",
-              "type": "circle",
-              "stroke": "none"
-            },
-            {
-              "x": 10,
-              "y": 55,
-              "text": "Eye",
-              "type": "text"
-            },
-            {
-              "h": 25,
-              "w": 8,
-              "x": 70,
-              "y": 70,
-              "fill": "dim",
-              "type": "rect",
-              "stroke": "none"
-            },
-            {
-              "h": 15,
-              "w": 6,
-              "x": 130,
-              "y": 70,
-              "fill": "dim",
-              "type": "rect",
-              "stroke": "none"
-            },
-            {
-              "x1": 20,
-              "x2": 270,
-              "y1": 70,
-              "y2": 70,
-              "type": "line",
-              "stroke": "glow"
-            },
-            {
-              "x": 160,
-              "y": 65,
-              "text": "Line of Sight",
-              "type": "text"
-            },
-            {
-              "h": 80,
-              "w": 25,
-              "x": 270,
-              "y": 40,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "dim"
-            },
-            {
-              "x": 265,
-              "y": 30,
-              "text": "Target",
-              "type": "text"
-            },
-            {
-              "r": 3,
-              "cx": 270,
-              "cy": 70,
-              "fill": "glow",
-              "type": "circle",
-              "stroke": "none"
-            },
-            {
-              "x1": 270,
-              "x2": 240,
-              "y1": 70,
-              "y2": 45,
-              "type": "line",
-              "stroke": "glow"
-            },
-            {
-              "x": 130,
-              "y": 40,
-              "text": "Point of Aim (POA)",
-              "type": "text"
-            },
-            {
-              "r": 3,
-              "cx": 282.5,
-              "cy": 80,
-              "fill": "danger",
-              "type": "circle",
-              "stroke": "none"
-            },
-            {
-              "x1": 282.5,
-              "x2": 260,
-              "y1": 80,
-              "y2": 110,
-              "type": "line",
-              "stroke": "danger"
-            },
-            {
-              "x": 160,
-              "y": 115,
-              "text": "Desired Point of Impact (POI)",
-              "type": "text"
-            },
-            {
-              "x": 160,
-              "y": 130,
-              "text": "(Center of Visible Mass)",
-              "type": "text"
-            },
-            {
-              "x1": 136,
-              "x2": 282.5,
-              "y1": 85,
-              "y2": 80,
-              "type": "line",
-              "stroke": "danger"
-            },
-            {
-              "x": 160,
-              "y": 95,
-              "text": "Projectile Path",
-              "type": "text"
-            },
-            {
-              "x1": 70,
-              "x2": 136,
-              "y1": 100,
-              "y2": 100,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 70,
-              "x2": 70,
-              "y1": 95,
-              "y2": 100,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 136,
-              "x2": 136,
-              "y1": 95,
-              "y2": 100,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x": 65,
-              "y": 115,
-              "text": "Sight Alignment",
-              "type": "text"
-            },
-            {
-              "x1": 70,
-              "x2": 270,
-              "y1": 150,
-              "y2": 150,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 70,
-              "x2": 70,
-              "y1": 145,
-              "y2": 150,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x1": 270,
-              "x2": 270,
-              "y1": 145,
-              "y2": 150,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x": 80,
-              "y": 165,
-              "text": "Sight Picture (Aligned Sights on Target)",
-              "type": "text"
-            }
-          ]
-        },
-        "cite": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-      },
-      "pre": [
-        {
-          "id": "cmtw18p94005pqj64pvrq3v32",
-          "stem": "According to the passage, what is the primary difference between the 'point of aim' and the 'desired point of impact' when engaging a target at a distance other than the weapon's zeroed range?",
-          "options": [
-            "The point of aim and desired point of impact will not align, requiring the Soldier to determine a hold-off.",
-            "The point of aim is the center of visible mass, while the desired point of impact is the estimated center of the overall target.",
-            "The point of aim is used for stationary targets, while the desired point of impact is only used for moving targets.",
-            "The desired point of impact is the original point of reference, while the point of aim is used for post-shot adjustments."
-          ],
-          "answer": 0,
-          "rationale": "Paragraph 7-11 states that at any range different from the weapon’s zero distance, the desired point of impact and point of aim will not align, requiring the Soldier to determine the necessary hold-off."
-        },
-        {
-          "id": "cmtw18p99005rqj64gydradox",
-          "stem": "How does the passage define 'sight picture' in relation to 'sight alignment'?",
-          "options": [
-            "Sight picture is the physical alignment of the aiming device, such as the front sight post and rear sight.",
-            "Sight picture is the placement of the aligned sights on the target itself.",
-            "Sight picture is the first and most important part of the aiming process.",
-            "Sight picture is the continuation of the line created by sight alignment."
-          ],
-          "answer": 1,
-          "rationale": "Paragraph 7-7 defines the sight picture as the placement of the aligned sights on the target itself and explicitly notes that it is not the same as sight alignment."
-        }
-      ],
-      "post": [
-        {
-          "id": "cmtw18t1j005vqj649ce5hk90",
-          "stem": "According to the passage, what is the primary difference between the point of aim and the desired point of impact during an engagement?",
-          "options": [
-            "The point of aim is the continuation of the line created by sight alignment, while the desired point of impact is where the Soldier wants the projectile to strike.",
-            "The point of aim is only used for stationary targets, while the desired point of impact is used for moving targets.",
-            "The point of aim includes necessary lead changes, while the desired point of impact is the center of visible mass.",
-            "The point of aim and desired point of impact always align regardless of the range to the target."
-          ],
-          "answer": 0,
-          "rationale": "Paragraph 7-9 defines the point of aim as the continuation of the line created by sight alignment. Paragraph 7-11 defines the desired point of impact as the location where the Soldier wants the projectile to strike the target, noting they do not align at ranges different from the weapon's zero."
-        },
-        {
-          "id": "cmtw18t1n005xqj64546zbnqx",
-          "stem": "A Soldier is engaging a target at a distance other than the weapon's zeroed range. Based on the text, what must the Soldier determine to ensure the projectile strikes the intended location?",
-          "options": [
-            "The necessary hold-off to bridge the gap between the point of aim and the desired point of impact.",
-            "A new center of visible mass based on the estimated size of the hidden portions of the target.",
-            "The post-shot sight picture to be used as the original point of aim.",
-            "The front sight post focus required to eliminate cross-dominant eye use."
-          ],
-          "answer": 0,
-          "rationale": "Paragraph 7-11 states that at any range different from the weapon’s zero distance, the desired point of impact and point of aim will not align, requiring the Soldier to determine the necessary hold-off to achieve the desired point of impact."
-        }
-      ],
-      "flashcards": [
-        {
-          "id": "cmtw18up50063qj64mxbowxdt",
-          "front": "What are the two types of sight pictures used during the shot process?",
-          "back": "1. Pre-shot sight picture: Encompasses the original point of aim, sight picture, and any holds.\n2. Post-shot sight picture: Used as the point of reference for sight adjustments for subsequent shots."
-        },
-        {
-          "id": "cmtw18up80065qj64j1nax4dh",
-          "front": "What is the 'desired point of impact' and how does it relate to the 'point of aim'?",
-          "back": "The desired point of impact is the location where the Soldier wants the projectile to strike the target (typically center of visible mass). At any range other than the weapon's zero distance, the point of aim and desired point of impact will not align, requiring a hold-off."
-        },
-        {
-          "id": "cmtw18up10061qj644o7bg59q",
-          "front": "What is the difference between sight alignment and sight picture?",
-          "back": "Sight alignment is the physical alignment of the aiming device (such as iron sights or an optic reticle), while sight picture is the placement of those aligned sights on the target itself."
-        }
-      ]
-    },
-    {
-      "title": "Obj 4 · Explain trigger control and follow-through.",
-      "lessons": [
-        {
-          "id": "cmtw18wc7006fqj644tdpeb3l",
-          "stem": "Trigger control and follow-through are the final physical actions required to stabilize the weapon and complete the shot process. Trigger control is the act of firing while maintaining aim and stabilization until the bullet leaves the muzzle, while follow-through is the continued mental and physical application of shot elements after the round is fired. The most common error is failing to maintain the shot process through recoil; you must keep your head on the stock, your eye open, and hold the trigger back until the weapon cycles. To correct this, ensure you release pressure only until you feel and hear the metallic click of the sear reset, which pre-stages the trigger for subsequent engagements. Coaching cue: 'Hold through the click.'",
-          "citation": {
-            "page": null,
-            "pubId": "TC 3-22.9",
-            "citation": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-          },
-          "revision": 0
-        }
-      ],
-      "diagram": {
-        "title": "Trigger Control and Follow-Through Sequence",
-        "spec": {
-          "cite": "TC 3-22.9 (Rifle and Carbine)",
-          "title": "Trigger Control and Follow-Through Sequence",
-          "refused": false,
-          "viewBox": "0 0 340 240",
-          "elements": [
-            {
-              "x": 70,
-              "y": 15,
-              "fill": "glow",
-              "text": "TRIGGER CONTROL & FOLLOW-THROUGH",
-              "type": "text"
-            },
-            {
-              "h": 45,
-              "w": 320,
-              "x": 10,
-              "y": 25,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow"
-            },
-            {
-              "x": 120,
-              "y": 38,
-              "fill": "glow",
-              "text": "TRIGGER CONTROL",
-              "type": "text"
-            },
-            {
-              "x": 15,
-              "y": 52,
-              "fill": "readout",
-              "text": "• Maintain aim & stabilization until bullet leaves muzzle",
-              "type": "text"
-            },
-            {
-              "x": 15,
-              "y": 64,
-              "fill": "readout",
-              "text": "• Smooth, consistent squeeze with natural finger placement",
-              "type": "text"
-            },
-            {
-              "x1": 170,
-              "x2": 170,
-              "y1": 70,
-              "y2": 95,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x": 175,
-              "y": 85,
-              "fill": "dim",
-              "text": "Bullet leaves muzzle",
-              "type": "text"
-            },
-            {
-              "h": 135,
-              "w": 320,
-              "x": 10,
-              "y": 95,
-              "fill": "none",
-              "type": "rect",
-              "stroke": "glow2"
-            },
-            {
-              "x": 95,
-              "y": 110,
-              "fill": "glow2",
-              "text": "FOLLOW-THROUGH SEQUENCE",
-              "type": "text"
-            },
-            {
-              "x1": 165,
-              "x2": 165,
-              "y1": 120,
-              "y2": 225,
-              "type": "line",
-              "stroke": "dim"
-            },
-            {
-              "x": 15,
-              "y": 125,
-              "fill": "readout",
-              "text": "1. Recoil Management",
-              "type": "text"
-            },
-            {
-              "x": 25,
-              "y": 137,
-              "fill": "dim",
-              "text": "- Bolt carrier group recoils & returns",
-              "type": "text"
-            },
-            {
-              "x": 15,
-              "y": 152,
-              "fill": "readout",
-              "text": "2. Recoil Recovery",
-              "type": "text"
-            },
-            {
-              "x": 25,
-              "y": 164,
-              "fill": "dim",
-              "text": "- Return to pre-shot position & sight",
-              "type": "text"
-            },
-            {
-              "x": 15,
-              "y": 179,
-              "fill": "readout",
-              "text": "3. Trigger/Sear Reset",
-              "type": "text"
-            },
-            {
-              "x": 25,
-              "y": 191,
-              "fill": "dim",
-              "text": "- Release pressure until metallic click",
-              "type": "text"
-            },
-            {
-              "x": 15,
-              "y": 206,
-              "fill": "readout",
-              "text": "4. Sight Picture Adjustment",
-              "type": "text"
-            },
-            {
-              "x": 25,
-              "y": 218,
-              "fill": "dim",
-              "text": "- Counteract physical changes",
-              "type": "text"
-            },
-            {
-              "x": 175,
-              "y": 125,
-              "fill": "readout",
-              "text": "5. Engagement Assessment",
-              "type": "text"
-            },
-            {
-              "x": 185,
-              "y": 140,
-              "fill": "glow2",
-              "text": "• Subsequent",
-              "type": "text"
-            },
-            {
-              "x": 195,
-              "y": 152,
-              "fill": "dim",
-              "text": "- Target requires additional rounds",
-              "type": "text"
-            },
-            {
-              "x": 185,
-              "y": 167,
-              "fill": "glow2",
-              "text": "• Supplemental",
-              "type": "text"
-            },
-            {
-              "x": 195,
-              "y": 179,
-              "fill": "dim",
-              "text": "- Another target requires servicing",
-              "type": "text"
-            },
-            {
-              "x": 185,
-              "y": 194,
-              "fill": "glow2",
-              "text": "• Sector Check",
-              "type": "text"
-            },
-            {
-              "x": 195,
-              "y": 206,
-              "fill": "dim",
-              "text": "- Check sector for additional threats",
-              "type": "text"
-            },
-            {
-              "x": 185,
-              "y": 221,
-              "fill": "danger",
-              "text": "• Correct Malfunction",
-              "type": "text"
-            }
-          ]
-        },
-        "cite": "Attached corpus · TC 3-22.9 (Rifle and Carbine)"
-      },
-      "pre": [
-        {
-          "id": "cmtw1a7ti006nqj641z1jau95",
-          "stem": "According to the passage, what is the primary purpose of maintaining smooth, consistent trigger control during the shot process?",
-          "options": [
-            "To ensure the shot fires at the Soldier’s moment of choosing",
-            "To eliminate the natural arc of movement caused by breathing",
-            "To allow the shooter to keep their eyes oriented toward the threat",
-            "To facilitate the metallic click of the sear reset"
-          ],
-          "answer": 0,
-          "rationale": "Paragraph 8-5 states that a smooth, consistent trigger squeeze 'allows the shot to fire at the Soldier’s moment of choosing.' While breathing induces movement (8-8) and workspace management involves eye orientation (8-11), these are not the stated purposes of trigger control."
-        },
-        {
-          "id": "cmtw1a7tm006pqj64f2pfwxgt",
-          "stem": "During the follow-through phase, how is the successful reset of the sear physically demonstrated to the shooter?",
-          "options": [
-            "By the bolt carrier group returning to battery",
-            "By a metallic click heard or felt as pressure is released",
-            "By the immediate return of the sight picture to the target",
-            "By the closing of the ejection port cover"
-          ],
-          "answer": 1,
-          "rationale": "Paragraph 8-24, under the 'Trigger/Sear reset' bullet point, states that the shooter releases pressure on the trigger until the sear is reset, which is 'demonstrated by a metallic click.'"
-        }
-      ],
-      "post": [
-        {
-          "id": "cmtw1aa2i006tqj648rzjtd2i",
-          "stem": "According to the shot process, which action is a required component of proper follow-through after the weapon is fired?",
-          "options": [
-            "Maintaining trigger finger pressure until the sear resets, indicated by a metallic click.",
-            "Immediately moving the weapon to the workspace to check the ejection port.",
-            "Releasing the trigger quickly to ensure the bolt carrier group returns to battery.",
-            "Closing the firing eye to protect it from the recoil impulses and debris."
-          ],
-          "answer": 0,
-          "rationale": "Per paragraph 8-24, follow-through includes the 'Trigger/Sear reset' where the shooter releases pressure until the sear is reset, demonstrated by a metallic click. Paragraph 8-23 also specifies the firing eye remains open."
-        },
-        {
-          "id": "cmtw1aa2m006vqj64f2pfdbl1",
-          "stem": "In the context of the shot process, how is effective trigger control defined and executed?",
-          "options": [
-            "Firing the weapon while maintaining aim and stabilization until the bullet exits the muzzle.",
-            "Applying rapid pressure to the trigger to minimize the duration of the arc of movement.",
-            "Moving the finger to a specific mechanical point on the trigger regardless of natural placement.",
-            "Releasing the trigger immediately upon firing to allow the weapon to cycle without interference."
-          ],
-          "answer": 0,
-          "rationale": "Paragraph 8-4 defines trigger control as the act of firing the weapon while maintaining proper aim and adequate stabilization until the bullet leaves the muzzle. Paragraph 8-6 notes that smooth control is facilitated by natural finger placement."
-        }
-      ],
-      "flashcards": [
-        {
-          "id": "cmtw1abu8006zqj642vlgvvdq",
-          "front": "According to the passage, what is the definition of trigger control?",
-          "back": "Trigger control is the act of firing the weapon while maintaining proper aim and adequate stabilization until the bullet leaves the muzzle."
-        },
-        {
-          "id": "cmtw1abub0071qj6472o42o9l",
-          "front": "What are the five supporting Soldier functions that make up the control element of the shot process?",
-          "back": "1. Trigger control\n2. Breathing control\n3. Workspace\n4. Calling the shot (firing or shot execution)\n5. Follow-through"
-        },
-        {
-          "id": "cmtw1abue0073qj64ccl0wvvc",
-          "front": "In the context of follow-through, what are the four potential courses of action a firer selects during engagement assessment?",
-          "back": "1. Subsequent engagement\n2. Supplemental engagement\n3. Sector check\n4. Correct Malfunction"
-        }
-      ]
-    }
-  ]
-};
-var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
-var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-
-var state={ aiDone:false, review:{} };
-var FLAGS={
-  '0:pre:0':'Distractors B and C are near-synonyms — a sharp student rules out both at once. Rewrite so each wrong answer targets a distinct misconception.',
-  '1:lesson:0':'Grounded and accurate, but it states the rule without a coaching cue. Add what a coach watches for on the firing line so the Marine can self-correct.',
-  '2:post:1':'The stem reads two ways. Pin the timing — specify "at the instant the shot breaks" — so a knowledgeable Marine is not marked wrong.',
-  '3:flash:2':'The back mostly restates the front. Make the answer carry the reason, not just the term.'
-};
-
-var COL={dim:'var(--dim)',glow:'var(--glow)',glow2:'var(--glow-2)',danger:'var(--danger)',readout:'var(--readout)',none:'none'};
-function col(c){return COL[c]||c||'none';}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function keys(i){var s=COURSE.sections[i],a=[];s.lessons.forEach(function(_,li){a.push(i+':lesson:'+li);});if(s.diagram)a.push(i+':diagram:0');s.pre.forEach(function(_,q){a.push(i+':pre:'+q);});s.post.forEach(function(_,q){a.push(i+':post:'+q);});s.flashcards.forEach(function(_,f){a.push(i+':flash:'+f);});return a;}
-function reviewedCount(i){return keys(i).filter(function(k){return state.review[k];}).length;}
-function flagCount(i){return keys(i).filter(function(k){return FLAGS[k];}).length;}
-function totalItems(){return COURSE.sections.reduce(function(n,_,i){return n+keys(i).length;},0);}
-function totalReviewed(){return COURSE.sections.reduce(function(n,_,i){return n+reviewedCount(i);},0);}
-function secOf(key){return +key.split(':')[0];}
-
-function svgSpec(spec){
-  if(!spec||!spec.elements)return '';
-  var parts=spec.elements.map(function(e){
-    if(e.type==='circle')return '<circle cx="'+e.cx+'" cy="'+e.cy+'" r="'+e.r+'" stroke="'+col(e.stroke)+'" fill="'+col(e.fill)+'" stroke-width="2"/>';
-    if(e.type==='rect')return '<rect x="'+e.x+'" y="'+e.y+'" width="'+e.w+'" height="'+e.h+'" fill="'+col(e.fill)+'" stroke="'+col(e.stroke)+'"/>';
-    if(e.type==='line')return '<line x1="'+e.x1+'" y1="'+e.y1+'" x2="'+e.x2+'" y2="'+e.y2+'" stroke="'+col(e.stroke)+'" stroke-width="1.5"/>';
-    if(e.type==='text')return '<text x="'+e.x+'" y="'+e.y+'" fill="var(--dim)" font-size="10" font-family="monospace">'+esc(e.text)+'</text>';
-    return '';
-  }).join('');
-  return '<svg viewBox="'+(spec.viewBox||'0 0 340 200')+'" role="img" aria-label="AI-generated diagram">'+parts+'</svg>';
-}
-
-function verdict(key){
-  if(!state.aiDone||state.review[key])return '';
-  if(FLAGS[key])return '<div class="verdict flag"><span>⚑</span><span><b>Needs a close look — </b>'+esc(FLAGS[key])+'</span></div>';
-  return '<div class="verdict solid"><span>✓</span><span>AI review: grounded and clear.</span></div>';
-}
-function review(key){
-  var st=state.review[key],inner;
-  if(st==='approved')inner='<span class="done-appr">✓ Approved</span>';
-  else if(st==='rejected')inner='<span class="done-rej">✕ Rejected</span>';
-  else if(st==='revised')inner='<span class="done-rev">◍ Revised <span class="rrev">rev 1</span></span> <button class="rb ok" data-act="approve" data-k="'+key+'">✓ Approve</button>';
-  else inner='<button class="rb ok" data-act="approve" data-k="'+key+'">✓ Approve</button>'+
-             '<button class="rb" data-act="revopen" data-k="'+key+'">✎ Revise</button>'+
-             '<button class="rb no" data-act="reject" data-k="'+key+'">✕ Reject</button>';
-  return '<div class="review" data-review="'+key+'"><div class="rbtns">'+inner+'</div></div>';
-}
-function itemClass(base,key){var c=base;if(state.review[key]==='approved')c+=' approved';if(state.review[key]==='rejected')c+=' rejected';if(state.aiDone&&!state.review[key]&&FLAGS[key])c+=' flagged';return c;}
-
-function setView(v,sec){
-  $$('nav .tab').forEach(function(t){t.classList.toggle('on',t.dataset.v===v);});
-  if(v==='studio')renderStudio();else if(v==='course')renderCourse();else if(v==='lesson')renderLesson(sec);
-  window.scrollTo(0,0);
-}
-
-function renderStudio(){
-  $('#stage').innerHTML='<div class="view"><div class="eyebrow">Instructor · Content Generation</div>'+
-   '<h1>Studio</h1><p class="sub">Attach the source doctrine and a Program of Instruction. Generate a complete, grounded course — cited lessons, diagrams, pre/post tests, flashcards — all left pending your review.</p>'+
-   '<div class="label">1 · Source corpus</div><div class="fakefile"><span class="chip2">📄 TC 3-22.9 (Rifle and Carbine).pdf</span> <b style="color:var(--glow)">182 chunks indexed</b> · coordinate-aware extraction</div>'+
-   '<div class="label" style="margin-top:16px">2 · Program of Instruction</div>'+
-   '<textarea rows="7" spellcheck="false">PROGRAM OF INSTRUCTION — Rifle &amp; Carbine Marksmanship (TC 3-22.9)\nEnabling Learning Objectives:\n'+COURSE.sections.map(function(s,i){return '  '+(i+1)+'. '+esc(s.title.replace(/^Obj \d+ · /,''));}).join('\n')+'</textarea>'+
-   '<div class="toolbar"><button class="btn" data-act="generate">Generate course</button><span class="status">Grounded, cited, PENDING your review — nothing reaches a student until you approve it.</span></div>'+
-   '<div class="genlog" id="genlog"></div></div>';
-}
-function runGen(){
-  var log=$('#genlog');if(!log)return;log.innerHTML='';
-  var evs=[['Job started — generating in the background (finishes even if you leave).','dim'],['Parsing the POI…',''],['Found '+COURSE.sections.length+' objectives.','dim'],['Grounding against your attached corpus (182 chunks).','dim']];
-  COURSE.sections.forEach(function(s){evs.push(['▸ '+s.title,'sec']);
-    if(s.lessons.length)evs.push(['    ✓ lesson','ok']);
-    evs.push([s.diagram?'    ✓ diagram':'    — diagram (not supported by the passage)',s.diagram?'ok':'warn']);
-    evs.push(['    ✓ pre-test ×'+s.pre.length,'ok']);evs.push(['    ✓ post-test ×'+s.post.length,'ok']);evs.push(['    ✓ flashcards ×'+s.flashcards.length,'ok']);});
-  evs.push(['✓ Course generated — '+totalItems()+' items, all PENDING your review.','done']);
-  var gb=$('[data-act=generate]');if(gb)gb.disabled=true;var i=0;
-  (function step(){if(i>=evs.length){if(gb)gb.disabled=false;var b=document.createElement('button');b.className='btn ghost';b.style.marginTop='12px';b.setAttribute('data-act','course');b.textContent='Review the course →';log.appendChild(b);return;}
-    var d=document.createElement('div');d.className='genline '+evs[i][1];d.textContent=evs[i][0];log.appendChild(d);log.scrollTop=log.scrollHeight;i++;setTimeout(step,reduce?0:evs[i-1][0][0]==='▸'?200:110);})();
-}
-
-function renderCourse(){
-  var total=totalItems(),flagged=COURSE.sections.reduce(function(n,_,i){return n+flagCount(i);},0),reviewed=totalReviewed();
-  var h='<div class="view"><div class="eyebrow">Program of Instruction · generated · grounded</div>'+
-   '<div class="hero"><div class="k">Sourced from '+esc(COURSE.course.sourceId)+' · AI-generated · pending review</div><h1>Rifle Marksmanship</h1>'+
-   '<p class="sub" style="margin:6px 0 12px">Generated from a POI, grounded in the manual, fact-checked. <span class="num">'+COURSE.sections.length+'</span> chapters · <span class="num">'+total+'</span> items.</p>'+
-   '<div class="badge"><span class="n"></span> attach doctrine + POI → grounded course → instructor review</div></div>';
-  if(!state.aiDone){
-    h+='<div class="reviewtool" id="rt"><h2>⚑ Review with AI</h2>'+
-       '<p>Before you read '+total+' items line by line, let the strong authoring model re-read every item against TC 3-22.9 and flag the ones that obviously need your eyes — weak grounding, a soft distractor, a missing coaching cue. You still decide; it just points you at what matters.</p>'+
-       '<button class="aibtn" data-act="aireview">◈ Review with AI</button></div>';
-  }else{
-    h+='<div class="reviewtool"><h2>◈ AI critical review complete</h2>'+
-       '<p>The strong model re-read all '+total+' items against the source. Open the flagged chapters first — each flagged item carries the model\'s note on exactly what to check.</p>'+
-       '<div class="summary"><span class="stat"><b>'+total+'</b><span>items reviewed</span></span>'+
-       '<span class="stat flagged"><b>'+flagged+'</b><span>flagged for a look</span></span>'+
-       '<span class="stat solid"><b>'+(total-flagged)+'</b><span>look solid</span></span>'+
-       '<span class="stat"><b>'+reviewed+'/'+total+'</b><span>you\'ve actioned</span></span></div></div>';
-  }
-  h+='<div class="tiles">';
-  COURSE.sections.forEach(function(s,i){var c=keys(i).length,fl=flagCount(i),rv=reviewedCount(i);
-    h+='<button class="tile" data-act="open" data-i="'+i+'"><div class="tk">'+esc(s.title.split(' · ')[0])+'</div><h3>'+esc(s.title.split(' · ')[1]||s.title)+'</h3>'+
-       '<div class="meta"><span class="num">'+c+'</span> items'+
-       (state.aiDone&&fl?' <span class="pill flag">⚑ '+fl+' flagged</span>':'')+
-       (rv?' <span class="pill done">✓ '+rv+'/'+c+'</span>':'')+'</div>'+
-       (s.lessons[0]?'<p class="prev">'+esc(s.lessons[0].stem.slice(0,88))+'…</p>':'')+
-       '<div class="open">Open chapter →</div></button>';});
-  h+='</div></div>';
-  $('#stage').innerHTML=h;
-}
-function runAIReview(){
-  var rt=$('#rt');if(!rt)return;
-  var flagged=COURSE.sections.reduce(function(n,_,i){return n+flagCount(i);},0),total=totalItems();
-  rt.innerHTML='<h2>◈ Reviewing with AI</h2><div class="scan"><i></i></div><div class="ailog" id="al"></div>';
-  var al=$('#al');
-  var lines=[['Re-reading each item against TC 3-22.9…',''],['Checking every claim traces to the cited passage…',''],['Testing that wrong answers are plausible but clearly wrong…','']];
-  Object.keys(FLAGS).forEach(function(k){var p=k.split(':');lines.push(['⚑ Ch '+(+p[0]+1)+' · '+p[1]+' — '+FLAGS[k].split(/[.—]/)[0].trim()+'.','hit']);});
-  lines.push(['✓ '+(total-flagged)+' items look solid · '+flagged+' flagged for a close look.','ok']);
-  var i=0;(function step(){if(i>=lines.length){setTimeout(function(){state.aiDone=true;renderCourse();window.scrollTo(0,0);},reduce?0:450);return;}
-    var d=document.createElement('div');d.className='l '+lines[i][1];d.textContent=lines[i][0];al.appendChild(d);i++;setTimeout(step,reduce?0:500);})();
-}
-
-function renderLesson(i){
-  var s=COURSE.sections[i];var scrollY=window.__keep?window.scrollY:0;
-  var total=keys(i).length,rv=reviewedCount(i),fl=flagCount(i);
-  var h='<div class="view"><button class="back" data-act="course">← Course</button><div class="eyebrow">'+esc(s.title.split(' · ')[0])+' · generated · pending review</div>'+
-   '<h1>'+esc(s.title.split(' · ')[1]||s.title)+'</h1>';
-  h+='<div class="progwrap"><div class="row"><span>'+(state.aiDone?(fl?'<span style="color:var(--readout)">⚑ '+fl+' flagged by AI</span> · ':'<span style="color:var(--glow)">✓ AI: all look solid</span> · '):'')+'Reviewed <b style="color:var(--bright)">'+rv+'</b> of '+total+'</span>'+
-     (rv<total?'<button class="rb ok" data-act="approverest" data-i="'+i+'">Approve the rest</button>':'<span style="color:var(--glow);font-weight:700">✓ Chapter reviewed</span>')+
-     '</div><div class="prog"><i style="width:'+Math.round(rv/total*100)+'%"></i></div></div>';
-  if(!state.aiDone)h+='<div class="banner">⏳ <b>AI-generated — pending review.</b> Approve, <b>Revise</b> with a note (the AI re-authors it, still grounded), or Reject. Tip: run <b>Review with AI</b> on the course page first to see what needs a close look.</div>';
-
-  s.lessons.forEach(function(l,li){var k=i+':lesson:'+li;h+='<div class="'+itemClass('org',k)+'"><p>'+esc(l.stem)+'</p><div class="meta"><span class="nucleus"></span> backed by the source'+(l.citation&&l.citation.citation?' · <span class="cite">'+esc(l.citation.citation)+'</span>':'')+'</div>'+verdict(k)+review(k)+'</div>';});
-  if(s.diagram){var dk=i+':diagram:0';h+='<div class="'+itemClass('diagram',dk)+'"><h4>◈ '+esc(s.diagram.title)+' <span class="badge">AI-generated</span></h4><div class="dcap">Drafted by the strong model from the cited passage.</div>'+svgSpec(s.diagram.spec)+'<div class="meta"><span class="nucleus"></span> diagram grounded'+(s.diagram.cite?' · <span class="num">'+esc(s.diagram.cite)+'</span>':'')+'</div>'+verdict(dk)+review(dk)+'</div>';}
-  [['Pre-test',s.pre,'pre'],['Post-test',s.post,'post']].forEach(function(pp){if(!pp[1].length)return;h+='<div class="railh" style="margin:16px 0 8px">'+pp[0]+' <span class="num">'+pp[1].length+'</span></div>';
-    pp[1].forEach(function(q,qi){var k=i+':'+pp[2]+':'+qi;h+='<div class="'+itemClass('org',k)+'"><p><b>'+esc(q.stem)+'</b></p><div class="qopts">'+(q.options||[]).map(function(o,j){return '<div class="qopt'+(j===q.answer?' correct':'')+'"><span class="qlt">'+'ABCD'[j]+'</span> '+esc(o)+(j===q.answer?' ✓':'')+'</div>';}).join('')+'</div>'+(q.rationale?'<div class="srcline">key — '+esc(q.rationale)+'</div>':'')+verdict(k)+review(k)+'</div>';});});
-  if(s.flashcards.length){h+='<div class="railh" style="margin:16px 0 8px">Study flashcards <span class="num">'+s.flashcards.length+'</span></div><div class="fcgrid">';
-    s.flashcards.forEach(function(f,fi){var k=i+':flash:'+fi;h+='<div class="'+itemClass('fc',k)+'"><div class="fcq">'+esc(f.front)+'</div><div class="fca">'+esc(f.back)+'</div>'+verdict(k)+review(k)+'</div>';});h+='</div>';}
-  h+='<p class="note">A static snapshot of one generated chapter, for evaluation. In the live app this is a Next.js + Postgres surface; every item was generated grounded in TC 3-22.9 and left pending review, and "Review with AI" / "Revise" call the strong authoring model.</p></div>';
-  $('#stage').innerHTML=h;
-  if(window.__keep){window.scrollTo(0,scrollY);window.__keep=false;}
-}
-function reRenderLessonKeep(i){window.__keep=true;renderLesson(i);}
-
-document.addEventListener('click',function(ev){
-  var t=ev.target.closest('[data-act]');if(!t)return;var a=t.dataset.act;
-  if(a==='generate')runGen();
-  else if(a==='course')setView('course');
-  else if(a==='studio')setView('studio');
-  else if(a==='open')setView('lesson',+t.dataset.i);
-  else if(a==='aireview')runAIReview();
-  else if(a==='approve'){state.review[t.dataset.k]='approved';reRenderLessonKeep(secOf(t.dataset.k));}
-  else if(a==='reject'){state.review[t.dataset.k]='rejected';reRenderLessonKeep(secOf(t.dataset.k));}
-  else if(a==='revopen')openRevise(t);
-  else if(a==='revsend')sendRevise(t);
-  else if(a==='revcancel')reRenderLessonKeep(secOf(t.closest('[data-review]').dataset.review));
-  else if(a==='approverest'){var i=+t.dataset.i;keys(i).forEach(function(k){if(!state.review[k])state.review[k]='approved';});reRenderLessonKeep(i);}
-});
-$$('nav .tab[data-v]').forEach(function(tab){tab.addEventListener('click',function(){setView(tab.dataset.v);});});
-$('#tg').onclick=function(){var r=document.documentElement,c=r.getAttribute('data-theme');if(!c)c=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',c==='dark'?'light':'dark');};
-
-function openRevise(btn){
-  var box=btn.closest('[data-review]'),key=box.dataset.review;
-  box.querySelector('.rbtns').innerHTML='<div class="rrevise"><input class="rinput" placeholder="What should the AI fix? (stays grounded in the source)" '+(FLAGS[key]?'value="'+esc(FLAGS[key].split(/[.—]/)[0].trim())+'"':'')+'><button class="rb ok" data-act="revsend" data-k="'+key+'">Send to AI</button><button class="rb" data-act="revcancel">Cancel</button></div>';
-  var inp=box.querySelector('.rinput');if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
-}
-function sendRevise(btn){
-  var box=btn.closest('[data-review]'),key=box.dataset.review;
-  box.querySelector('.rbtns').innerHTML='<span class="rmsg">◍ AI re-authoring, grounded in the source…</span>';
-  setTimeout(function(){state.review[key]='revised';reRenderLessonKeep(secOf(key));},reduce?0:1000);
-}
-
-setView('studio');
+document.getElementById('tg').onclick=function(){var r=document.documentElement,c=r.getAttribute('data-theme');if(!c)c=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';r.setAttribute('data-theme',c==='dark'?'light':'dark');};
 </script>
 </body>
 </html>
