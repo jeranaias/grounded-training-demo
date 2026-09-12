@@ -194,6 +194,29 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
 
 .note{font-size:.86em;color:var(--p-dim);line-height:1.5}
 .note code{color:var(--p-accent)}
+/* per-screen repo tags */
+.uses{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
+.uses .u{font-family:var(--mono);font-size:.7em;color:var(--p-dim);background:rgba(0,0,0,.05);border-radius:980px;padding:.22em .7em}
+/* integration view */
+.flows{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.6rem}
+.flowcol{background:var(--p-surface);box-shadow:var(--p-shadow);border-radius:var(--p-radius);padding:1.1rem 1.1rem 1.3rem;display:flex;flex-direction:column;gap:.35rem}
+.flowcol-h{font-weight:700;font-size:1rem;letter-spacing:-.01em;margin-bottom:.5rem}
+.flowcol-h span{display:block;font-weight:500;font-size:.72em;color:var(--p-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-top:.15rem}
+.flowstep{background:var(--p-surface-2);border-radius:12px;padding:.55rem .8rem;font-size:.85em;font-weight:600;text-align:center}
+.flowstep span{display:block;font-weight:400;font-size:.85em;color:var(--p-dim);margin-top:.1rem}
+.flowstep.rp{background:var(--p-accent-tint);color:var(--p-accent)}
+.flowstep.rp span{color:var(--p-accent);opacity:.85}
+.flowstep.edge{background:rgba(30,122,60,.1);color:var(--p-good)}
+.flowstep.edge span{color:var(--p-good);opacity:.9}
+.arrow{text-align:center;color:var(--p-faint);font-size:.85em;line-height:1}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr));gap:.7rem;margin-bottom:1.4rem}
+.repo-chip{display:block;background:var(--p-surface);box-shadow:var(--p-shadow);border-radius:12px;padding:.8rem 1rem;color:inherit;transition:box-shadow .15s,transform .15s}
+.repo-chip:hover{box-shadow:var(--p-shadow-lift);transform:translateY(-1px)}
+.repo-chip b{font-weight:700}
+.repo-chip>span{display:block;font-size:.82em;color:var(--p-dim);margin-top:.15rem}
+.repo-chip .pw{font-size:.72em;color:var(--p-accent);font-weight:600;margin-top:.35rem;display:block}
+.repo-chip.soon{border:1.5px dashed rgba(0,0,0,.16);box-shadow:none;background:none}
+@media(max-width:900px){.flows{grid-template-columns:1fr}}
 .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--p-ink);color:#fff;padding:.7rem 1.2rem;border-radius:980px;font-size:.88em;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
 .toast.show{opacity:1}
 
@@ -222,6 +245,7 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
     <div class="navlabel" id="navlabel">Instructor</div>
     <div id="nav"></div>
     <div class="rail-sp"></div>
+    <button class="navbtn rail-foot" onclick="setView('stack')"><span class="lab">◇ How it integrates</span></button>
     <a class="navbtn rail-foot" href="index.html"><span class="lab">← Overview</span></a>
     <a class="navbtn rail-foot" href="https://github.com/jeranaias"><span class="lab">Open source ↗</span></a>
   </nav>
@@ -370,7 +394,11 @@ Enabling Learning Objectives:
 
 V.review = () => `
   <div class="pagehead"><h1>Review — MCPP 5-10</h1><p>AI drafted it; you ratify it. Nothing reaches a student until you approve. <b id="revCount">12</b> items pending.</p></div>
-  <div id="reviewList">${GEN_ITEMS.map((it,i)=>reviewItem(it,i)).join('')}</div>`;
+  <div id="reviewList">${GEN_ITEMS.map((it,i)=>reviewItem(it,i)).join('')}</div>
+  <div class="panel" style="margin-top:1rem"><h3>Publish &amp; export</h3>
+    <p class="note" style="margin-bottom:.7rem">Once ratified, the course publishes to students and exports as a SCORM package that drops into MarineNet / Moodle and reports completion + score. Powered by <b>Cartridge</b>.</p>
+    <div class="btnrow"><button class="btn" onclick="toast('Published to 18 students')">Publish to class</button><button class="btn ghost" onclick="toast('SCORM 1.2 package built — schoolcircle-mcpp.zip')">↓ Export SCORM (Cartridge)</button></div>
+  </div>`;
 
 function reviewItem(it,i){return `<div class="item" id="rev${i}">
   <div class="item-top"><span class="item-kind">${esc(it.kind)}</span><span class="statepill pending" id="st${i}">Pending</span></div>
@@ -477,6 +505,43 @@ V.splan = () => `
   <div class="panel"><h3 id="planTitle">Catch up · 3 days · 324 min</h3><ul class="plan" id="planRows"></ul>
     <div class="btnrow"><button class="btn" onclick="toast('study-plan.ics downloaded — imports to Outlook')">↓ Export to calendar (.ics)</button><span class="note">Reminders 30 min before each block.</span></div></div>`;
 
+V.stack = () => {
+  const repos=[
+    ['anchor','Anchor','grounding · cite-or-refuse · HHEM, offline','grounds every answer'],
+    ['quarry','Quarry','PDFs → text · chunks · structured tasks','Studio ingestion'],
+    ['rubricon','Rubricon','standards → BARS + rater reliability','Rubrics'],
+    ['coursewright','Coursewright','objectives + sources → cited course JSON','Studio · Course'],
+    ['sourcerer','Sourcerer','cite-or-refuse Q&amp;A with faithfulness check','Ask the doctrine'],
+    ['whetstone','Whetstone','conversational discuss-to-mastery','Mastery check'],
+    ['sextant','Sextant','learning gain · class gaps · evidence','Class progress'],
+    ['understudy','Understudy','doctrine agent + Red Cell fidelity benchmark (#17)','Ask fidelity gate'],
+    ['cartridge','Cartridge','course → SCORM 1.2/2004 cartridge','Review → export'],
+    ['cadence','Cadence','syllabus + calendar → 3-COA study plan + .ics','Study plan'],
+    ['hotwash','Hotwash','critiques → ranked course AAR across iterations','Course AAR'],
+  ];
+  const step=(t,s,cls)=>`<div class="flowstep ${cls||''}">${t}${s?`<span>${s}</span>`:''}</div>`;
+  const A='<div class="arrow">↓</div>';
+  return `
+  <div class="pagehead"><h1>How it all integrates</h1><p>Every piece of the puzzle, and how data moves between them. Eleven standalone Apache-2.0 repos — plain-JSON contracts between them, no cross-imports. Assembled, they are the platform; Anchor grounds every answer.</p></div>
+  <div class="label">Three flows, end to end</div>
+  <div class="flows">
+    <div class="flowcol"><div class="flowcol-h">① Author<span>prep · cloud allowed</span></div>
+      ${step('Doctrine PDF / POI')}${A}${step('Quarry','text · chunks · tasks','rp')}${A}${step('Anchor','index the corpus','edge')}${A}${step('Coursewright · Rubricon','cited course + BARS','rp')}${A}${step('Instructor review','approve · edit · reject')}${A}${step('Cartridge','→ SCORM → MarineNet','rp')}
+    </div>
+    <div class="flowcol"><div class="flowcol-h">② Deliver<span>edge · offline</span></div>
+      ${step('Student question / answer')}${A}${step('Sourcerer · Whetstone','ask · discuss-to-mastery','rp')}${A}${step('Understudy','fidelity gate','rp')}${A}${step('Anchor','retrieve · cite-or-refuse · HHEM','edge')}${A}${step('Cited answer · coached · or refused')}
+    </div>
+    <div class="flowcol"><div class="flowcol-h">③ Improve<span>the loop</span></div>
+      ${step('Attempts · turns · critiques')}${A}${step('Sextant','gain · gaps · evidence','rp')}${A}${step('Hotwash','ranked course AAR','rp')}${A}${step('Cadence','next study plan · .ics','rp')}<div class="arrow">↺</div>${step('Feeds the next course')}
+    </div>
+  </div>
+  <div class="label">The eleven soldiers <span style="color:var(--p-faint);font-weight:400">· all public, Apache-2.0, tested</span></div>
+  <div class="legend">
+    ${repos.map(r=>`<a class="repo-chip" href="https://github.com/jeranaias/${r[0]}"><b>${r[1]}</b><span>${r[2]}</span><span class="pw">powers ${r[3]}</span></a>`).join('')}
+  </div>
+  <div class="label">Also in build</div>
+  <div class="legend"><div class="repo-chip soon"><b>Waypoint</b><span>"How do I learn?" learner-profile survey → shapes each course's lesson plan.</span><span class="pw" style="color:var(--p-warning)">building</span></div></div>`;
+};
 const PLANS = [
   [['Today','Trigger control','study','108m'],['Today','Sight picture','study','18m'],['Tue','Sight picture','study','126m'],['Wed','Zeroing','study','72m']],
   [['Today','Trigger control','study','90m'],['Tue','Sight picture','study','90m'],['Thu','Review — Trigger','review','30m'],['Sat','Zeroing','study','60m']],
@@ -488,9 +553,24 @@ function setCoa(i){[...document.querySelectorAll('#coa .coacard')].forEach((c,j)
   document.getElementById('planRows').innerHTML=PLANS[i].map(r=>`<li class="planrow"><span class="pldate">${r[0]}</span><span>${esc(r[1])} <span class="plkind">${r[2]}</span></span><span class="pldate">${r[3]}</span></li>`).join('');}
 
 /* ============ interactions ============ */
+const USES={
+  build:'Quarry · Anchor · Coursewright · HHEM',
+  review:'Coursewright · Cartridge · human review',
+  rubrics:'Rubricon · Anchor',
+  progress:'Sextant',
+  aar:'Hotwash · Sextant',
+  course:'Coursewright · Quarry',
+  sask:'Sourcerer · Anchor · Understudy',
+  smastery:'Whetstone · Anchor',
+  splan:'Cadence',
+};
 function render(){renderNav();
-  document.getElementById('crumbView').textContent=(NAV[state.role].find(n=>n.id===state.view)||{}).label||'';
-  document.getElementById('stage').innerHTML = (V[state.view]||(()=>'—'))();
+  const navItem=NAV[state.role].find(n=>n.id===state.view);
+  document.getElementById('crumbView').textContent = navItem?navItem.label:(state.view==='stack'?'How it integrates':'');
+  const stage=document.getElementById('stage');
+  stage.innerHTML=(V[state.view]||(()=>'—'))();
+  const ph=stage.querySelector('.pagehead');
+  if(ph&&USES[state.view]) ph.insertAdjacentHTML('beforeend',`<div class="uses">${USES[state.view].split(' · ').map(u=>`<span class="u">${u}</span>`).join('')}</div>`);
   if(state.view==='splan') setCoa(0);
   window.scrollTo(0,0);
 }
@@ -522,7 +602,7 @@ const ASK={
 };
 function ask(k){const c=document.getElementById('askChat'),d=ASK[k];
   c.insertAdjacentHTML('beforeend',`<div class="bubble me">${esc(d.q)}</div>`);
-  setTimeout(()=>{c.insertAdjacentHTML('beforeend',`<div class="bubble ai ${d.ok?'':'refuse'}"><span class="vbadge ${d.ok?'ok':'mid'}">${d.ok?'✓ Grounded · HHEM verified':'⛔ Refused'}</span><div>${esc(d.a)}</div>${d.c?`<div style="margin-top:.5rem"><span class="cite">${esc(d.c)}</span></div>`:''}</div>`);
+  setTimeout(()=>{c.insertAdjacentHTML('beforeend',`<div class="bubble ai ${d.ok?'':'refuse'}"><span class="vbadge ${d.ok?'ok':'mid'}">${d.ok?'✓ Grounded · HHEM verified':'⛔ Refused'}</span><div>${esc(d.a)}</div>${d.c?`<div style="margin-top:.5rem"><span class="cite">${esc(d.c)}</span></div>`:''}${d.ok?'<div class="note" style="margin-top:.45rem">Understudy fidelity gate 0.91 — stays within doctrine</div>':''}</div>`);
     c.scrollIntoView({block:'end'});},450);}
 let mscore=40;
 function mans(kind){const c=document.getElementById('mChat');
