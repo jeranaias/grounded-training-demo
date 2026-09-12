@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SchoolCircle — Grounded Training Platform</title>
+<meta name="description" content="The grounded AI training platform in action — instructor and student dashboards showing how courses are built, grounded, reviewed, delivered, and measured.">
+<style>
+:root{
+  --p-bg:#f5f5f7;--p-surface:#ffffff;--p-surface-2:#ececef;
+  --p-border:rgba(0,0,0,.08);--p-border-soft:rgba(0,0,0,.06);
+  --p-text:#1d1d1f;--p-dim:#6e6e73;--p-faint:#86868b;
+  --p-rail:rgba(255,255,255,.72);--p-ink:#1d1d1f;
+  --p-accent:#b3122e;--p-accent-bright:#e0334f;--p-accent-tint:rgba(179,18,46,.10);
+  --p-good:#1e7a3c;--p-warning:#b0731a;--p-critical:#c2410c;--p-critical-tint:#fff5f0;--p-seq:#8a95a3;
+  --p-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04);
+  --p-shadow-lift:0 10px 28px rgba(0,0,0,.10),0 0 0 .5px rgba(0,0,0,.04);
+  --p-radius:18px;
+  --sans:-apple-system,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --mono:"SF Mono","Cascadia Code",Consolas,ui-monospace,monospace;
+}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--p-bg);color:var(--p-text);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex}
+a{color:var(--p-accent);text-decoration:none}
+code{font-family:var(--mono);font-size:.76em;font-weight:500;color:var(--p-dim);background:rgba(0,0,0,.05);border-radius:5px;padding:.1em .4em;vertical-align:middle}
+[hidden]{display:none!important}
+.card,.s-next-card,.s-box,.s-req,.s-hero-tile,.p-panel,.p-tile,.p-coacard{background:var(--p-surface);border:none;box-shadow:var(--p-shadow);border-radius:var(--p-radius)}
+
+/* ---------- shell ---------- */
+.root{flex:1;display:flex;min-height:0;--rail-w:15rem;--agenda-w:20rem;--max:82rem}
+.rail{width:var(--rail-w);flex:none;background:var(--p-rail);backdrop-filter:blur(24px) saturate(180%);border-right:.5px solid var(--p-border);display:flex;flex-direction:column;padding:1.3rem .75rem 1rem;gap:.1rem;position:sticky;top:0;height:100vh;overflow-y:auto}
+.rail-user{display:flex;align-items:center;gap:.65rem;padding:.3rem .6rem 1rem}
+.avatar{width:2.2rem;height:2.2rem;flex:none;border-radius:11px;display:grid;place-items:center;background:linear-gradient(135deg,var(--p-accent),var(--p-accent-bright));color:#fff;font-size:.75em;font-weight:700}
+.rail-who{display:flex;flex-direction:column;min-width:0}
+.rail-name{font-size:.95em;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rail-role{font-size:.76em;color:var(--p-faint)}
+.seg{display:flex;gap:2px;padding:3px;background:rgba(0,0,0,.05);border-radius:980px;margin:0 .3rem .5rem}
+.seg button{flex:1;background:none;border:none;border-radius:980px;color:var(--p-dim);font:inherit;font-size:.82em;font-weight:600;padding:.4rem .3rem;cursor:pointer}
+.seg button.on{background:var(--p-accent);color:#fff}
+.navlabel{font-size:.72em;font-weight:600;color:var(--p-faint);padding:1rem .8rem .3rem;text-transform:uppercase;letter-spacing:.06em}
+.navbtn{display:flex;align-items:center;gap:.75rem;background:none;border:none;border-radius:10px;color:var(--p-text);font:inherit;font-size:.96em;cursor:pointer;padding:.55rem .8rem;text-align:left;width:100%}
+.navbtn:hover{background:rgba(0,0,0,.05)}
+.navbtn.on{background:var(--p-accent-tint);color:var(--p-accent);font-weight:600}
+.navbtn .ico{width:1.25rem;height:1.25rem;flex:none;color:var(--p-faint)}
+.navbtn.on .ico{color:var(--p-accent)}
+.navbtn .ico svg{width:100%;height:100%}
+.navbtn .badge{margin-left:auto;background:var(--p-accent);color:#fff;font-size:.7em;font-weight:700;border-radius:980px;padding:.05em .5em}
+.rail-sp{flex:1}
+.rail-foot{color:var(--p-dim);font-size:.86em}
+
+.content{flex:1;min-width:0;display:flex;flex-direction:column}
+.crumbs{display:flex;align-items:center;gap:.5rem;padding:.9rem 2.4rem 0;font-size:.82em;color:var(--p-faint)}
+.crumbs .sp{flex:1}
+.main{flex:1;padding:.7rem 2.4rem 3.5rem}
+.container{max-width:var(--max);margin:0 auto}
+.pagehead{margin-bottom:1.4rem}
+.pagehead h1{margin:0 0 .3rem;font-size:2.1em;letter-spacing:-.026em;font-weight:700;line-height:1.1}
+.pagehead p{margin:0;color:var(--p-dim);font-size:1.02em;max-width:64ch}
+.label{margin:1.4rem 0 .7rem;font-size:.85em;color:var(--p-faint);font-weight:600}
+.label:first-child{margin-top:0}
+.two{display:grid;grid-template-columns:minmax(0,1fr) var(--agenda-w);gap:1.6rem;align-items:start}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1rem;margin-bottom:1.4rem}
+.tile{padding:1.1rem 1.3rem}
+.tilelab{font-size:.82em;font-weight:600;color:var(--p-faint)}
+.tileval{font-size:2.2em;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-top:.2rem}
+.tilenote{font-size:.82em;color:var(--p-dim);margin-top:.15rem}
+.tileval.good{color:var(--p-good)}.tileval.warn{color:var(--p-warning)}.tileval.crit{color:var(--p-critical)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(20rem,100%),1fr));margin-bottom:1.4rem}
+.card{padding:1.3rem 1.4rem;display:flex;flex-direction:column;gap:.9rem;text-align:left}
+.card.click{cursor:pointer;transition:box-shadow .15s,transform .15s}
+.card.click:hover{box-shadow:var(--p-shadow-lift);transform:translateY(-1px)}
+.card-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start}
+.card-title{font-weight:600;font-size:1.2em;letter-spacing:-.015em;line-height:1.2}
+.card-sub{font-size:.85em;color:var(--p-faint);margin-top:.25rem}
+.card-avg{text-align:right;flex:none;line-height:1}
+.card-avg span{display:block;font-size:2.2em;font-weight:700;letter-spacing:-.03em}
+.card-avg small{font-size:.7em;color:var(--p-faint);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.card-foot{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:.85em;color:var(--p-dim)}
+.prog{display:flex;flex-direction:column;gap:.35rem;font-size:.8em;color:var(--p-faint)}
+.track{height:.4rem;background:rgba(0,0,0,.06);border-radius:980px;overflow:hidden}
+.fill{height:100%;background:var(--p-accent);border-radius:980px}
+
+/* next cards */
+.next{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr));margin-bottom:1.4rem}
+.next-card{background:var(--p-surface);box-shadow:var(--p-shadow);border-radius:var(--p-radius);padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:.3rem}
+.next-card.late{background:var(--p-critical-tint)}
+.next-kind{font-size:.8em;color:var(--p-accent);font-weight:600}
+.next-card.late .next-kind{color:var(--p-critical)}
+.next-title{font-weight:600;font-size:1.05em;letter-spacing:-.01em}
+.next-meta{font-size:.85em;color:var(--p-dim)}
+
+/* panels */
+.panel{padding:1.3rem 1.45rem;margin-bottom:1.2rem}
+.panel h3{margin:0 0 1rem;font-size:.85em;color:var(--p-faint);font-weight:600}
+.btn{background:var(--p-accent);color:#fff;border:none;border-radius:980px;padding:0 1.2rem;height:2.5rem;font:inherit;font-size:.92em;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem}
+.btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.45;cursor:default;filter:none}
+.btn.ghost{background:rgba(0,0,0,.05);color:var(--p-text)}
+.btn.sm{height:2rem;font-size:.85em;padding:0 .9rem}
+.btnrow{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.4rem}
+.drop{border:1.5px dashed rgba(0,0,0,.16);border-radius:14px;padding:1rem 1.1rem;display:flex;align-items:center;gap:.7rem;color:var(--p-dim);font-size:.9em;background:var(--p-surface-2);margin-bottom:.9rem}
+textarea{width:100%;background:var(--p-surface-2);border:none;box-shadow:0 0 0 .5px rgba(0,0,0,.12);border-radius:12px;padding:.8rem 1rem;color:var(--p-text);font-family:var(--mono);font-size:.8rem;line-height:1.6;outline:none;resize:vertical;min-height:8rem}
+textarea:focus{box-shadow:0 0 0 1.5px var(--p-accent)}
+
+/* pipeline */
+.steps{list-style:none;margin:.4rem 0 0;padding:0;display:flex;flex-direction:column;gap:.55rem}
+.step{display:flex;align-items:center;gap:.7rem;font-size:.9em;color:var(--p-faint);transition:color .2s}
+.step.run{color:var(--p-text)}.step.done{color:var(--p-dim)}
+.stepdot{width:1.2em;height:1.2em;border-radius:50%;flex:none;border:2px solid var(--p-border);display:grid;place-items:center;font-size:.7em;color:#fff;box-sizing:border-box}
+.step.run .stepdot{border-color:var(--p-accent);border-right-color:transparent;animation:spin .7s linear infinite}
+.step.done .stepdot{border-color:var(--p-good);background:var(--p-good)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* generated / review items */
+.item{background:var(--p-surface);box-shadow:var(--p-shadow);border-radius:14px;padding:1rem 1.2rem;margin-bottom:.8rem;display:flex;flex-direction:column;gap:.5rem;animation:bloom .35s both}
+@keyframes bloom{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.item-top{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.item-kind{font-size:.72em;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--p-faint)}
+.item h4{margin:0;font-size:1.02em;font-weight:600}
+.item .txt{font-size:.92em;color:var(--p-text);line-height:1.55}
+.cite{display:inline-block;font-family:var(--mono);font-size:.74em;color:var(--p-dim);background:rgba(0,0,0,.05);border-radius:6px;padding:.12em .5em}
+.statepill{font-size:.7em;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.15em .6em;border-radius:980px;margin-left:auto}
+.statepill.pending{background:rgba(176,115,26,.14);color:var(--p-warning)}
+.statepill.approved{background:rgba(30,122,60,.12);color:var(--p-good)}
+.statepill.rejected{background:var(--p-critical-tint);color:var(--p-critical)}
+.badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72em;font-weight:700;border-radius:980px;padding:.2rem .6rem}
+.badge.ok{background:rgba(30,122,60,.12);color:var(--p-good)}
+.badge.no{background:var(--p-critical-tint);color:var(--p-critical);box-shadow:inset 0 0 0 1px rgba(194,65,12,.25)}
+
+/* mastery chart */
+.chart{display:flex;flex-direction:column;gap:.6rem}
+.crow{display:grid;grid-template-columns:11rem 1fr 4rem;align-items:center;gap:.8rem}
+.crow .cl{font-size:.86em;color:var(--p-dim);text-align:right}
+.crow .cv{font-size:.86em;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* table */
+.tablewrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:.88em}
+table.t th{text-align:left;font-size:.8em;color:var(--p-faint);font-weight:600;padding:.5rem .6rem;border-bottom:.5px solid var(--p-border);white-space:nowrap}
+table.t td{padding:.6rem .6rem;border-bottom:.5px solid var(--p-border);color:var(--p-dim)}
+table.t tr:last-child td{border-bottom:none}
+table.t td:first-child{color:var(--p-text);font-weight:500}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* AAR findings */
+.find{border-left:3px solid var(--p-border);padding:.2rem 0 .2rem .9rem;margin-bottom:.9rem}
+.find.crit{border-left-color:var(--p-critical)}.find.warn{border-left-color:var(--p-warning)}.find.good{border-left-color:var(--p-good)}
+.find-h{display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.95em;flex-wrap:wrap}
+.find-b{font-size:.86em;color:var(--p-dim);margin:.15rem 0 0}
+.horizon{font-size:.68em;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.1em .5em;border-radius:5px;background:rgba(0,0,0,.05);color:var(--p-dim)}
+
+/* chat (ask + mastery) */
+.chat{display:flex;flex-direction:column;gap:.7rem;margin:.5rem 0 1rem}
+.bubble{max-width:82%;padding:.8rem 1.1rem;border-radius:16px;font-size:.92em;line-height:1.5}
+.bubble.me{align-self:flex-end;background:var(--p-accent);color:#fff;border-bottom-right-radius:5px;font-weight:500}
+.bubble.ai{align-self:flex-start;background:var(--p-surface);box-shadow:var(--p-shadow);border-bottom-left-radius:5px}
+.bubble.ai.refuse{box-shadow:inset 0 0 0 1px rgba(194,65,12,.3)}
+.vbadge{font-size:.7em;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:.1em .5em;border-radius:980px;display:inline-block;margin-bottom:.35rem}
+.vbadge.ok{background:rgba(30,122,60,.12);color:var(--p-good)}
+.vbadge.mid{background:rgba(176,115,26,.14);color:var(--p-warning)}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.6rem}
+.chip{background:var(--p-surface);box-shadow:0 0 0 .5px rgba(0,0,0,.12);border-radius:980px;padding:.4rem .9rem;font-size:.85em;color:var(--p-dim);cursor:pointer}
+.chip:hover{box-shadow:0 0 0 1.5px var(--p-accent);color:var(--p-text)}
+.chip.refuse{color:var(--p-critical)}
+
+/* study plan COAs */
+.coa{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(13rem,100%),1fr));gap:.8rem;margin-bottom:1rem}
+.coacard{padding:1rem 1.1rem;cursor:pointer;text-align:left;box-shadow:0 0 0 .5px rgba(0,0,0,.12)}
+.coacard.on{box-shadow:0 0 0 1.5px var(--p-accent);background:var(--p-accent-tint)}
+.coacard h4{margin:0 0 .2rem;font-size:1em}
+.coacard p{margin:0;font-size:.82em;color:var(--p-dim)}
+.plan{list-style:none;margin:0;padding:0}
+.planrow{display:grid;grid-template-columns:6rem 1fr auto;gap:.8rem;align-items:baseline;padding:.5rem 0;border-bottom:.5px solid var(--p-border);font-size:.88em}
+.planrow:last-child{border-bottom:none}
+.pldate{color:var(--p-faint);font-size:.9em}
+.plkind{font-size:.72em;font-family:var(--mono);text-transform:uppercase;color:var(--p-faint)}
+
+/* agenda */
+.agenda{display:flex;flex-direction:column;gap:1.2rem;padding-top:4.2rem}
+.box{padding:1.1rem 1.25rem}
+.box h4{margin:0 0 .6rem;font-size:.85em;color:var(--p-faint);font-weight:600}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:.7rem;align-items:baseline;padding:.55rem 0;border-bottom:.5px solid var(--p-border);font-size:.9em}
+.list li:last-child{border-bottom:none}
+.list .k{font-size:.8em;color:var(--p-faint)}
+.tick{flex:none;width:1.05em;height:1.05em;margin-top:.15em;border:1.5px solid #c7c7cc;border-radius:50%}
+.req{padding:.3rem 1.3rem}
+.reqrow{display:flex;align-items:center;gap:.7rem;font-size:.92em;padding:.65rem 0;border-bottom:.5px solid var(--p-border)}
+.reqrow:last-child{border-bottom:none}
+.reqrow .nm{flex:1}
+
+.note{font-size:.86em;color:var(--p-dim);line-height:1.5}
+.note code{color:var(--p-accent)}
+.toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--p-ink);color:#fff;padding:.7rem 1.2rem;border-radius:980px;font-size:.88em;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+@media(max-width:1100px){.two{grid-template-columns:1fr}.agenda{flex-direction:row;flex-wrap:wrap;padding-top:0}.agenda .box{flex:1 1 15rem}}
+@media(max-width:900px){
+  .root{--rail-w:4.2rem}
+  .rail-who,.rail-name,.rail-role,.navlabel,.rail-foot,.navbtn .lab,.seg{display:none}
+  .navbtn{justify-content:center;padding:.6rem 0}
+  .rail-user{justify-content:center}
+  .main,.crumbs{padding-left:1.1rem;padding-right:1.1rem}
+  .crow{grid-template-columns:8rem 1fr 3rem}
+}
+</style>
+</head>
+<body>
+<div class="root">
+  <nav class="rail">
+    <div class="rail-user">
+      <div class="avatar" id="avatar">SW</div>
+      <div class="rail-who"><span class="rail-name" id="uname">SSgt White</span><span class="rail-role" id="urole">Instructor</span></div>
+    </div>
+    <div class="seg">
+      <button id="segInstructor" class="on" onclick="setRole('instructor')">Instructor</button>
+      <button id="segStudent" onclick="setRole('student')">Student</button>
+    </div>
+    <div class="navlabel" id="navlabel">Instructor</div>
+    <div id="nav"></div>
+    <div class="rail-sp"></div>
+    <a class="navbtn rail-foot" href="index.html"><span class="lab">← Overview</span></a>
+    <a class="navbtn rail-foot" href="https://github.com/jeranaias"><span class="lab">Open source ↗</span></a>
+  </nav>
+
+  <div class="content">
+    <div class="crumbs"><span id="crumbRole">SchoolCircle</span><span style="opacity:.5">/</span><span id="crumbView" style="color:var(--p-dim)">Dashboard</span><span class="sp"></span><span>grounded by Anchor · offline-capable</span></div>
+    <main class="main"><div class="container" id="stage"></div></main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ mock data ============ */
+const COURSES = [
+  { id:'TC 3-22.9', name:'Rifle & Carbine Marksmanship', school:'28xx · Basic', students:24, mastery:77, week:6, weeks:14, pending:0, weak:'Trigger control', weakPct:61 },
+  { id:'MCWP 5-10', name:'Marine Corps Planning Process', school:'06xx · MCPP', students:18, mastery:71, week:3, weeks:9, pending:12, weak:'No-Comms Troubleshooting', weakPct:55 },
+];
+const TOPICS = [
+  { t:'Sight alignment & picture', m:88 },{ t:'Natural point of aim', m:81 },
+  { t:'Stable firing positions', m:74 },{ t:'Trigger control', m:61 },{ t:'Ballistics & zeroing', m:58 },
+];
+const ROSTER = [
+  ['Cpl Rivera',82,'+34','mastered 4/5'],['LCpl Doe',68,'+21','developing'],
+  ['PFC Nguyen',91,'+40','mastered 5/5'],['LCpl Ahmadi',59,'+12','at risk'],['Cpl Boyd',74,'+28','developing'],
+];
+const FINDINGS = [
+  { sev:'crit', area:'Trigger-control block pacing', mentions:9, s:4.6, h:'long_term', trend:'worsening', note:'Recurs across 3 iterations — the block is too short for the hands-on reps the class needs.' },
+  { sev:'warn', area:'Range time vs. classroom', mentions:6, s:3.4, h:'short_term', trend:'flat', note:'Students want the ballistics lecture trimmed in favor of live reps before the block exam.' },
+  { sev:'good', area:'Instructor prep & handouts', mentions:11, s:0, h:'sustain', trend:'', note:'Consistently praised — keep the cited one-pagers per lesson.' },
+];
+const GEN_ITEMS = [
+  { kind:'Lesson · OBJ 1', h:'Explain sight alignment and sight picture', txt:'Sight alignment is the relationship between the rear aperture, the front sight post, and the aiming eye — the post centered and level in the aperture. Sight picture places that aligned sight on the target.', cite:'TC 3-22.9, Ch 7 · p.7-3' },
+  { kind:'Lesson · OBJ 2', h:'Describe trigger control and follow-through', txt:'A smooth, consistent rearward squeeze so the round leaves the muzzle while the sights are still on target. The most common error is dropping control after the shot.', cite:'TC 3-22.9, Ch 8 · p.8-2' },
+  { kind:'Assessment', h:'Knowledge check — 8 items with rationale', txt:'Multiple-choice + written items generated from the objectives, each with an explanation of why the answer is right or wrong.', cite:'grounded in TC 3-22.9 Ch 7–8' },
+  { kind:'Scenario', h:'Applied range scenario + coaching', txt:'A live-fire scenario at 300m with branching coaching cues tied to the shooter\'s error — bone support, NPA, trigger reset.', cite:'TC 3-22.9, Ch 6' },
+];
+
+/* ============ nav config ============ */
+const IC = {
+  dash:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/>',
+  build:'<path d="m12 3 1.9 4.6L19 9l-4.1 3 1 5-3.9-2.7L8 17l1-5L5 9l5.1-1.4z"/>',
+  review:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  rubric:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+  chart:'<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="4" width="3" height="14"/>',
+  aar:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h9v16H6a2 2 0 0 0-2 2z"/><path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2h-3"/>',
+  ask:'<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  mastery:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  plan:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+};
+const NAV = {
+  instructor:[
+    {id:'dash',label:'Dashboard',ico:'dash'},
+    {id:'build',label:'Studio — build',ico:'build'},
+    {id:'review',label:'Review',ico:'review',badge:'12'},
+    {id:'rubrics',label:'Rubrics',ico:'rubric'},
+    {id:'progress',label:'Class progress',ico:'chart'},
+    {id:'aar',label:'Course AAR',ico:'aar'},
+  ],
+  student:[
+    {id:'sdash',label:'Dashboard',ico:'dash'},
+    {id:'course',label:'My course',ico:'book'},
+    {id:'sask',label:'Ask the doctrine',ico:'ask'},
+    {id:'smastery',label:'Mastery check',ico:'mastery'},
+    {id:'splan',label:'Study plan',ico:'plan'},
+  ],
+};
+const USER = { instructor:{av:'SW',name:'SSgt White',role:'Instructor'}, student:{av:'CR',name:'Cpl Rivera',role:'Student'} };
+
+let state = { role:'instructor', view:'dash' };
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function bar(pct,color){return `<div class="track"><div class="fill" style="width:${pct}%${color?`;background:${color}`:''}"></div></div>`;}
+function svg(p){return `<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg></span>`;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1900);}
+
+function setRole(r){state.role=r;state.view=NAV[r][0].id;
+  document.getElementById('segInstructor').classList.toggle('on',r==='instructor');
+  document.getElementById('segStudent').classList.toggle('on',r==='student');
+  const u=USER[r];document.getElementById('avatar').textContent=u.av;document.getElementById('uname').textContent=u.name;document.getElementById('urole').textContent=u.role;
+  document.getElementById('navlabel').textContent=u.role;document.getElementById('crumbRole').textContent=u.role+' view';
+  render();}
+function setView(v){state.view=v;render();}
+
+function renderNav(){
+  document.getElementById('nav').innerHTML = NAV[state.role].map(n=>
+    `<button class="navbtn ${n.id===state.view?'on':''}" onclick="setView('${n.id}')">${svg(IC[n.ico])}<span class="lab">${n.label}</span>${n.badge?`<span class="badge">${n.badge}</span>`:''}</button>`
+  ).join('');
+}
+
+/* ============ views ============ */
+const V = {};
+
+V.dash = () => `
+  <div class="pagehead"><h1>Good afternoon, SSgt White</h1><p>Two courses running · <b style="color:var(--p-critical)">12 AI-generated items</b> waiting on your review.</p></div>
+  <div class="tiles">
+    <div class="tile"><div class="tilelab">Active courses</div><div class="tileval">2</div><div class="tilenote">28xx · 06xx</div></div>
+    <div class="tile"><div class="tilelab">Students</div><div class="tileval">42</div><div class="tilenote">enrolled across both</div></div>
+    <div class="tile"><div class="tilelab">Pending review</div><div class="tileval warn">12</div><div class="tilenote">nothing ships unratified</div></div>
+    <div class="tile"><div class="tilelab">Avg mastery</div><div class="tileval good">74%</div><div class="tilenote">+27 pts pre→post</div></div>
+  </div>
+  <div class="label">Your courses</div>
+  <div class="cards">
+    ${COURSES.map(c=>`<button class="card click" onclick="setView('progress')">
+      <div class="card-head"><div><div class="card-title">${esc(c.name)} <code>${c.id}</code></div><div class="card-sub">${esc(c.school)} · ${c.students} students</div></div>
+      <div class="card-avg"><span>${c.mastery}%</span><small>mastery</small></div></div>
+      <div class="prog">${bar(Math.round(c.week/c.weeks*100))}<span>Week ${c.week} of ${c.weeks}</span></div>
+      <div class="card-foot"><span>Needs work: <b style="color:var(--p-critical)">${esc(c.weak)}</b> (${c.weakPct}%)</span>${c.pending?`<span style="color:var(--p-warning)">${c.pending} to review</span>`:'<span>all reviewed</span>'}</div>
+    </button>`).join('')}
+  </div>
+  <div class="label">The build loop</div>
+  <div class="next">
+    <button class="next-card" onclick="setView('build')"><span class="next-kind">1 · Integrate</span><span class="next-title">Build a course</span><span class="next-meta">POI + doctrine → a cited draft, grounded by Anchor.</span></button>
+    <button class="next-card" onclick="setView('review')"><span class="next-kind">2 · Ratify</span><span class="next-title">Review AI output</span><span class="next-meta">Approve, edit, or reject each generated item.</span></button>
+    <button class="next-card" onclick="setView('progress')"><span class="next-kind">3 · Measure</span><span class="next-title">Class progress</span><span class="next-meta">Mastery, gaps, and per-student reports.</span></button>
+    <button class="next-card" onclick="setView('aar')"><span class="next-kind">4 · Improve</span><span class="next-title">Course AAR</span><span class="next-meta">Ranked fixes that sharpen the next iteration.</span></button>
+  </div>`;
+
+V.build = () => `
+  <div class="pagehead"><h1>Studio</h1><p>Attach the source doctrine and a program of instruction. Generate a complete, grounded course — cited lessons, assessments, a scenario — all left <b>pending your review</b>.</p></div>
+  <div class="two"><div>
+    <div class="panel">
+      <h3>1 · Source corpus</h3>
+      <div class="drop">📄 <b style="color:var(--p-text)">TC 3-22.9 (Rifle and Carbine).pdf</b> · <span id="chunks">182 chunks indexed</span> · coordinate-aware (Quarry)</div>
+      <h3>2 · Program of instruction</h3>
+      <textarea id="poi">PROGRAM OF INSTRUCTION — Rifle & Carbine Marksmanship (TC 3-22.9)
+Enabling Learning Objectives:
+  1. Explain sight alignment, sight picture, and their relationship.
+  2. Describe trigger control and follow-through.
+  3. Explain natural point of aim and how to correct it.
+  4. Identify stable firing positions and their application.</textarea>
+      <div class="btnrow"><button class="btn" id="genBtn" onclick="runGen()">✦ Generate course</button><span class="note" id="genNote">Grounded, cited, pending your review.</span></div>
+      <ul class="steps" id="steps" hidden>
+        <li class="step" data-s="0"><span class="stepdot"></span>Quarry — parse POI → objectives &amp; T&amp;R tasks</li>
+        <li class="step" data-s="1"><span class="stepdot"></span>Anchor — retrieve + re-rank passages per objective</li>
+        <li class="step" data-s="2"><span class="stepdot"></span>Coursewright — draft cited lessons &amp; assessments</li>
+        <li class="step" data-s="3"><span class="stepdot"></span>HHEM — verify faithfulness; drop unsupported claims</li>
+      </ul>
+    </div>
+    <div id="genOut"></div>
+  </div>
+  <aside class="agenda">
+    <div class="box"><h4>What's happening</h4><p class="note">Every claim is retrieved from the indexed corpus and verified before it lands. Anything the doctrine doesn't support is <b>dropped, not guessed</b>. You review what remains.</p></div>
+    <div class="box"><h4>Pipeline</h4><p class="note"><b>Quarry</b> → <b>Anchor</b> → <b>Coursewright</b> → HHEM → your review. A strong model drafts (prep only); delivery stays on the edge.</p></div>
+  </aside></div>`;
+
+V.review = () => `
+  <div class="pagehead"><h1>Review — MCPP 5-10</h1><p>AI drafted it; you ratify it. Nothing reaches a student until you approve. <b id="revCount">12</b> items pending.</p></div>
+  <div id="reviewList">${GEN_ITEMS.map((it,i)=>reviewItem(it,i)).join('')}</div>`;
+
+function reviewItem(it,i){return `<div class="item" id="rev${i}">
+  <div class="item-top"><span class="item-kind">${esc(it.kind)}</span><span class="statepill pending" id="st${i}">Pending</span></div>
+  <h4>${esc(it.h)}</h4>
+  <div class="txt">${esc(it.txt)}</div>
+  <div class="item-top"><span class="cite">${esc(it.cite)}</span></div>
+  <div class="btnrow" id="btns${i}">
+    <button class="btn sm" onclick="ratify(${i},'approved')">✓ Approve</button>
+    <button class="btn sm ghost" onclick="ratify(${i},'edit')">✎ Edit</button>
+    <button class="btn sm ghost" onclick="ratify(${i},'rejected')">✕ Reject</button>
+  </div></div>`;}
+
+V.rubrics = () => `
+  <div class="pagehead"><h1>Rubrics</h1><p>Turn a Training &amp; Readiness standard into a behaviorally-anchored rating scale — traceable to the source, with inter-rater reliability. Powered by <b>Rubricon</b>.</p></div>
+  <div class="panel"><h3>Standard</h3><div class="txt" style="font-size:.95em">DEFEND A POSITION — occupy and prepare a fighting position that supports the defense. <code>NAVMC 3500.44E</code></div>
+    <div class="btnrow"><button class="btn" onclick="toast('BARS generated — traceable to 3 performance steps')">✦ Generate BARS</button></div></div>
+  <div class="label">Behaviorally-anchored anchors</div>
+  <div class="item"><div class="item-top"><span class="item-kind" style="color:var(--p-critical)">Unsatisfactory</span></div><div class="txt">Leaves the position visible to the front for lack of camouflage; fields of fire not cleared.</div></div>
+  <div class="item"><div class="item-top"><span class="item-kind" style="color:var(--p-warning)">Satisfactory</span></div><div class="txt">Completes the fighting position and applies camouflage that breaks up its outline; primary sector cleared.</div></div>
+  <div class="item"><div class="item-top"><span class="item-kind" style="color:var(--p-good)">Proficient</span></div><div class="txt">Renders the position indistinguishable from surrounding terrain; prepares alternate/supplementary and assists adjacent.</div><div class="item-top"><span class="cite">traced to NAVMC 3500.44E performance steps</span></div></div>
+  <div class="panel" style="margin-top:1rem"><h3>Reliability</h3><div class="chart"><div class="crow"><span class="cl">Cohen's κ (2 raters)</span>${bar(84,'var(--p-good)')}<span class="cv">0.84</span></div><div class="crow"><span class="cl">Fleiss' κ (panel)</span>${bar(79,'var(--p-good)')}<span class="cv">0.79</span></div></div></div>`;
+
+V.progress = () => `
+  <div class="pagehead"><h1>Class progress — TC 3-22.9</h1><p>Where the class actually is, from the attempts they've logged. Aggregate by design — <b>Sextant</b> turns learning into evidence.</p></div>
+  <div class="tiles">
+    <div class="tile"><div class="tilelab">Avg mastery</div><div class="tileval good">77%</div><div class="tilenote">24 students</div></div>
+    <div class="tile"><div class="tilelab">Learning gain</div><div class="tileval">+27</div><div class="tilenote">Hake's g 0.54</div></div>
+    <div class="tile"><div class="tilelab">Weakest topic</div><div class="tileval crit" style="font-size:1.3em">Trigger control</div><div class="tilenote">61% — needs a review</div></div>
+    <div class="tile"><div class="tilelab">At risk</div><div class="tileval warn">3</div><div class="tilenote">below 65%</div></div>
+  </div>
+  <div class="two"><div>
+    <div class="label">Mastery by topic <span style="color:var(--p-faint);font-weight:400">· worst first drives the re-teach</span></div>
+    <div class="panel"><div class="chart">${[...TOPICS].sort((a,b)=>a.m-b.m).map(t=>`<div class="crow"><span class="cl">${esc(t.t)}</span>${bar(t.m,t.m<65?'var(--p-critical)':t.m<75?'var(--p-warning)':'var(--p-good)')}<span class="cv">${t.m}%</span></div>`).join('')}</div></div>
+    <div class="label">Roster</div>
+    <div class="panel"><div class="tablewrap"><table class="t"><tr><th>Student</th><th class="num">Mastery</th><th class="num">Gain</th><th>Status</th></tr>
+      ${ROSTER.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${r[1]}%</td><td class="num" style="color:var(--p-good)">${r[2]}</td><td>${esc(r[3])}</td></tr>`).join('')}
+    </table></div></div>
+  </div>
+  <aside class="agenda">
+    <div class="box"><h4>Insight loop</h4><p class="note">The class is missing <b>trigger control</b> most. One click drafts a short, cited lesson review to get them back on track.</p><div class="btnrow"><button class="btn sm" onclick="toast('Cited re-teach drafted for Trigger control')">Draft re-teach</button></div></div>
+    <div class="box"><h4>Feeds the AAR</h4><p class="note">These gaps and trends flow into <b>Hotwash</b> — the course-level after-action, sharper every iteration.</p></div>
+  </aside></div>`;
+
+V.aar = () => `
+  <div class="pagehead"><h1>Course AAR — TC 3-22.9</h1><p>End-of-course critiques + attempt trends across class iterations, ranked into a worklist. It grades the <b>course</b>, not the student. Powered by <b>Hotwash</b>.</p></div>
+  <div class="tiles">
+    <div class="tile"><div class="tilelab">Iterations analyzed</div><div class="tileval">3</div></div>
+    <div class="tile"><div class="tilelab">Short-term fixes</div><div class="tileval warn">1</div><div class="tilenote">before next class</div></div>
+    <div class="tile"><div class="tilelab">Long-term</div><div class="tileval crit">1</div><div class="tilenote">course redesign</div></div>
+    <div class="tile"><div class="tilelab">Sustains</div><div class="tileval good">1</div></div>
+  </div>
+  <div class="label">Ranked findings</div>
+  <div class="panel">
+    ${FINDINGS.map(f=>`<div class="find ${f.sev}"><div class="find-h">${esc(f.area)} ${f.h!=='sustain'?`<span class="horizon">${f.h.replace('_','-')}</span>`:'<span class="horizon" style="color:var(--p-good)">sustain</span>'} ${f.trend?`<span class="horizon">${f.trend}</span>`:''}</div><p class="find-b">${esc(f.note)} ${f.mentions?`<span style="color:var(--p-faint)">· ${f.mentions} mentions${f.s?` · severity ${f.s}`:''}</span>`:''}</p></div>`).join('')}
+  </div>
+  <div class="btnrow"><button class="btn" onclick="toast('AAR memo drafted — SUSTAIN / IMPROVE, short vs long-term')">✦ Draft AAR memo</button><span class="note">Turns the drawer full of critiques into a ranked worklist.</span></div>`;
+
+/* ---------- student ---------- */
+V.sdash = () => `
+  <div class="pagehead"><h1>Good afternoon, Cpl Rivera</h1><p>2 courses in progress · 1 requirement due this week.</p></div>
+  <div class="label">Up next</div>
+  <div class="next">
+    <button class="next-card late" onclick="setView('smastery')"><span class="next-kind">Due today</span><span class="next-title">Mastery check — Trigger control</span><span class="next-meta">~15 min · your weakest topic</span></button>
+    <button class="next-card" onclick="setView('sask')"><span class="next-kind">TC 3-22.9</span><span class="next-title">Ask the doctrine</span><span class="next-meta">Stuck on zeroing? Get a cited answer.</span></button>
+    <button class="next-card" onclick="setView('splan')"><span class="next-kind">This week</span><span class="next-title">Your study plan</span><span class="next-meta">3 blocks · synced to your calendar</span></button>
+  </div>
+  <div class="label">My courses</div>
+  <div class="cards">
+    <button class="card click" onclick="setView('course')"><div class="card-head"><div><div class="card-title">Rifle & Carbine <code>TC 3-22.9</code></div><div class="card-sub">Week 6 of 14</div></div><div class="card-avg"><span>77%</span><small>mastery</small></div></div><div class="prog">${bar(43)}<span>43% through the POI</span></div><div class="card-foot"><span>Needs work: <b style="color:var(--p-critical)">Trigger control</b></span></div></button>
+    <button class="card click" onclick="setView('course')"><div class="card-head"><div><div class="card-title">MCPP <code>MCWP 5-10</code></div><div class="card-sub">Week 3 of 9</div></div><div class="card-avg"><span>71%</span><small>mastery</small></div></div><div class="prog">${bar(33,'var(--p-good)')}<span>33% through the POI</span></div><div class="card-foot"><span>Next: Radio net practical</span></div></button>
+  </div>`;
+
+V.course = () => `
+  <div class="pagehead"><h1>Rifle & Carbine Marksmanship <code>TC 3-22.9</code></h1><p>The course as the POI lays it out — every lesson cited to the manual.</p></div>
+  <div class="label">Modules</div>
+  ${[['A','Fundamentals of the shot','complete','5/5'],['B','Aiming & sight manipulation','current','3/5'],['C','Stable positions','upcoming','0/4'],['D','Ballistics & zeroing','upcoming','0/4']].map(m=>`
+    <div class="item"><div class="item-top"><span class="avatar" style="width:1.9rem;height:1.9rem;border-radius:8px;background:${m[2]==='complete'?'rgba(30,122,60,.12)':m[2]==='current'?'var(--p-accent)':'rgba(0,0,0,.05)'};color:${m[2]==='current'?'#fff':m[2]==='complete'?'var(--p-good)':'var(--p-dim)'}">${m[0]}</span><h4>${esc(m[1])}</h4><span class="statepill ${m[2]==='complete'?'approved':m[2]==='current'?'pending':''}" style="${m[2]==='upcoming'?'background:rgba(0,0,0,.05);color:var(--p-faint)':''}">${m[3]} lessons</span></div></div>`).join('')}`;
+
+V.sask = () => `
+  <div class="pagehead"><h1>Ask the doctrine</h1><p>Answers straight from the source, with a citation — or an honest "not in the source." Powered by <b>Sourcerer</b> + <b>Anchor</b>, offline.</p></div>
+  <div class="chips">
+    <span class="chip" onclick="ask('sight')">What is sight alignment?</span>
+    <span class="chip" onclick="ask('trigger')">How do I fix trigger jerk?</span>
+    <span class="chip refuse" onclick="ask('javelin')">Max range of a Javelin?</span>
+  </div>
+  <div class="chat" id="askChat"></div>`;
+
+V.smastery = () => `
+  <div class="pagehead"><h1>Mastery check — Trigger control</h1><p>Discuss it until you've got it. Each answer is scored against a rubric and coached. Powered by <b>Whetstone</b>.</p></div>
+  <div class="panel" style="padding:1rem 1.3rem"><div class="prog">${bar(40,'var(--p-warning)')}<span id="mastPct">Developing · 40% to mastered</span></div></div>
+  <div class="chat" id="mChat"><div class="bubble ai">Walk me through trigger control and follow-through. Why does follow-through matter?</div></div>
+  <div class="chips">
+    <span class="chip" onclick="mans('weak')">Give a weak answer</span>
+    <span class="chip" onclick="mans('strong')">Give a strong answer</span>
+  </div>`;
+
+V.splan = () => `
+  <div class="pagehead"><h1>Your study plan</h1><p>Built from your syllabus and your calendar. You're <b style="color:var(--p-warning)">behind</b> — here's how to catch up. Powered by <b>Cadence</b>.</p></div>
+  <div class="coa" id="coa">
+    <button class="coacard on" onclick="setCoa(0)"><h4>Catch up ✓</h4><p>Front-loaded, heavier daily load, essentials first.</p></button>
+    <button class="coacard" onclick="setCoa(1)"><h4>Maintain</h4><p>Steady pace with spaced review.</p></button>
+    <button class="coacard" onclick="setCoa(2)"><h4>Get ahead</h4><p>Deeper study + practice on the heavy topics.</p></button>
+  </div>
+  <div class="panel"><h3 id="planTitle">Catch up · 3 days · 324 min</h3><ul class="plan" id="planRows"></ul>
+    <div class="btnrow"><button class="btn" onclick="toast('study-plan.ics downloaded — imports to Outlook')">↓ Export to calendar (.ics)</button><span class="note">Reminders 30 min before each block.</span></div></div>`;
+
+const PLANS = [
+  [['Today','Trigger control','study','108m'],['Today','Sight picture','study','18m'],['Tue','Sight picture','study','126m'],['Wed','Zeroing','study','72m']],
+  [['Today','Trigger control','study','90m'],['Tue','Sight picture','study','90m'],['Thu','Review — Trigger','review','30m'],['Sat','Zeroing','study','60m']],
+  [['Today','Trigger control','study','90m'],['Mon','Practice — Trigger','practice','30m'],['Wed','Zeroing','study','90m'],['Fri','Preview — Ballistics','preview','45m']],
+];
+const PLANTITLES=['Catch up · 3 days · 324 min','Maintain · 6 days · 270 min','Get ahead · 8 days · 360 min'];
+function setCoa(i){[...document.querySelectorAll('#coa .coacard')].forEach((c,j)=>c.classList.toggle('on',i===j));
+  document.getElementById('planTitle').textContent=PLANTITLES[i];
+  document.getElementById('planRows').innerHTML=PLANS[i].map(r=>`<li class="planrow"><span class="pldate">${r[0]}</span><span>${esc(r[1])} <span class="plkind">${r[2]}</span></span><span class="pldate">${r[3]}</span></li>`).join('');}
+
+/* ============ interactions ============ */
+function render(){renderNav();
+  document.getElementById('crumbView').textContent=(NAV[state.role].find(n=>n.id===state.view)||{}).label||'';
+  document.getElementById('stage').innerHTML = (V[state.view]||(()=>'—'))();
+  if(state.view==='splan') setCoa(0);
+  window.scrollTo(0,0);
+}
+function runGen(){
+  const btn=document.getElementById('genBtn'), steps=document.getElementById('steps'), out=document.getElementById('genOut');
+  btn.disabled=true; btn.textContent='Generating…'; steps.hidden=false; out.innerHTML='';
+  document.getElementById('genNote').textContent='Grounding every claim…';
+  const els=[...steps.querySelectorAll('.step')]; let i=0;
+  const tick=()=>{ if(i>0)els[i-1].classList.replace('run','done'); if(i<els.length){els[i].classList.add('run');i++;setTimeout(tick,900);}
+    else{ document.getElementById('genNote').textContent='Done — 4 items, pending your review.'; btn.disabled=false; btn.textContent='✦ Regenerate';
+      out.innerHTML='<div class="label">Generated course — all pending review</div>'+GEN_ITEMS.map((it,n)=>`<div class="item" style="animation-delay:${n*90}ms"><div class="item-top"><span class="item-kind">${esc(it.kind)}</span><span class="statepill pending">Pending</span></div><h4>${esc(it.h)}</h4><div class="txt">${esc(it.txt)}</div><div class="item-top"><span class="cite">${esc(it.cite)}</span></div></div>`).join('')
+        +'<div class="btnrow"><button class="btn" onclick="setView(\'review\')">Send to review →</button></div>'; } };
+  tick();
+}
+let pending=12;
+function ratify(i,action){
+  const st=document.getElementById('st'+i), btns=document.getElementById('btns'+i);
+  if(action==='edit'){toast('Opened for edit — you keep the pen');return;}
+  st.className='statepill '+action; st.textContent=action==='approved'?'Approved':'Rejected';
+  btns.innerHTML='<span class="note">'+(action==='approved'?'Ratified — cleared to ship.':'Rejected — will not reach a student.')+'</span>';
+  pending=Math.max(0,pending-1); document.getElementById('revCount').textContent=pending;
+  const nb=NAV.instructor.find(n=>n.id==='review'); nb.badge=pending?String(pending):null; renderNav();
+  toast(action==='approved'?'Approved':'Rejected');
+}
+const ASK={
+  sight:{ok:1,q:'What is sight alignment?',a:'Sight alignment is the relationship between the rear aperture, the front sight post, and the aiming eye — the post centered and level in the aperture.',c:'TC 3-22.9, Ch 7 · p.7-3'},
+  trigger:{ok:1,q:'How do I fix trigger jerk?',a:'Apply a smooth, consistent rearward squeeze with the pad of the finger, isolating it from the rest of the hand, and follow through — hold the trigger to the rear through recoil until the sear resets.',c:'TC 3-22.9, Ch 8 · p.8-2'},
+  javelin:{ok:0,q:'What is the max range of a Javelin missile?',a:'I can\'t answer that from the doctrine on this device. Nothing in the indexed corpus (TC 3-22.9) supports an answer.',c:''},
+};
+function ask(k){const c=document.getElementById('askChat'),d=ASK[k];
+  c.insertAdjacentHTML('beforeend',`<div class="bubble me">${esc(d.q)}</div>`);
+  setTimeout(()=>{c.insertAdjacentHTML('beforeend',`<div class="bubble ai ${d.ok?'':'refuse'}"><span class="vbadge ${d.ok?'ok':'mid'}">${d.ok?'✓ Grounded · HHEM verified':'⛔ Refused'}</span><div>${esc(d.a)}</div>${d.c?`<div style="margin-top:.5rem"><span class="cite">${esc(d.c)}</span></div>`:''}</div>`);
+    c.scrollIntoView({block:'end'});},450);}
+let mscore=40;
+function mans(kind){const c=document.getElementById('mChat');
+  if(kind==='weak'){c.insertAdjacentHTML('beforeend','<div class="bubble me">You just pull the trigger fast so you don\'t miss the moment.</div>');
+    setTimeout(()=>{c.insertAdjacentHTML('beforeend','<div class="bubble ai"><span class="vbadge mid">Developing</span><div>Not quite — speed causes the jerk. What should the squeeze be like, and what happens <i>after</i> the shot breaks?</div></div>');},450);}
+  else{c.insertAdjacentHTML('beforeend','<div class="bubble me">A smooth, consistent rearward squeeze isolated to the trigger finger, then follow through — hold it to the rear through recoil until the sear resets so the sights stay on target as the round leaves.</div>');
+    setTimeout(()=>{mscore=100;document.getElementById('mastPct').textContent='Mastered · 100%';document.querySelector('#mChat').closest('.container').querySelector('.fill').style.width='100%';document.querySelector('.fill').style.background='var(--p-good)';
+      c.insertAdjacentHTML('beforeend','<div class="bubble ai"><span class="vbadge ok">Mastered</span><div>That\'s it — squeeze, isolation, and follow-through all covered. Recorded to your mastery report.</div></div>');toast('Mastery recorded: Trigger control');},450);}
+  setTimeout(()=>c.scrollIntoView({block:'end'}),500);}
+
+render();
+</script>
+</body>
+</html>
