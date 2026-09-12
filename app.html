@@ -255,6 +255,19 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
 .note code{color:var(--p-accent)}
 .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--p-ink);color:#fff;padding:.7rem 1.2rem;border-radius:980px;font-size:.88em;box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:0;transition:opacity .25s;pointer-events:none;z-index:50}
 .toast.show{opacity:1}
+.protobar{background:repeating-linear-gradient(45deg,#fff3d6,#fff3d6 10px,#fbe9c2 10px,#fbe9c2 20px);color:#6b4a0e;font-size:.76rem;padding:.4rem 2.4rem;border-bottom:.5px solid #ecd39a}
+.protobar b{color:#8a5a00}
+.cite{cursor:pointer;transition:box-shadow .12s,color .12s}
+.cite:hover{box-shadow:inset 0 0 0 1px var(--p-accent);color:var(--p-accent)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;z-index:60;padding:1.2rem}
+.modal-card{background:var(--p-surface);border-radius:var(--p-radius);box-shadow:var(--p-shadow-lift);max-width:36rem;width:100%;padding:1.5rem 1.7rem;animation:bloom .2s both}
+.modal-card .ml{font-size:.72em;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--p-good)}
+.modal-card h4{margin:.35rem 0 .8rem;font-size:1.1em;font-weight:700}
+.modal-card .ptext{font-size:.95em;line-height:1.6;color:var(--p-text);background:var(--p-bg);border-radius:12px;padding:1rem 1.2rem;border-left:3px solid var(--p-good)}
+.modal-card .psrc{display:inline-block;font-family:var(--mono);font-size:.76em;color:var(--p-dim);background:rgba(0,0,0,.05);border-radius:6px;padding:.12em .5em;margin-top:.9rem}
+.modal-x{float:right;background:rgba(0,0,0,.05);border:none;border-radius:8px;width:2rem;height:2rem;font-size:1.1em;cursor:pointer;color:var(--p-dim)}
+.modal-x:hover{background:rgba(0,0,0,.1);color:var(--p-text)}
+@media(max-width:760px){.protobar{padding:.4rem 1.1rem}}
 
 /* integration */
 .flows{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.6rem}
@@ -301,11 +314,13 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
     <a class="navbtn rail-foot" href="https://github.com/jeranaias"><span class="lab">Open source ↗</span></a>
   </nav>
   <div class="content">
+    <div class="protobar">◆ <b>Interactive prototype</b> — illustrative mock data for the showcase. The live platform runs on the real open-source repos + Anchor grounding on the edge. Citations are clickable.</div>
     <div class="crumbs"><span id="crumbRole">Instructor view</span><span style="opacity:.5">/</span><span id="crumbView" style="color:var(--p-dim)">Dashboard</span><span class="sp"></span><span>grounded by Anchor · offline-capable</span></div>
     <main class="main"><div class="container" id="stage"></div></main>
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="modal" id="modal" hidden data-close><div class="modal-card" onclick="event.stopPropagation()"><button class="modal-x" data-close>×</button><div class="ml">Grounded source</div><h4 id="mTitle"></h4><div class="ptext" id="mText"></div><span class="psrc" id="mSrc"></span></div></div>
 
 <script>
 /* ============ data ============ */
@@ -622,6 +637,17 @@ function miniCal(i){
     html+=`<div class="cal-day ${out?'out':''} ${isToday?'today':''}"><span class="cn">${8+c}</span>${cells[c].map(r=>`<span class="cal-chip ${r[2]==='review'?'rev':''}">${esc(r[1].split(' ')[0])} ${r[3]}</span>`).join('')}</div>`;}
   return html+'</div>';
 }
+const PASSAGES={
+  '7-3':{t:'Sight alignment & sight picture',x:'Sight alignment is the relationship between the rear sight aperture, the front sight post, and the aiming eye. The Marine centers the tip of the front sight post in the rear aperture with equal light on either side and level across the top. Sight picture is that aligned sight placed on the aiming point of the target.'},
+  '8-2':{t:'Trigger control & follow-through',x:'Trigger control is the skillful manipulation of the trigger that fires the rifle without disturbing the sight picture. The finger contacts the trigger where it naturally lays and applies a smooth, consistent rearward pressure. Follow-through is the continued application of the fundamentals through the recoil until the round has exited the muzzle.'},
+  '7-9':{t:'Natural point of aim',x:'Natural point of aim is the orientation of the rifle relative to the target when the Marine is completely relaxed. It is adjusted by shifting the body — not by muscling the weapon onto the target, which reintroduces movement the instant the shot breaks.'},
+  'Ch 6':{t:'Engagement & application',x:'Application of the marksmanship fundamentals under simulated combat conditions — target detection, range estimation, and engagement techniques from stable and hasty positions.'},
+  '44E':{t:'Defend a Position — performance steps',x:'Performance steps: (1) occupy the position; (2) clear fields of fire; (3) apply camouflage and concealment that breaks up the outline; (4) prepare range cards; (5) prepare alternate and supplementary positions.'},
+};
+function openPassage(txt){ const key=Object.keys(PASSAGES).find(k=>txt.includes(k)); const p=key?PASSAGES[key]:{t:'Grounded passage',x:'In the live platform this opens the exact indexed passage this claim was grounded in — retrieved from the corpus on the edge and shown with its page locator.'};
+  document.getElementById('mTitle').textContent=p.t; document.getElementById('mText').textContent=p.x; document.getElementById('mSrc').textContent=txt; document.getElementById('modal').hidden=false; }
+document.addEventListener('click',(e)=>{ const c=e.target.closest('.cite'); if(c){ openPassage(c.textContent.trim()); return; } if(e.target.closest('[data-close]')) document.getElementById('modal').hidden=true; });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.getElementById('modal').hidden=true; });
 render();
 </script>
 </body>
