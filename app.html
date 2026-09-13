@@ -259,7 +259,7 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
 .protobar b{color:#8a5a00}
 .cite{cursor:pointer;transition:box-shadow .12s,color .12s}
 .cite:hover{box-shadow:inset 0 0 0 1px var(--p-accent);color:var(--p-accent)}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;z-index:60;padding:1.2rem}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;z-index:90;padding:1.2rem}
 .modal-card{background:var(--p-surface);border-radius:var(--p-radius);box-shadow:var(--p-shadow-lift);max-width:36rem;width:100%;padding:1.5rem 1.7rem;animation:bloom .2s both}
 .modal-card .ml{font-size:.72em;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--p-good)}
 .modal-card h4{margin:.35rem 0 .8rem;font-size:1.1em;font-weight:700}
@@ -268,6 +268,37 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
 .modal-x{float:right;background:rgba(0,0,0,.05);border:none;border-radius:8px;width:2rem;height:2rem;font-size:1.1em;cursor:pointer;color:var(--p-dim)}
 .modal-x:hover{background:rgba(0,0,0,.1);color:var(--p-text)}
 @media(max-width:760px){.protobar{padding:.4rem 1.1rem}}
+/* floating widgets */
+.fab{position:fixed;bottom:1.3rem;width:3.4rem;height:3.4rem;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.28);z-index:70;color:#fff;transition:transform .15s,filter .15s}
+.fab:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.fab svg{width:1.5rem;height:1.5rem;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab.ask{right:1.3rem;background:var(--p-accent)}
+.fab.issue{left:16.3rem;background:var(--p-ink)}
+.fab .flab{position:absolute;bottom:calc(100% + .4rem);right:0;background:var(--p-ink);color:#fff;font-size:.7rem;padding:.2rem .5rem;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.fab.issue .flab{right:auto;left:0}
+.fab:hover .flab{opacity:1}
+.wgt{position:fixed;bottom:5.4rem;width:22rem;max-width:calc(100vw - 2rem);background:var(--p-surface);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.3),0 0 0 .5px rgba(0,0,0,.08);z-index:71;display:flex;flex-direction:column;overflow:hidden;animation:bloom .18s both}
+.wgt.ask{right:1.3rem;height:30rem;max-height:calc(100vh - 8rem)}
+.wgt.issue{left:16.3rem;max-height:calc(100vh - 8rem)}
+.wgt-head{display:flex;align-items:center;gap:.7rem;padding:.85rem 1.1rem;border-bottom:.5px solid var(--p-border);flex:none}
+.wgt-head .wi{width:2rem;height:2rem;border-radius:9px;display:grid;place-items:center;flex:none;color:#fff}
+.wgt.ask .wi{background:var(--p-accent)}.wgt.issue .wi{background:var(--p-ink)}
+.wgt-head .wt{font-weight:700;font-size:.92rem;line-height:1.15}
+.wgt-head .ws{font-size:.7rem;color:var(--p-faint)}
+.wgt-head .wx{margin-left:auto;background:rgba(0,0,0,.05);border:none;border-radius:8px;width:1.8rem;height:1.8rem;font-size:1em;cursor:pointer;color:var(--p-dim)}
+.wgt-head .wx:hover{background:rgba(0,0,0,.1);color:var(--p-text)}
+.wgt-body{flex:1;overflow-y:auto;padding:.9rem 1.1rem}
+.wgt-foot{padding:.7rem 1.1rem;border-top:.5px solid var(--p-border);flex:none}
+.wgt .chat{margin:0;min-height:0}
+.wgt .chips{margin-bottom:.7rem}
+.wgt .askbar .ti{font-size:.9rem}
+.issue-ctx{font-size:.72rem;color:var(--p-dim);background:var(--p-bg);border-radius:8px;padding:.5rem .7rem;margin-bottom:.7rem;line-height:1.4}
+.issue-ctx b{color:var(--p-text)}
+.wgt.issue select,.wgt.issue textarea{width:100%;font:inherit;font-size:.9rem;border:none;box-shadow:0 0 0 .5px rgba(0,0,0,.14);border-radius:9px;padding:.55rem .7rem;margin-bottom:.6rem;background:var(--p-surface);color:var(--p-text)}
+.wgt.issue textarea{min-height:5rem;resize:vertical;font-family:var(--sans)}
+.wgt.issue select:focus,.wgt.issue textarea:focus{outline:none;box-shadow:0 0 0 1.5px var(--p-ink)}
+@media(max-width:900px){.fab.issue{left:5.2rem}.wgt.issue{left:1.3rem}}
+@media(max-width:520px){.wgt{width:calc(100vw - 1.6rem)}.wgt.ask{right:.8rem}.wgt.issue{left:.8rem}.fab.ask{right:.9rem}.fab.issue{left:.9rem}}
 
 /* integration */
 .flows{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.6rem}
@@ -321,6 +352,27 @@ table.t td:first-child{color:var(--p-text);font-weight:500}
 </div>
 <div class="toast" id="toast"></div>
 <div class="modal" id="modal" hidden data-close><div class="modal-card" onclick="event.stopPropagation()"><button class="modal-x" data-close>×</button><div class="ml">Grounded source</div><h4 id="mTitle"></h4><div class="ptext" id="mText"></div><span class="psrc" id="mSrc"></span></div></div>
+
+<!-- Ask tutor widget (bottom-right) -->
+<button class="fab ask" id="fabAsk" onclick="wToggle('wgtAsk')" title="Ask the doctrine"><span class="flab">Ask the doctrine</span><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
+<div class="wgt ask" id="wgtAsk" hidden>
+  <div class="wgt-head"><span class="wi"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><div><div class="wt">Ask the doctrine</div><div class="ws">grounded by Anchor · cite-or-refuse</div></div><button class="wx" onclick="wToggle('wgtAsk')">×</button></div>
+  <div class="wgt-body"><div class="chips"><span class="chip" onclick="wAsk('sight')">Sight alignment?</span><span class="chip" onclick="wAsk('trigger')">Fix trigger jerk?</span><span class="chip refuse" onclick="wAsk('javelin')">Javelin range?</span></div><div class="chat" id="wAskChat"><div class="bubble ai">Ask me anything from the marksmanship corpus — I answer with a citation, or say it isn't covered.</div></div></div>
+  <div class="wgt-foot"><div class="askbar"><input class="ti" id="wAskIn" placeholder="Type a question…" onkeydown="if(event.key==='Enter')wAskFree()"><button class="btn sm" onclick="wAskFree()">Ask</button></div></div>
+</div>
+
+<!-- QA / dev issue widget (bottom-left, clear of the sidebar) -->
+<button class="fab issue" id="fabIssue" onclick="wToggleIssue()" title="Report an issue"><span class="flab">Report an issue (QA)</span><svg viewBox="0 0 24 24"><path d="M8 2l1.5 2h5L16 2M12 8v13M5 10a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0zM3 13h2m14 0h2M4.5 7L6 8m12-1l-1.5 1"/></svg></button>
+<div class="wgt issue" id="wgtIssue" hidden>
+  <div class="wgt-head"><span class="wi"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v13M5 10a7 7 0 0 1 14 0v4a7 7 0 0 1-14 0z"/></svg></span><div><div class="wt">Report an issue</div><div class="ws">files a GitHub issue with your location</div></div><button class="wx" onclick="wToggleIssue()">×</button></div>
+  <div class="wgt-body">
+    <div class="issue-ctx" id="issCtx">capturing…</div>
+    <select id="issType"><option value="bug">🐞 Bug</option><option value="idea">💡 Idea</option><option value="question">❓ Question</option></select>
+    <textarea id="issText" placeholder="What did you find, or what needs fixing?"></textarea>
+    <button class="btn" style="width:100%;height:2.4rem;justify-content:center" onclick="issueSubmit()">Submit to repo →</button>
+    <p class="note" style="margin-top:.5rem">Auto-captures your role, screen, URL &amp; time, then opens a prefilled GitHub issue for you to send.</p>
+  </div>
+</div>
 
 <script>
 /* ============ data ============ */
@@ -647,7 +699,22 @@ const PASSAGES={
 function openPassage(txt){ const key=Object.keys(PASSAGES).find(k=>txt.includes(k)); const p=key?PASSAGES[key]:{t:'Grounded passage',x:'In the live platform this opens the exact indexed passage this claim was grounded in — retrieved from the corpus on the edge and shown with its page locator.'};
   document.getElementById('mTitle').textContent=p.t; document.getElementById('mText').textContent=p.x; document.getElementById('mSrc').textContent=txt; document.getElementById('modal').hidden=false; }
 document.addEventListener('click',(e)=>{ const c=e.target.closest('.cite'); if(c){ openPassage(c.textContent.trim()); return; } if(e.target.closest('[data-close]')) document.getElementById('modal').hidden=true; });
-document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.getElementById('modal').hidden=true; });
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ document.getElementById('modal').hidden=true; document.getElementById('wgtAsk').hidden=true; document.getElementById('wgtIssue').hidden=true; } });
+
+/* ---- widgets ---- */
+function wToggle(id){ const w=document.getElementById(id); const show=w.hidden; document.getElementById('wgtAsk').hidden=true; document.getElementById('wgtIssue').hidden=true; w.hidden=!show; if(show&&id==='wgtAsk') setTimeout(()=>document.getElementById('wAskIn').focus(),50); }
+function wToggleIssue(){ const w=document.getElementById('wgtIssue'); const show=w.hidden; document.getElementById('wgtAsk').hidden=true; if(show){ document.getElementById('issCtx').innerHTML=issueContextLabel(); } w.hidden=!show; }
+function wBubble(d){ const c=document.getElementById('wAskChat'); c.insertAdjacentHTML('beforeend',`<div class="bubble me">${esc(d.q)}</div>`); c.scrollTop=c.scrollHeight;
+  setTimeout(()=>{ c.insertAdjacentHTML('beforeend',`<div class="bubble ai ${d.ok?'':'refuse'}"><span class="vbadge ${d.ok?'ok':'mid'}">${d.ok?'Grounded · HHEM':'Refused'}</span><div>${esc(d.a)}</div>${d.c?`<div style="margin-top:.4rem"><span class="cite">${esc(d.c)}</span></div>`:''}${d.ok?'<div class="note" style="margin-top:.4rem">Understudy fidelity 0.91</div>':''}</div>`); c.scrollTop=c.scrollHeight; },340); }
+function wAsk(k){ wBubble(ASK[k]); }
+function wAskFree(){ const i=document.getElementById('wAskIn'); const v=i.value.trim(); if(!v)return; const key=/javelin|missile|drone|tank/i.test(v)?'javelin':/sight|aim|align|picture/i.test(v)?'sight':/trigger|jerk|squeeze/i.test(v)?'trigger':'_default'; wBubble({...ASK[key],q:v}); i.value=''; }
+function issueContext(){ const ni=NAV[state.role]?.find(n=>n.id===state.view); return { role:USER[state.role].role, view:(ni?ni.label:(state.view==='stack'?'How it integrates':state.view)), lesson:(state.view==='course'&&state.lesson!=null)?LESSONS[state.lesson].t:null, url:location.href, viewport:innerWidth+'×'+innerHeight, time:new Date().toISOString() }; }
+function issueContextLabel(){ const c=issueContext(); return `<b>Where:</b> ${esc(c.role)} · ${esc(c.view)}${c.lesson?' · '+esc(c.lesson):''}<br><b>Screen:</b> ${c.viewport} · captured ${c.time.slice(11,16)} UTC`; }
+function issueSubmit(){ const t=document.getElementById('issType').value; const body=document.getElementById('issText').value.trim(); const c=issueContext();
+  const title=`[QA·${t}] ${(body.slice(0,60)||'report from the showcase')}`;
+  const md=`**Type:** ${t}\n\n${body||'_(describe the issue)_'}\n\n---\n**Where:** ${c.role} view → ${c.view}${c.lesson?` → ${c.lesson}`:''}\n**URL:** ${c.url}\n**Screen:** ${c.viewport}\n**Time:** ${c.time}\n\n_Filed via the in-app QA widget._`;
+  const url=`https://github.com/jeranaias/grounded-training-demo/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(md)}&labels=${encodeURIComponent('qa,'+t)}`;
+  window.open(url,'_blank','noopener'); toast('Opening a prefilled GitHub issue…'); document.getElementById('issText').value=''; document.getElementById('wgtIssue').hidden=true; }
 render();
 </script>
 </body>
