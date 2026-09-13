@@ -5,15 +5,15 @@ sticks. This file makes that a non-issue. Each person opens a terminal, runs `cl
 **their** block below — the instance provisions the machine and brings its lane up. Do the work,
 report status, stop before pushing.
 
-## The only two human steps (nothing else is manual)
-1. **Plug the Orin into the lead laptop** — USB device-mode cable + the Orin's power. That point-to-
-   point link is the whole offline story; it appears as network `192.168.55.1`.
-2. **Know the Orin login password.** You (Morgan) type it once when SSH prompts. It is deliberately
-   **not written in this repo, this file, or any prompt** — it lives in your head. After the first
-   login the lead prompt registers a key so you never type it again that day.
+## The only human step (nothing else is manual)
+**Plug the Orin into the lead laptop** — USB device-mode cable + the Orin's power. That point-to-
+point link is the whole offline story; it appears as network `192.168.55.1`.
 
-No private key is shipped in this repo (secrets never go in git), and none is needed — the Orin
-accepts password login, so a bare `ssh vanguard@192.168.55.1` gets you in.
+SSH is already password-free: a dedicated gameday key is pre-registered on the Orin. The **private**
+half lives on the lead laptop at `~/.ssh/gameday_orin` (never committed); the **public** half is in
+[`keys/gameday_orin.pub`](keys/gameday_orin.pub) for the record. See [`keys/README.md`](keys/README.md)
+to put the key on a fresh laptop, and to revoke it after the event. No password and no private key
+ever appear in this repo.
 
 ## Topology (read once so Tuesday isn't confusing)
 - **Anchor** (the grounding engine) runs **on the Orin**, not on any laptop.
@@ -35,20 +35,19 @@ work yourself; report one-line PASS/FAIL per step; STOP on any failure. Don't ha
 
 Ground truth:
 - The grounding engine "Anchor" runs on a Jetson Orin plugged into this laptop over USB
-  device-mode at 192.168.55.1, user "vanguard". It accepts SSH PASSWORD login — when SSH prompts,
-  I will type the password myself. Never write that password to any file or ask me to paste it.
+  device-mode at 192.168.55.1, user "vanguard". A pre-registered key handles auth — use
+  `ssh -i ~/.ssh/gameday_orin vanguard@192.168.55.1`. No password. If that key file is missing on
+  this laptop, STOP and tell me (docs/gameday/keys/README.md says how to place it).
 - Anchor serves /api/ask on the Orin's port 8000; we tunnel it to this laptop's localhost:8000.
 
 Steps:
 1. Ensure Git, Node 18+, and Claude Code are installed (install what's missing, Windows).
-2. Reach the Orin: run `ssh vanguard@192.168.55.1 uptime` (I'll type the password). Confirm it works.
-3. To stop repeated password prompts: generate a key at ~/.ssh/id_ed25519 if none exists, then
-   ssh-copy-id it to vanguard@192.168.55.1 (I'll type the password one last time). From here use -i.
-4. Confirm all 5 services are active:
-   ssh vanguard@192.168.55.1 'systemctl is-active tutor-api tutor-gen tutor-embed tutor-rerank tutor-verify'
-5. Open a background tunnel and KEEP it alive — auto-reconnect if it drops, without asking me:
-   ssh -N -L 8000:127.0.0.1:8000 vanguard@192.168.55.1
-6. Smoke-test cite-or-refuse against http://localhost:8000/api/ask :
+2. Reach the Orin: `ssh -i ~/.ssh/gameday_orin vanguard@192.168.55.1 uptime`. Confirm it works.
+3. Confirm all 5 services are active:
+   ssh -i ~/.ssh/gameday_orin vanguard@192.168.55.1 'systemctl is-active tutor-api tutor-gen tutor-embed tutor-rerank tutor-verify'
+4. Open a background tunnel and KEEP it alive — auto-reconnect if it drops, without asking me:
+   ssh -i ~/.ssh/gameday_orin -N -L 8000:127.0.0.1:8000 vanguard@192.168.55.1
+5. Smoke-test cite-or-refuse against http://localhost:8000/api/ask :
    - "What is trigger control?"  -> expect citations, abstained:false
    - "What is the max range of a Javelin?"  -> expect abstained:true, low_retrieval_score
    Show me the key fields from each.
