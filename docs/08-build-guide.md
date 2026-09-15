@@ -54,10 +54,10 @@ query, not a table. See `03-data-model.md`.
 ## 4 · Consume the arsenal
 Eleven npm libraries (Anchor is the external service). Install from GitHub:
 ```bash
-npm i github:jeranaias/quarry github:jeranaias/coursewright github:jeranaias/rubricon \
-      github:jeranaias/sourcerer github:jeranaias/whetstone github:jeranaias/sextant \
-      github:jeranaias/understudy github:jeranaias/cartridge github:jeranaias/cadence \
-      github:jeranaias/hotwash github:jeranaias/waypoint
+npm i github:groundworklms/quarry github:groundworklms/coursewright github:groundworklms/rubricon \
+      github:groundworklms/sourcerer github:groundworklms/whetstone github:groundworklms/sextant \
+      github:groundworklms/understudy github:groundworklms/cartridge github:groundworklms/cadence \
+      github:groundworklms/hotwash github:groundworklms/waypoint
 ```
 Each is Apache-2.0, ESM, Node ≥18, pure/deterministic core with an injectable model client. Exact
 exports + the call/return shape for each are in **`05-arsenal-contracts.md`**.

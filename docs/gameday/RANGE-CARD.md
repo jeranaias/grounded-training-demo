@@ -228,7 +228,7 @@ The fields the use-case pages ask for, mapped to what we have.
 | --- | --- | --- |
 | **Working prototype** | Ready | SchoolCircle at `/learn` — generate · tutor · rubric · mastery · SCORM · roles |
 | **Demo link** | Live | [jeranaias.github.io/grounded-training-demo](https://jeranaias.github.io/grounded-training-demo) (+ the interactive system at `/app.html`) |
-| **Repository** | Public | the Apache-2.0 platoon under `github.com/jeranaias` |
+| **Repository** | Public | the Apache-2.0 platoon under `github.com/groundworklms` |
 | **Architecture diagram** | Above | edge / host / cloud, plus the piece-by-piece integration sequences |
 | **Tools used** | Listed | Next.js · Prisma · Postgres · Jetson Orin · llama.cpp · bge · HHEM · OpenRouter (Gemini) · Apache-2.0 |
 | **Presentation** | This + pitch | this Range Card + the 90-second pitch; build slides only if the venue requires a deck |

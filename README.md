@@ -10,7 +10,7 @@ doctrine" reference, and an aggregate class-gap view — on real rifle-marksmans
 Every claim is cited to the source paragraph, and the AI **refuses** to answer what the
 source doesn't support — the trust property that makes AI adoptable in a schoolhouse. This
 page runs entirely in the browser (offline showcase mode); the production system pairs the
-[Anchor](https://github.com/jeranaias/anchor) grounding engine (open-source, Apache-2.0)
+[Anchor](https://github.com/groundworklms/anchor) grounding engine (open-source, Apache-2.0)
 with an LMS surface.
 
 *Unclassified · public/releasable information only.*

@@ -129,4 +129,4 @@ The premise gate moved false-answer **22.1% → 15.8%** at a rise in over-refusa
 
 ## The service behind it
 
-**Anchor** — [github.com/jeranaias/anchor](https://github.com/jeranaias/anchor), Apache-2.0, offline. Runs on a Jetson Orin Nano; holds 13 publications and 4,230 paragraphs (all publicly releasable, screened before ingest). Access details (SSH, tunnel, ops scripts) are in the **Cold Bore plan (ACCESS)** and the **Range Card (RUNBOOK)**. The tunnel is **not** persistent — if the tutor shows `source = fts`, re-run `ops/tunnel.sh`; the FTS fallback is graceful if it drops mid-demo.
+**Anchor** — [github.com/groundworklms/anchor](https://github.com/groundworklms/anchor), Apache-2.0, offline. Runs on a Jetson Orin Nano; holds 13 publications and 4,230 paragraphs (all publicly releasable, screened before ingest). Access details (SSH, tunnel, ops scripts) are in the **Cold Bore plan (ACCESS)** and the **Range Card (RUNBOOK)**. The tunnel is **not** persistent — if the tutor shows `source = fts`, re-run `ops/tunnel.sh`; the FTS fallback is graceful if it drops mid-demo.

@@ -42,7 +42,7 @@ the platform honest.
 **Gameday tasks (engineering):**
 - Bring Anchor up + tunnel; run `ops/orin-check.sh` each morning (all green before anyone demos).
 - Wire the four integration sequences (see RANGE-CARD.md) — Studio→Quarry+Coursewright+Anchor; Ask→Sourcerer+Anchor+Understudy; Mastery→Whetstone; Improve→Sextant/Hotwash.
-- Consume the 12 soldiers (`npm i github:jeranaias/<repo>`), keep the cite-or-refuse guarantee enforced.
+- Consume the 12 soldiers (`npm i github:groundworklms/<repo>`), keep the cite-or-refuse guarantee enforced.
 - Prove offline (pull the network; tutor still answers; refusal still fires).
 **Gameday tasks (content & SME — the guardrail):**
 - Source and **screen for releasability** the 28xx / 06xx doctrine (POIs, outlines, sample assessments); run ingest (`quarry`) → the Anchor corpus. Track it on the corpus board (COLD-BORE.md).

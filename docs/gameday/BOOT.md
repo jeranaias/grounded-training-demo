@@ -62,7 +62,7 @@ training platform (SchoolCircleLMS). Do the work; report status; stop before any
 
 1. Ensure Git, Node 18+, and Claude Code are installed (install what's missing, Windows).
 2. Clone and read the spec:
-   git clone https://github.com/jeranaias/SchoolCircleLMS   (if that 404s, use
+   git clone https://github.com/groundworklms/SchoolCircleLMS   (if that 404s, use
    https://github.com/jeranaias/grounded-training-demo and read its docs/ folder).
    Read docs/gameday/RANGE-CARD.md, docs/gameday/COLD-BORE.md, then docs/03-data-model.md,
    docs/02-architecture.md, docs/05-arsenal-contracts.md.

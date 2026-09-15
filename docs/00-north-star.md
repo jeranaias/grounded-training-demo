@@ -82,7 +82,7 @@ Insight is **aggregate by construction** — the class view is a `GROUP BY` over
 | **Waypoint** | Learner · profile: a "how do I learn?" survey → per-learner and per-class lesson-planning guidance. |
 | **Understudy** | Both · gate: a doctrine-bound agent + a fidelity benchmark that keeps answers on the leash. |
 
-All twelve are public, Apache-2.0, tested, and CI-green under `github.com/jeranaias`. Exact install/exports/contracts: [05-arsenal-contracts.md](05-arsenal-contracts.md).
+All twelve are public, Apache-2.0, tested, and CI-green under `github.com/groundworklms`. Exact install/exports/contracts: [05-arsenal-contracts.md](05-arsenal-contracts.md).
 
 ---
 

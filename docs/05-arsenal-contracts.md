@@ -7,18 +7,18 @@ another — they compose because their inputs and outputs are just JSON.
 
 ## How to consume
 
-These are public GitHub repos under **github.com/jeranaias** (Apache-2.0). They are **not** npm-published.
+These are public GitHub repos under **github.com/groundworklms** (Apache-2.0). They are **not** npm-published.
 Add each piece you wire as a git dependency:
 
 ```bash
-npm i github:jeranaias/quarry github:jeranaias/coursewright github:jeranaias/sourcerer \
-      github:jeranaias/rubricon github:jeranaias/whetstone github:jeranaias/sextant \
-      github:jeranaias/understudy github:jeranaias/cartridge github:jeranaias/cadence \
-      github:jeranaias/hotwash github:jeranaias/waypoint
+npm i github:groundworklms/quarry github:groundworklms/coursewright github:groundworklms/sourcerer \
+      github:groundworklms/rubricon github:groundworklms/whetstone github:groundworklms/sextant \
+      github:groundworklms/understudy github:groundworklms/cartridge github:groundworklms/cadence \
+      github:groundworklms/hotwash github:groundworklms/waypoint
 ```
 
 - **ESM only, Node 18+.** Import from the package root, e.g. `import { buildCourse } from 'coursewright'`.
-- Alternatives: pin a commit (`github:jeranaias/rubricon#<sha>`), add as git submodules, or vendor the
+- Alternatives: pin a commit (`github:groundworklms/rubricon#<sha>`), add as git submodules, or vendor the
   `src/` if the enclave blocks git installs.
 - **Anchor is not an npm import.** It is a separate offline HTTP service on the Jetson Orin, reached
   over `DOCTRINE_BASE_URL` — see `04-grounding-and-anchor.md`.

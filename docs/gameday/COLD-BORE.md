@@ -57,7 +57,7 @@ Each is the spine, bound to a different input and output. Rivals = teams already
 | **#12 AI Tutor** | Personalized | 3 | corpus → cited answer, or honest refusal | Built |
 | **#9 PME Mastery Eval** | Perf Assessment | 0 | ELOs → rubric *(reuses #1)* + discuss-to-mastery → LMS | Built · ELO-swap |
 
-**Beyond the five:** #17 Red Cell (Wargaming) is built as a standalone repo — [Understudy](https://github.com/jeranaias/understudy) — and **set aside**. And two more of the chief instructor's asks now have repos of their own: [Cadence](https://github.com/jeranaias/cadence) (adaptive study plan, three COAs) and [Hotwash](https://github.com/jeranaias/hotwash) (automated course AAR) — the study-plan and after-action gaps from the schoolhouse brief, filled.
+**Beyond the five:** #17 Red Cell (Wargaming) is built as a standalone repo — [Understudy](https://github.com/groundworklms/understudy) — and **set aside**. And two more of the chief instructor's asks now have repos of their own: [Cadence](https://github.com/groundworklms/cadence) (adaptive study plan, three COAs) and [Hotwash](https://github.com/groundworklms/hotwash) (automated course AAR) — the study-plan and after-action gaps from the schoolhouse brief, filled.
 
 ---
 
@@ -67,18 +67,18 @@ Twelve standalone Apache-2.0 products — each useful on its own, none referenci
 
 | Repo | Link | Description | Tag |
 | --- | --- | --- | --- |
-| **Anchor** | [github.com/jeranaias/anchor](https://github.com/jeranaias/anchor) | Offline grounding engine — hybrid retrieval · cite-or-refuse · HHEM verification, on the edge. | grounds everything |
-| **⛏️ Quarry** | [github.com/jeranaias/quarry](https://github.com/jeranaias/quarry) | Dense PDFs → coordinate-aware text, retrieval-ready chunks, structured tasks + outline. | ingestion |
-| **📏 Rubricon** | [github.com/jeranaias/rubricon](https://github.com/jeranaias/rubricon) | Standards → BARS rubrics; verifies grounding + inter-rater reliability (Cohen's/weighted/Fleiss' κ). | use case #1 |
-| **📐 Coursewright** | [github.com/jeranaias/coursewright](https://github.com/jeranaias/coursewright) | Objectives + sources → a full cited course (lessons · tests · scenario · summary) as JSON. | #13 · #16 |
-| **🔮 Sourcerer** | [github.com/jeranaias/sourcerer](https://github.com/jeranaias/sourcerer) | Cite-or-refuse Q&A over your docs, with a faithfulness check on every answer. | #12 |
-| **🪨 Whetstone** | [github.com/jeranaias/whetstone](https://github.com/jeranaias/whetstone) | Conversational discuss-to-mastery against a rubric, grounded, with a mastery report. | #9 |
-| **🧭 Sextant** | [github.com/jeranaias/sextant](https://github.com/jeranaias/sextant) | Learning artifacts → learning gain, class gaps, competency evidence (Bloom's). | #6 · #14 |
-| **🎭 Understudy** | [github.com/jeranaias/understudy](https://github.com/jeranaias/understudy) | A doctrine-bound agent + a fidelity benchmark — answers in-doctrine or refuses, scores its own fidelity. | #17 · fidelity gate |
-| **🎴 Cartridge** | [github.com/jeranaias/cartridge](https://github.com/jeranaias/cartridge) | A course → a SCORM 1.2/2004 cartridge that drops into any LMS and reports scores. | MarineNet export |
-| **📅 Cadence** | [github.com/jeranaias/cadence](https://github.com/jeranaias/cadence) | Syllabus + calendar → a study plan across three COAs (catch up / maintain / get ahead), with an .ics calendar export + reminders. | study-plan gap-fill |
-| **🔥 Hotwash** | [github.com/jeranaias/hotwash](https://github.com/jeranaias/hotwash) | End-of-course critiques → a ranked AAR worklist: sustain / improve, short- vs long-term, across class iterations. | course-AAR gap-fill |
-| **🧭 Waypoint** | [github.com/jeranaias/waypoint](https://github.com/jeranaias/waypoint) | "How do I learn?" survey → per-learner and per-class lesson-planning guidance for faculty. | learner-profile gap-fill |
+| **Anchor** | [github.com/groundworklms/anchor](https://github.com/groundworklms/anchor) | Offline grounding engine — hybrid retrieval · cite-or-refuse · HHEM verification, on the edge. | grounds everything |
+| **⛏️ Quarry** | [github.com/groundworklms/quarry](https://github.com/groundworklms/quarry) | Dense PDFs → coordinate-aware text, retrieval-ready chunks, structured tasks + outline. | ingestion |
+| **📏 Rubricon** | [github.com/groundworklms/rubricon](https://github.com/groundworklms/rubricon) | Standards → BARS rubrics; verifies grounding + inter-rater reliability (Cohen's/weighted/Fleiss' κ). | use case #1 |
+| **📐 Coursewright** | [github.com/groundworklms/coursewright](https://github.com/groundworklms/coursewright) | Objectives + sources → a full cited course (lessons · tests · scenario · summary) as JSON. | #13 · #16 |
+| **🔮 Sourcerer** | [github.com/groundworklms/sourcerer](https://github.com/groundworklms/sourcerer) | Cite-or-refuse Q&A over your docs, with a faithfulness check on every answer. | #12 |
+| **🪨 Whetstone** | [github.com/groundworklms/whetstone](https://github.com/groundworklms/whetstone) | Conversational discuss-to-mastery against a rubric, grounded, with a mastery report. | #9 |
+| **🧭 Sextant** | [github.com/groundworklms/sextant](https://github.com/groundworklms/sextant) | Learning artifacts → learning gain, class gaps, competency evidence (Bloom's). | #6 · #14 |
+| **🎭 Understudy** | [github.com/groundworklms/understudy](https://github.com/groundworklms/understudy) | A doctrine-bound agent + a fidelity benchmark — answers in-doctrine or refuses, scores its own fidelity. | #17 · fidelity gate |
+| **🎴 Cartridge** | [github.com/groundworklms/cartridge](https://github.com/groundworklms/cartridge) | A course → a SCORM 1.2/2004 cartridge that drops into any LMS and reports scores. | MarineNet export |
+| **📅 Cadence** | [github.com/groundworklms/cadence](https://github.com/groundworklms/cadence) | Syllabus + calendar → a study plan across three COAs (catch up / maintain / get ahead), with an .ics calendar export + reminders. | study-plan gap-fill |
+| **🔥 Hotwash** | [github.com/groundworklms/hotwash](https://github.com/groundworklms/hotwash) | End-of-course critiques → a ranked AAR worklist: sustain / improve, short- vs long-term, across class iterations. | course-AAR gap-fill |
+| **🧭 Waypoint** | [github.com/groundworklms/waypoint](https://github.com/groundworklms/waypoint) | "How do I learn?" survey → per-learner and per-class lesson-planning guidance for faculty. | learner-profile gap-fill |
 
 The thirteenth piece is **SchoolCircle** — the instructor/learner host. It stays its own app; the arsenal are the parts it fields.
 
@@ -88,14 +88,14 @@ The thirteenth piece is **SchoolCircle** — the instructor/learner host. It sta
 
 The connective tissue is **plain-JSON contracts**, not cross-imports — the pieces compose without knowing about each other. Objectives → passages + citations → course JSON → rubric JSON → attempts flow between them; SchoolCircle orchestrates, Anchor grounds.
 
-1. **Ground.** Bring up [Anchor](https://github.com/jeranaias/anchor) on the Orin (offline), open the tunnel (`ops/tunnel.sh`), and ingest the corpus with [Quarry](https://github.com/jeranaias/quarry) → chunks + tasks.
-2. **Author.** SchoolCircle calls [Coursewright](https://github.com/jeranaias/coursewright) (objectives+passages → course) and [Rubricon](https://github.com/jeranaias/rubricon) (standard → BARS), grounded through Anchor; the instructor reviews.
-3. **Deliver.** Learners hit [Sourcerer](https://github.com/jeranaias/sourcerer) (cited tutor / refusal) and [Whetstone](https://github.com/jeranaias/whetstone) (discuss-to-mastery) — both cite-or-refuse, offline-capable.
-4. **Measure.** [Sextant](https://github.com/jeranaias/sextant) turns the resulting attempts + sessions into learning gain, gaps, and competency evidence for the instructor's view.
-5. **Plan.** [Cadence](https://github.com/jeranaias/cadence) turns a syllabus + calendar into a study plan across three COAs, exported to the learner's calendar (.ics) with reminders.
-6. **Improve.** End-of-course critiques + Sextant's trends feed [Hotwash](https://github.com/jeranaias/hotwash) → a ranked AAR worklist that sharpens the next iteration.
-7. **Export.** Any course → [Cartridge](https://github.com/jeranaias/cartridge) → a SCORM cartridge that drops into MarineNet / Moodle and reports completion + score.
-8. **Wargame (set aside).** [Understudy](https://github.com/jeranaias/understudy) stands up a doctrine-bound cell + a fidelity benchmark — claimed as its own artifact, off the live critical path.
+1. **Ground.** Bring up [Anchor](https://github.com/groundworklms/anchor) on the Orin (offline), open the tunnel (`ops/tunnel.sh`), and ingest the corpus with [Quarry](https://github.com/groundworklms/quarry) → chunks + tasks.
+2. **Author.** SchoolCircle calls [Coursewright](https://github.com/groundworklms/coursewright) (objectives+passages → course) and [Rubricon](https://github.com/groundworklms/rubricon) (standard → BARS), grounded through Anchor; the instructor reviews.
+3. **Deliver.** Learners hit [Sourcerer](https://github.com/groundworklms/sourcerer) (cited tutor / refusal) and [Whetstone](https://github.com/groundworklms/whetstone) (discuss-to-mastery) — both cite-or-refuse, offline-capable.
+4. **Measure.** [Sextant](https://github.com/groundworklms/sextant) turns the resulting attempts + sessions into learning gain, gaps, and competency evidence for the instructor's view.
+5. **Plan.** [Cadence](https://github.com/groundworklms/cadence) turns a syllabus + calendar into a study plan across three COAs, exported to the learner's calendar (.ics) with reminders.
+6. **Improve.** End-of-course critiques + Sextant's trends feed [Hotwash](https://github.com/groundworklms/hotwash) → a ranked AAR worklist that sharpens the next iteration.
+7. **Export.** Any course → [Cartridge](https://github.com/groundworklms/cartridge) → a SCORM cartridge that drops into MarineNet / Moodle and reports completion + score.
+8. **Wargame (set aside).** [Understudy](https://github.com/groundworklms/understudy) stands up a doctrine-bound cell + a fidelity benchmark — claimed as its own artifact, off the live critical path.
 
 Gameday order: `clone → npm install → wire env (OpenRouter key · DOCTRINE_BASE_URL) → docker + npm run dev → ops/orin-check → run the show`. The build is **wiring, not inventing** — every part is already tested and green.
 
@@ -113,7 +113,7 @@ The full design + architecture spec lives as a documentation stack — **[github
 | **Consume** | The 11 npm soldiers install straight from GitHub; Anchor is the HTTP service. |
 
 ```bash
-npm i github:jeranaias/{quarry,rubricon,coursewright,sourcerer,whetstone,sextant,understudy,cartridge,cadence,hotwash,waypoint}
+npm i github:groundworklms/{quarry,rubricon,coursewright,sourcerer,whetstone,sextant,understudy,cartridge,cadence,hotwash,waypoint}
 ```
 
 ```bash
@@ -170,7 +170,7 @@ Momentum going into Day 1 — everything here is done, tested, and committed loc
 - [x] **#9 Mastery agent — built (stand-in).** Grounded discuss-to-mastery at `/learn/mastery`: derives a rubric from the objective, probes, scores each answer, coaches the gap, advances, records a score for the LMS. Proven weak→developing, strong→mastered. Swaps to real 8670 ELOs on MCeLE access.
 - [x] **Offline VERIFIED.** Broke the cloud key: tutor still answered via Anchor, refusal still fired, courses still rendered, generation failed gracefully. Zero external assets. Runbook: `ops/OFFLINE.md`.
 - [x] **Roles & auth — built.** Instructor vs. learner behind one swappable seam (`lib/auth.js`) → LTI 1.3 / SSO / CAC. Tabs filter by role; Studio/Rubrics/Insight guarded server-side. Verified by URL.
-- [x] **Gap-fills built — Cadence & Hotwash.** The chief instructor's two open asks now have real, tested repos: **Cadence** (syllabus+calendar → 3-COA study plan + .ics, 17 tests) and **Hotwash** (course critiques → ranked AAR across iterations, 16 tests). **Public & green** — `github.com/jeranaias/cadence · /hotwash`.
+- [x] **Gap-fills built — Cadence & Hotwash.** The chief instructor's two open asks now have real, tested repos: **Cadence** (syllabus+calendar → 3-COA study plan + .ics, 17 tests) and **Hotwash** (course critiques → ranked AAR across iterations, 16 tests). **Public & green** — `github.com/groundworklms/cadence · /hotwash`.
 - [x] **Run-of-show REHEARSED.** All beats pass live end-to-end: generate · cited answer + refusal (Anchor/HHEM) · rubric · mastery · SCORM export. Demo-day gotcha caught: the Anchor tunnel isn't persistent — run `ops/tunnel.sh` at start (fallback to FTS is graceful if it drops).
 - [x] **Public showcase refreshed.** jeranaias.github.io/grounded-training-demo — platform landing, real grounded output, and the linked arsenal; the full interactive instructor + student system at `/app.html` (with a live Ask-tutor widget and a QA issue-reporter).
 - [x] **BARS proven on real doctrine.** Anchors traceable to source performance-steps; vague standards correctly flag for SME definition rather than inventing criteria.

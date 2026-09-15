@@ -33,7 +33,7 @@ into the new repo on day one** so the knowledge travels with the code.
 
 ## The arsenal
 
-Twelve standalone, Apache-2.0, tested repos under [github.com/jeranaias](https://github.com/jeranaias) —
+Twelve standalone, Apache-2.0, tested repos under [github.com/groundworklms](https://github.com/groundworklms) —
 `anchor · quarry · rubricon · coursewright · sourcerer · whetstone · sextant · understudy · cartridge ·
 cadence · hotwash · waypoint`. SchoolCircle orchestrates; Anchor grounds. See
 [05-arsenal-contracts](05-arsenal-contracts.md).
